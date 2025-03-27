@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
+	"github.com/ericsanto/apiAgroPlusUltraV1/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +17,7 @@ type AgricultureCultureController struct {
 
   agricultureCultureService *services.AgricultureCultureService
 }
+ 
 
 
 func NewAgricultureController(agricultureCultureService *services.AgricultureCultureService) *AgricultureCultureController {
@@ -30,11 +33,12 @@ func(a *AgricultureCultureController) GetAllAgriculturesCultures(c *gin.Context)
   if err != nil {
     c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
       Code: http.StatusInternalServerError,
-      Message: err.Error(),
+      Message: "Internal server error",
       Timestamp: time.Now().Format(time.RFC3339),
     })
-  }
-
+    log.Println(err.Error())
+    return 
+  }  
   c.JSON(http.StatusOK, agricultureCultures)
 }
 
@@ -45,23 +49,113 @@ func(a *AgricultureCultureController) PostAgricultureCulture(c *gin.Context) {
   if err := c.ShouldBindJSON(&agricultureCultureRequest); err != nil {
     c.JSON(http.StatusBadRequest, myerror.ErrorApp{
       Code: http.StatusBadRequest,
-      Message: err.Error(),
+      Message: "Invalid request body",
+      Timestamp: time.Now().Format(time.RFC3339),
+    })
+    log.Println(err.Error())
+    return
+  }
+
+
+  valid, err := utils.ValidateFieldErrors422UnprocessableEntity(agricultureCultureRequest)
+
+  if err != nil {
+    log.Println(err.Error())
+    return
+  }
+
+  if len(valid) >0 {
+    c.JSON(http.StatusUnprocessableEntity, myerror.ErrorApp{
+    Code: http.StatusUnprocessableEntity,
+    Message: valid,
+    Timestamp: time.Now().Format(time.RFC3339) ,
+
+    })
+    return
+  }
+
+
+  if err := a.agricultureCultureService.CreateAgricultureCulture(agricultureCultureRequest); err != nil {
+    c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
+      Code: http.StatusInternalServerError,
+      Message: "Internal server error",
+      Timestamp: time.Now().Format(time.RFC3339),
+    }) 
+    log.Println(err.Error())
+    return
+  }
+
+  c.Status(http.StatusCreated)
+
+}
+
+func(a *AgricultureCultureController) PutAgricultureCulture(c *gin.Context) {
+
+  val, exists := c.Get("validatedID")
+  if !exists{
+    return
+  }
+
+  id := val.(uint)
+
+  var agricultureCulture requests.AgricultureCultureRequest
+
+  if err := c.ShouldBindJSON(&agricultureCulture); err != nil {
+    c.JSON(http.StatusBadRequest, myerror.ErrorApp{
+      Code: http.StatusBadRequest,
+      Message: "Invalid request body",
+      Timestamp: time.Now().Format(time.RFC3339),
+    })
+    log.Println(err.Error())
+    return
+  }
+
+  valid, err := utils.ValidateFieldErrors422UnprocessableEntity(agricultureCulture)
+  if err != nil {
+    log.Println(err.Error())
+    return
+  }
+
+  if len(valid) > 0 {
+    c.JSON(http.StatusUnprocessableEntity, myerror.ErrorApp{
+      Code: http.StatusUnprocessableEntity,
+      Message: valid,
       Timestamp: time.Now().Format(time.RFC3339),
     })
     return
   }
 
 
-
-  if err := a.agricultureCultureService.CreateAgricultureCulture(agricultureCultureRequest); err != nil {
-    c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
-      Code: http.StatusInternalServerError,
-      Message: err.Error(),
+  if err := a.agricultureCultureService.PutAgricultureCulture(id, agricultureCulture); err != nil {
+    c.JSON(http.StatusNotFound, myerror.ErrorApp{
+      Code: http.StatusNotFound,
+      Message: "Id not found",
       Timestamp: time.Now().Format(time.RFC3339),
-    }) 
+    })
+    log.Println(err.Error())
     return
   }
 
-  c.Status(http.StatusCreated)
+  c.Status(http.StatusOK)
+}
 
+func(a *AgricultureCultureController) DeleteAgricultureCulture(c *gin.Context) {
+
+  val, exists := c.Get("validatedID")
+  if !exists {
+    return
+  }
+
+  id := val.(uint)
+
+  if err := a.agricultureCultureService.DeleteAgricultureCulture(id); err != nil {
+    c.JSON(http.StatusNotFound, myerror.ErrorApp{
+      Code: http.StatusNotFound,
+      Message: "id not found",
+      Timestamp: time.Now().Format(time.RFC3339),
+    })
+    return
+  }
+
+  c.Status(http.StatusNoContent)
 }

@@ -5,7 +5,7 @@ import "fmt"
 
 type ErrorApp struct {
 
-  Message   string  `json:"message"`
+  Message   interface{}  `json:"message"`
   Code      uint     `json:"code"`
   Timestamp string  `json:"timestamp"`
 

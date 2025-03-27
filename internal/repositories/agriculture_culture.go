@@ -57,3 +57,33 @@ func(a *AgricultureCultureRepository) Create(agriculutreCulture *entities.Agricu
 }
 
 
+func(r *AgricultureCultureRepository) Update(id uint, agricultureCultureEntity entities.AgricultureCultureEntity) error {
+
+  agricultureCultureExists, err := r.FindById(id)
+  if err != nil {
+    return fmt.Errorf(err.Error())
+  }
+
+  result := r.db.Model(&entities.AgricultureCultureEntity{}).Where("id = ?", agricultureCultureExists.Id).Updates(agricultureCultureEntity) 
+  if result.Error != nil {
+    return fmt.Errorf("Erro ao atualizar cultura agrícola: %w", result.Error) 
+  }
+  
+  return nil
+}
+
+func(r *AgricultureCultureRepository) Delete(id uint) error {
+
+  agricultureCultureExists, err := r.FindById(id)
+  if err != nil {
+    return fmt.Errorf(err.Error())
+  }
+
+  result := r.db.Where("id = ?", agricultureCultureExists.Id).Delete(&entities.AgricultureCultureEntity{})
+  if result.Error != nil {
+    return fmt.Errorf("Erro no repositório: %w", result.Error)
+  }
+
+  return nil
+}
+

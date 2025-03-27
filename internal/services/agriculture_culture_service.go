@@ -98,8 +98,8 @@ func(a *AgricultureCultureService) CreateAgricultureCulture(agricultureCulture r
     MaxTemperature: agricultureCulture.MaxTemperature,
     MinTemperature: agricultureCulture.MinTemperature,
     ExcellentTemperature: agricultureCulture.ExcellentTemperature,
-    WeeklyWaterRequirememntMax: agricultureCulture.WeeklyWaterRequirememntMax,
-    WeeklyWaterRequirememntMin: agricultureCulture.WeeklyWaterRequirememntMin,
+    WeeklyWaterRequirememntMax: agricultureCulture.WeeklyWaterRequirementMax,
+    WeeklyWaterRequirememntMin: agricultureCulture.WeeklyWaterRequirementMin,
     SunlightRequirement: agricultureCulture.SunlightRequirement,
   }
 
@@ -109,5 +109,37 @@ func(a *AgricultureCultureService) CreateAgricultureCulture(agricultureCulture r
     return fmt.Errorf("Erro ao criar cultura agrícola no repositório: %w", err)
   }
 
+  return nil
+}
+
+func(a *AgricultureCultureService) PutAgricultureCulture(id uint, agricultureCulture requests.AgricultureCultureRequest) error {
+
+  agricultureCultureEntity := entities.AgricultureCultureEntity{
+    Name: agricultureCulture.Name,
+    NameCientific: agricultureCulture.NameCientific,
+    SoilTypeId: agricultureCulture.SoilTypeId,
+    PhIdealSoil: agricultureCulture.PhIdealSoil,
+    MaxTemperature: agricultureCulture.MaxTemperature,
+    MinTemperature: agricultureCulture.MinTemperature,
+    ExcellentTemperature: agricultureCulture.ExcellentTemperature,
+    WeeklyWaterRequirememntMax: agricultureCulture.WeeklyWaterRequirementMax,
+    WeeklyWaterRequirememntMin: agricultureCulture.WeeklyWaterRequirementMin,
+    SunlightRequirement: agricultureCulture.SunlightRequirement,
+  }
+ 
+  if err := a.agricultureRepository.Update(id, agricultureCultureEntity); err != nil {
+    return fmt.Errorf("Erro ao atualizar cultura agrícola no repositório %w", err)
+  }  
+
+  return nil
+
+}
+
+func(a *AgricultureCultureService) DeleteAgricultureCulture(id uint) error {
+
+  if err := a.agricultureRepository.Delete(id); err != nil {
+    return fmt.Errorf(err.Error())
+  }
+  
   return nil
 }

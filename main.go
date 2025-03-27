@@ -10,7 +10,7 @@ func main() {
 
   config.Conect()
 
-  routes := routes.Routes()
+  routes := routes.SetupRoutes() 
 
   routes.Run(":8080")
 
