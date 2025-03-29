@@ -11,14 +11,14 @@ var DB *gorm.DB
 
 func Conect() error {
 
-  dsn := "host=localhost user=teste password=teste dbname=teste port=5432 sslmode=disable"
+  dsn := "host=db user=go password=go dbname=go port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Falha ao conectar ao banco de dados")
 	}
 
 	// Migrar (criar tabelas automaticamente)
-	db.AutoMigrate(&entities.SoilTypeEntity{}, &entities.AgricultureCultureEntity{})
+	db.AutoMigrate(&entities.SoilTypeEntity{}, &entities.AgricultureCultureEntity{}, &entities.TypePestEntity{}, &entities.PestEntity{})
 
   DB = db
 
