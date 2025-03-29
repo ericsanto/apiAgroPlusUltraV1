@@ -14,7 +14,7 @@ func ValidateIdParam(id string) gin.HandlerFunc {
   
   return func(c *gin.Context) {
 
-    idStr := c.Param(id)
+    idStr := c.Param("id")
 
     idUint, err := strconv.ParseUint(idStr, 10, 32)
     if err != nil {
