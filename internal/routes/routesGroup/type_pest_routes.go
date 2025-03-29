@@ -16,7 +16,7 @@ func SetupRoutesTypePest(r *gin.Engine) {
   typePestService := services.NewTypePestService(typePestRepository)
   typePestController := controllers.NewTypePestController(typePestService) 
 
-  typePests := r.Group("/v1/pragas")
+  typePests := r.Group("/v1/tipos-de-pragas")
   typePests.GET("/", typePestController.GetAllTypePestController)
   typePests.GET("/:id", middlewares.ValidateIdParam("id"), typePestController.GetAllTypePestFindByIdController)
   typePests.POST("/", typePestController.PostTypePestController)
