@@ -18,9 +18,9 @@ func SetupRouterAgricultureCulture(r *gin.Engine){
 
   setupRouterAgricultureCulture := r.Group("/v1/culturas-agricolas")
 
-  setupRouterAgricultureCulture.GET("/", agricultureCultureHandler.GetAllAgriculturesCultures)
-  setupRouterAgricultureCulture.POST("/", agricultureCultureHandler.PostAgricultureCulture)
-  setupRouterAgricultureCulture.PUT("/:id", middlewares.ValidateIdParam("id"), agricultureCultureHandler.PutAgricultureCulture)
-  setupRouterAgricultureCulture.DELETE("/:id", middlewares.ValidateIdParam("id"), agricultureCultureHandler.DeleteAgricultureCulture)
+  setupRouterAgricultureCulture.GET("/", agricultureCultureHandler.GetAllAgriculturesCulturesController)
+  setupRouterAgricultureCulture.POST("/", agricultureCultureHandler.PostAgricultureCultureController)
+  setupRouterAgricultureCulture.PUT("/:id", middlewares.ValidateIdParam("id"), agricultureCultureHandler.PutAgricultureCultureController)
+  setupRouterAgricultureCulture.DELETE("/:id", middlewares.ValidateIdParam("id"), agricultureCultureHandler.DeleteAgricultureCultureController)
  
 }
