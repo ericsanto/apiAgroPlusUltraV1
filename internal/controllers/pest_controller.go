@@ -13,30 +13,31 @@ import (
 )
 
 
-type TypePestController struct {
+type PestController struct {
 
-  typePestService *services.TypePestService
+  pestService *services.PestService
 }
 
-func NewTypePestController(typePestService *services.TypePestService) *TypePestController {
-  return &TypePestController{typePestService:typePestService}
+func NewPestController(pestService *services.PestService) *PestController {
+  return &PestController{pestService:pestService}
 }
 
-func(t *TypePestController) GetAllTypePestController(c *gin.Context) {
+func(p *PestController) GetAllPestController(c *gin.Context) {
 
-  pests, err := t.typePestService.GetAllTypePest()
+  pestsResponse, err := p.pestService.GetAllPest()
   if err != nil {
     c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
       Code: http.StatusInternalServerError,
       Message: "Não foi possível buscar pragas",
       Timestamp: time.Now().Format(time.RFC3339),
     })
+    return
   }
 
-  c.JSON(http.StatusOK, pests)
+  c.JSON(http.StatusOK, pestsResponse)
 }
 
-func(t *TypePestController) GetAllTypePestFindByIdController(c *gin.Context) {
+func(p *PestController) GetFindByIdPestController(c *gin.Context) {
 
   val, exists := c.Get("validatedID")
   if !exists {
@@ -45,7 +46,7 @@ func(t *TypePestController) GetAllTypePestFindByIdController(c *gin.Context) {
 
   id := val.(uint)
 
-  pest, err := t.typePestService.GetTypePestFindById(id)
+  pestResponse, err := p.pestService.GetFindByIdPest(id)
   if err != nil {
     c.JSON(http.StatusNotFound, myerror.ErrorApp{
       Code: http.StatusNotFound,
@@ -55,14 +56,14 @@ func(t *TypePestController) GetAllTypePestFindByIdController(c *gin.Context) {
     return
   }
 
-  c.JSON(http.StatusOK, pest)
+  c.JSON(http.StatusOK, pestResponse)
 }
 
-func(t *TypePestController) PostTypePestController(c *gin.Context) {
+func(p *PestController) PostPestController(c *gin.Context) {
 
-  var pestRequest requests.TypePestRequest
+  var requestPest requests.PestRequest
 
-  if err := c.ShouldBindJSON(&pestRequest); err != nil {
+  if err := c.ShouldBindJSON(&requestPest); err != nil {
     c.JSON(http.StatusBadRequest, myerror.ErrorApp{
       Code: http.StatusBadRequest,
       Message: err.Error(),
@@ -71,18 +72,22 @@ func(t *TypePestController) PostTypePestController(c *gin.Context) {
     return
   }
 
-  validate, err := utils.ValidateFieldErrors422UnprocessableEntity(pestRequest)
+  val, err := utils.ValidateFieldErrors422UnprocessableEntity(requestPest)
   if err != nil {
+    log.Print(err)
+    return
+  }
+
+  if len(val) > 0 {
     c.JSON(http.StatusUnprocessableEntity, myerror.ErrorApp{
       Code: http.StatusUnprocessableEntity,
-      Message: validate,
+      Message: val,
       Timestamp: time.Now().Format(time.RFC3339),
     })
     return
   }
 
-  if err := t.typePestService.PostTypePest(pestRequest); err != nil {
-
+  if err := p.pestService.PostPest(requestPest); err != nil {
     c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
       Code: http.StatusInternalServerError,
       Message: err.Error(),
@@ -94,7 +99,7 @@ func(t *TypePestController) PostTypePestController(c *gin.Context) {
   c.Status(http.StatusCreated)
 }
 
-func(t *TypePestController) PutTypePestController(c *gin.Context) {
+func(p *PestController) PutPestController(c *gin.Context) {
 
   val, exists := c.Get("validatedID")
   if !exists {
@@ -103,65 +108,62 @@ func(t *TypePestController) PutTypePestController(c *gin.Context) {
 
   id := val.(uint)
 
-  var pestRequest requests.TypePestRequest
+  var requesPest requests.PestRequest
 
-  if err := c.ShouldBindJSON(&pestRequest); err != nil {
+  if err := c.ShouldBindJSON(&requesPest); err != nil {
     c.JSON(http.StatusBadRequest, myerror.ErrorApp{
       Code: http.StatusBadRequest,
-      Message: "Body da requisição inválido!",
+      Message: err.Error(),
       Timestamp: time.Now().Format(time.RFC3339),
     })
     return
   }
 
-  validate, err := utils.ValidateFieldErrors422UnprocessableEntity(pestRequest)
+  valid, err := utils.ValidateFieldErrors422UnprocessableEntity(requesPest)
   if err != nil {
-    log.Println(err.Error())
+    log.Print(err)
     return
   }
 
-  if len(validate) > 0 {
+  if len(valid) > 0 {
     c.JSON(http.StatusUnprocessableEntity, myerror.ErrorApp{
       Code: http.StatusUnprocessableEntity,
-      Message: validate,
+      Message: val,
       Timestamp: time.Now().Format(time.RFC3339),
     })
     return
   }
 
-  if err := t.typePestService.PutTypePest(id, pestRequest); err != nil {
-    c.JSON(http.StatusNotFound, myerror.ErrorApp{
-      Code: http.StatusNotFound,
-      Message: "Não existe praga com esse id",
+  if err := p.pestService.PutPest(id, requesPest); err != nil {
+    log.Print(err)
+    c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
+      Code: http.StatusInternalServerError,
+      Message: "Erro interno no servidor",
       Timestamp: time.Now().Format(time.RFC3339),
     })
     return
   }
 
   c.Status(http.StatusOK)
-
 }
 
-
-func(t *TypePestController) DeleteTypePestController(c *gin.Context) {
+func(p *PestController) DeletePestController(c *gin.Context){
 
   val, exists := c.Get("validatedID")
-
-  if !exists {
-    return 
+  if !exists{
+    return
   }
 
   id := val.(uint)
 
-  if err := t.typePestService.DeleteTypePest(id); err != nil {
+  if err := p.pestService.DeletePest(id); err != nil {
     c.JSON(http.StatusNotFound, myerror.ErrorApp{
       Code: http.StatusNotFound,
-      Message: "Não existe praga com esse id",
+      Message: err.Error(),
       Timestamp: time.Now().Format(time.RFC3339),
     })
     return
   }
 
   c.Status(http.StatusNoContent)
-
 }

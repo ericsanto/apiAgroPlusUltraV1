@@ -12,11 +12,11 @@ import (
 
 type AgricultureCultureInterface interface {
 
-  FindAllAgricultureCulture() ([]responses.AgricultureCultureResponse, error)
-  FindByIdAgricultureCulture() (responses.AgricultureCultureResponse, error)
-  CreateAgricultureCulture(agricultureCulture responses.AgricultureCultureResponse) (error)
-  UpdateAgricultureCulture(id uint, agricultureCulture responses.AgricultureCultureResponse) (error)
-  DeleteAgricultureCulture(id uint) (error)
+  FindAllAgricultureCultureService() ([]responses.AgricultureCultureResponse, error)
+  FindByIdAgricultureCultureService() (responses.AgricultureCultureResponse, error)
+  CreateAgricultureCultureService(agricultureCulture requests.AgricultureCultureRequest) (error)
+  UpdateAgricultureCultureService(id uint, agricultureCulture requests.AgricultureCultureRequest) (error)
+  DeleteAgricultureCultureService(id uint) (error)
 }
 
 
@@ -30,10 +30,10 @@ func NewAgricultureCultureService(agricultureCultureRepository *repositories.Agr
   return &AgricultureCultureService{agricultureRepository: agricultureCultureRepository}
 }
 
-func(a *AgricultureCultureService) FindAllAgricultureCulture() ([]responses.AgricultureCultureResponse, error) {
+func(a *AgricultureCultureService) FindAllAgricultureCultureService() ([]responses.AgricultureCultureResponse, error) {
 
   var agriculturesCulturesResponses []responses.AgricultureCultureResponse
-  result, err := a.agricultureRepository.FindAll()
+  result, err := a.agricultureRepository.FindAllAgricultureCulture()
 
   if err != nil {
     return agriculturesCulturesResponses, fmt.Errorf("Erro ao buscar no repositório %w", err)
@@ -62,10 +62,10 @@ func(a *AgricultureCultureService) FindAllAgricultureCulture() ([]responses.Agri
   return agriculturesCulturesResponses, nil
 }
 
-func(a *AgricultureCultureService) FindByIdAgricultureCulture(id uint) (responses.AgricultureCultureResponse, error) {
+func(a *AgricultureCultureService) FindByIdAgricultureCultureService(id uint) (responses.AgricultureCultureResponse, error) {
 
   var agricultureCultureResponse responses.AgricultureCultureResponse
-  result, err := a.agricultureRepository.FindById(id)
+  result, err := a.agricultureRepository.FindByIdAgricultureCulture(id)
 
   if err != nil {
     return agricultureCultureResponse, fmt.Errorf("Erro ao buscar cultura agrícola com esse id no repositório: %w", err)
@@ -88,7 +88,7 @@ func(a *AgricultureCultureService) FindByIdAgricultureCulture(id uint) (response
   return agricultureCultureResponse, nil
 }
 
-func(a *AgricultureCultureService) CreateAgricultureCulture(agricultureCulture requests.AgricultureCultureRequest) error {
+func(a *AgricultureCultureService) CreateAgricultureCultureService(agricultureCulture requests.AgricultureCultureRequest) error {
 
   agricultureCultureEntity := entities.AgricultureCultureEntity{
     Name: agricultureCulture.Name,
@@ -103,7 +103,7 @@ func(a *AgricultureCultureService) CreateAgricultureCulture(agricultureCulture r
     SunlightRequirement: agricultureCulture.SunlightRequirement,
   }
 
-  err := a.agricultureRepository.Create(&agricultureCultureEntity)
+  err := a.agricultureRepository.CreateAgricultureCulture(&agricultureCultureEntity)
 
   if err != nil {
     return fmt.Errorf("Erro ao criar cultura agrícola no repositório: %w", err)
@@ -112,7 +112,7 @@ func(a *AgricultureCultureService) CreateAgricultureCulture(agricultureCulture r
   return nil
 }
 
-func(a *AgricultureCultureService) PutAgricultureCulture(id uint, agricultureCulture requests.AgricultureCultureRequest) error {
+func(a *AgricultureCultureService) PutAgricultureCultureService(id uint, agricultureCulture requests.AgricultureCultureRequest) error {
 
   agricultureCultureEntity := entities.AgricultureCultureEntity{
     Name: agricultureCulture.Name,
@@ -127,7 +127,7 @@ func(a *AgricultureCultureService) PutAgricultureCulture(id uint, agricultureCul
     SunlightRequirement: agricultureCulture.SunlightRequirement,
   }
  
-  if err := a.agricultureRepository.Update(id, agricultureCultureEntity); err != nil {
+  if err := a.agricultureRepository.UpdateAgricultureCulture(id, agricultureCultureEntity); err != nil {
     return fmt.Errorf("Erro ao atualizar cultura agrícola no repositório %w", err)
   }  
 
@@ -135,9 +135,9 @@ func(a *AgricultureCultureService) PutAgricultureCulture(id uint, agricultureCul
 
 }
 
-func(a *AgricultureCultureService) DeleteAgricultureCulture(id uint) error {
+func(a *AgricultureCultureService) DeleteAgricultureCultureService(id uint) error {
 
-  if err := a.agricultureRepository.Delete(id); err != nil {
+  if err := a.agricultureRepository.DeleteAgricultureCulture(id); err != nil {
     return fmt.Errorf(err.Error())
   }
   

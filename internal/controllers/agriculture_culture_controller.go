@@ -26,9 +26,9 @@ func NewAgricultureController(agricultureCultureService *services.AgricultureCul
 }
 
 
-func(a *AgricultureCultureController) GetAllAgriculturesCultures(c *gin.Context) {
+func(a *AgricultureCultureController) GetAllAgriculturesCulturesController(c *gin.Context) {
 
-  agricultureCultures, err := a.agricultureCultureService.FindAllAgricultureCulture()
+  agricultureCultures, err := a.agricultureCultureService.FindAllAgricultureCultureService()
 
   if err != nil {
     c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
@@ -42,7 +42,7 @@ func(a *AgricultureCultureController) GetAllAgriculturesCultures(c *gin.Context)
   c.JSON(http.StatusOK, agricultureCultures)
 }
 
-func(a *AgricultureCultureController) PostAgricultureCulture(c *gin.Context) {
+func(a *AgricultureCultureController) PostAgricultureCultureController(c *gin.Context) {
 
   var agricultureCultureRequest requests.AgricultureCultureRequest
 
@@ -75,7 +75,7 @@ func(a *AgricultureCultureController) PostAgricultureCulture(c *gin.Context) {
   }
 
 
-  if err := a.agricultureCultureService.CreateAgricultureCulture(agricultureCultureRequest); err != nil {
+  if err := a.agricultureCultureService.CreateAgricultureCultureService(agricultureCultureRequest); err != nil {
     c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
       Code: http.StatusInternalServerError,
       Message: "Internal server error",
@@ -89,7 +89,7 @@ func(a *AgricultureCultureController) PostAgricultureCulture(c *gin.Context) {
 
 }
 
-func(a *AgricultureCultureController) PutAgricultureCulture(c *gin.Context) {
+func(a *AgricultureCultureController) PutAgricultureCultureController(c *gin.Context) {
 
   val, exists := c.Get("validatedID")
   if !exists{
@@ -126,7 +126,7 @@ func(a *AgricultureCultureController) PutAgricultureCulture(c *gin.Context) {
   }
 
 
-  if err := a.agricultureCultureService.PutAgricultureCulture(id, agricultureCulture); err != nil {
+  if err := a.agricultureCultureService.PutAgricultureCultureService(id, agricultureCulture); err != nil {
     c.JSON(http.StatusNotFound, myerror.ErrorApp{
       Code: http.StatusNotFound,
       Message: "Id not found",
@@ -139,7 +139,7 @@ func(a *AgricultureCultureController) PutAgricultureCulture(c *gin.Context) {
   c.Status(http.StatusOK)
 }
 
-func(a *AgricultureCultureController) DeleteAgricultureCulture(c *gin.Context) {
+func(a *AgricultureCultureController) DeleteAgricultureCultureController(c *gin.Context) {
 
   val, exists := c.Get("validatedID")
   if !exists {
@@ -148,7 +148,7 @@ func(a *AgricultureCultureController) DeleteAgricultureCulture(c *gin.Context) {
 
   id := val.(uint)
 
-  if err := a.agricultureCultureService.DeleteAgricultureCulture(id); err != nil {
+  if err := a.agricultureCultureService.DeleteAgricultureCultureService(id); err != nil {
     c.JSON(http.StatusNotFound, myerror.ErrorApp{
       Code: http.StatusNotFound,
       Message: "id not found",
