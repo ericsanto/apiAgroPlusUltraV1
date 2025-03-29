@@ -33,7 +33,7 @@ func NewSoilTypeService(soilTypeRepository *repositories.SoilTypeRepository) *So
 func(s *SoilTypeService) GetAllSoilType() ([]responses.SoilTypeResponse, error) {
 
 
-  soilTypes, err := s.soilTypeRepository.FindAll()
+  soilTypes, err := s.soilTypeRepository.FindAllSoilType()
   if err != nil {
     log.Printf("Erro ao buscar todos os tipos de solo: %v", err)
     return nil, fmt.Errorf("Não foi possível buscar todos os tipos de solo: %w", err)  
@@ -60,7 +60,7 @@ func(s *SoilTypeService) GetSoilTypeFindById(id uint) (responses.SoilTypeRespons
   var soilTypeResponse responses.SoilTypeResponse
 
 
-  soilTypes, err := s.soilTypeRepository.FindById(id)
+  soilTypes, err := s.soilTypeRepository.FindByIdSoilType(id)
   if err != nil {
     log.Printf("Erro ao buscar tipo de solo: %v", err)
     return  soilTypeResponse, fmt.Errorf("Não foi possível buscar todos os tipos de solo: %w", err)  
@@ -83,7 +83,7 @@ func(s *SoilTypeService) CreateSoilType(requestSoilType requests.SoilTypeRequest
     Description: requestSoilType.Description,
   }
 
-  if err := s.soilTypeRepository.Create(&soilTypeModel); err != nil {
+  if err := s.soilTypeRepository.CreateSoilType(&soilTypeModel); err != nil {
     return fmt.Errorf("Erro ao criar tipo de solo: %w", err)
   }
 
@@ -98,7 +98,7 @@ func(s *SoilTypeService) PutSoilType(id uint, requestSoilType requests.SoilTypeR
     Description: requestSoilType.Description,
   }  
 
-  if err := s.soilTypeRepository.Update(id, soilTypeModel); err != nil {
+  if err := s.soilTypeRepository.UpdateSoilType(id, soilTypeModel); err != nil {
     return fmt.Errorf("Não foi possivel atualizar. Id não existe")
   }
 
@@ -107,7 +107,7 @@ func(s *SoilTypeService) PutSoilType(id uint, requestSoilType requests.SoilTypeR
 
 func(s *SoilTypeService) DeleteTypeSoil(id uint) error {
 
-  if err:= s.soilTypeRepository.Delete(id); err != nil {
+  if err:= s.soilTypeRepository.DeleteSoilType(id); err != nil {
    return fmt.Errorf("%w", err)
   }
 
