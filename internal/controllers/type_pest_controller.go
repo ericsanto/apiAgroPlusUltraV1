@@ -78,14 +78,17 @@ func(t *TypePestController) PostTypePestController(c *gin.Context) {
       Message: validate,
       Timestamp: time.Now().Format(time.RFC3339),
     })
+    return
   }
 
-  if err := t.typePestService.CreateTypePest(pestRequest); err != nil {
+  if err := t.typePestService.PostTypePest(pestRequest); err != nil {
+
     c.JSON(http.StatusInternalServerError, myerror.ErrorApp{
       Code: http.StatusInternalServerError,
       Message: err.Error(),
       Timestamp: time.Now().Format(time.RFC3339),
     })
+    return
   }
 
   c.Status(http.StatusCreated)
