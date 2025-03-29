@@ -10,6 +10,13 @@ import (
 
 )
 
+type TypePestInterface interface {
+  GetAllTypePest() ([]responses.TypePestResponse, error)
+  GetTypePestFindById(id uint) (responses.TypePestResponse, error)
+  PostTypePest(requestTypePest requests.TypePestRequest) error
+  PutTypePest(id uint, requestTypePest requests.SoilTypeRequest) error
+  DeleteTypePest(id uint)
+}
 
 type TypePestService struct {
 
@@ -59,7 +66,7 @@ func(s *TypePestService) GetTypePestFindById(id uint) (responses.TypePestRespons
   return typePest, nil
 }
 
-func(s *TypePestService) CreateTypePest(requestTypePest requests.TypePestRequest) error {
+func(s *TypePestService) PostTypePest(requestTypePest requests.TypePestRequest) error {
 
   typePestEntity := entities.TypePestEntity{
     Name: requestTypePest.Name,
