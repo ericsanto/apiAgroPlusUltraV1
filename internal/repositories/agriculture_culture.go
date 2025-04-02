@@ -8,90 +8,79 @@ import (
 )
 
 type AgricultureCultureInterface interface {
-  
-  FindAllAgricultureCulture() ([]entities.AgricultureCultureEntity, error)
-  FindByIdAgricultureCulture(id uint) (entities.AgricultureCultureEntity, error)
-  CreateAgricultureCulture(agricultureCulture *entities.AgricultureCultureEntity)
-  UpdateAgricultureCulture(id uint, agricultureCulture entities.AgricultureCultureEntity) error
-  DeleteAgricultureCulture(id uint)
+	FindAllAgricultureCulture() ([]entities.AgricultureCultureEntity, error)
+	FindByIdAgricultureCulture(id uint) (entities.AgricultureCultureEntity, error)
+	CreateAgricultureCulture(agricultureCulture *entities.AgricultureCultureEntity)
+	UpdateAgricultureCulture(id uint, agricultureCulture entities.AgricultureCultureEntity) error
+	DeleteAgricultureCulture(id uint)
 }
 
 type AgricultureCultureRepository struct {
-
-  db *gorm.DB
+	db *gorm.DB
 }
 
 func NewAgricultureCultureRepository(db *gorm.DB) *AgricultureCultureRepository {
 
-  return &AgricultureCultureRepository{db:db}
+	return &AgricultureCultureRepository{db: db}
 }
 
-func(a *AgricultureCultureRepository) FindAllAgricultureCulture() ([]entities.AgricultureCultureEntity, error) {
+func (a *AgricultureCultureRepository) FindAllAgricultureCulture() ([]entities.AgricultureCultureEntity, error) {
 
-  var agricultureCultures []entities.AgricultureCultureEntity
-  err := a.db.Find(&agricultureCultures)
+	var agricultureCultures []entities.AgricultureCultureEntity
+	if err := a.db.Find(&agricultureCultures).Error; err != nil {
+		return agricultureCultures, fmt.Errorf("erro ao buscar dados %v", err)
 
-  if err.Error != nil {
-    return agricultureCultures, fmt.Errorf("Erro ao buscar dados")
-  }
+	}
 
-  return agricultureCultures, nil
+	return agricultureCultures, nil
 
 }
 
-func(a *AgricultureCultureRepository) FindByIdAgricultureCulture(id uint) (entities.AgricultureCultureEntity, error) {
+func (a *AgricultureCultureRepository) FindByIdAgricultureCulture(id uint) (entities.AgricultureCultureEntity, error) {
 
-  var agricultureCulture entities.AgricultureCultureEntity
+	var agricultureCulture entities.AgricultureCultureEntity
 
-  err := a.db.First(&agricultureCulture, id)
+	if err := a.db.First(&agricultureCulture, id).Error; err != nil {
+		return agricultureCulture, fmt.Errorf("erro ao buscar cultura agrícola. Id não existe no banco de dados")
 
-  if err.Error != nil {
-    return agricultureCulture, fmt.Errorf("Erro ao buscar cultura agrícola. Id não existe no banco de dados")
-  }
+	}
 
-  return agricultureCulture, nil
+	return agricultureCulture, nil
 }
 
-func(a *AgricultureCultureRepository) CreateAgricultureCulture(agriculutreCulture *entities.AgricultureCultureEntity) error {
+func (a *AgricultureCultureRepository) CreateAgricultureCulture(agriculutreCulture *entities.AgricultureCultureEntity) error {
 
+	if err := a.db.Create(&agriculutreCulture).Error; err != nil {
+		return fmt.Errorf("não foi possivel salvar tipo de cultura no banco de dados %v", err)
+	}
 
-  err := a.db.Create(&agriculutreCulture)
-
-  if err.Error != nil {
-    return fmt.Errorf("Não foi possivel salvar tipo de cultura no banco de dados %w", err.Error)
-  }
-
-  return nil
+	return nil
 }
 
+func (r *AgricultureCultureRepository) UpdateAgricultureCulture(id uint, agricultureCultureEntity entities.AgricultureCultureEntity) error {
 
-func(r *AgricultureCultureRepository) UpdateAgricultureCulture(id uint, agricultureCultureEntity entities.AgricultureCultureEntity) error {
+	agricultureCulture, err := r.FindByIdAgricultureCulture(id)
+	if err != nil {
+		return fmt.Errorf("erro ao buscar cultura agricola: %v", err)
+	}
 
-  agricultureCultureExists, err := r.FindByIdAgricultureCulture(id)
-  if err != nil {
-    return fmt.Errorf(err.Error())
-  }
+	if err := r.db.Model(&entities.AgricultureCultureEntity{}).Where("id = ?", agricultureCulture.Id).Updates(agricultureCultureEntity).Error; err != nil {
+		return fmt.Errorf("erro ao atualizar cultura agrícola: %v", err)
+	}
 
-  result := r.db.Model(&entities.AgricultureCultureEntity{}).Where("id = ?", agricultureCultureExists.Id).Updates(agricultureCultureEntity) 
-  if result.Error != nil {
-    return fmt.Errorf("Erro ao atualizar cultura agrícola: %w", result.Error) 
-  }
-  
-  return nil
+	return nil
 }
 
-func(r *AgricultureCultureRepository) DeleteAgricultureCulture(id uint) error {
+func (r *AgricultureCultureRepository) DeleteAgricultureCulture(id uint) error {
 
-  agricultureCultureExists, err := r.FindByIdAgricultureCulture(id)
-  if err != nil {
-    return fmt.Errorf(err.Error())
-  }
+	agricultureCulture, err := r.FindByIdAgricultureCulture(id)
+	if err != nil {
+		return fmt.Errorf("erro ao buscar cultura agricola: %v", err)
+	}
 
-  result := r.db.Where("id = ?", agricultureCultureExists.Id).Delete(&entities.AgricultureCultureEntity{})
-  if result.Error != nil {
-    return fmt.Errorf("Erro no repositório: %w", result.Error)
-  }
+	if err := r.db.Where("id = ?", agricultureCulture.Id).Delete(&entities.AgricultureCultureEntity{}).Error; err != nil {
+		return fmt.Errorf("erro ao deletar cultura agricola: %v", err)
+	}
 
-  return nil
+	return nil
 }
-

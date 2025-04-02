@@ -15,6 +15,7 @@ func SetupRoutes() *gin.Engine {
   routesgroup.SetupRoutesSoilType(router)
   routesgroup.SetupRoutesTypePest(router)
   routesgroup.SetupRouterPest(router)
+  routesgroup.SetupRouterPestAgricultureCulture(router)
 
   return router
 }
