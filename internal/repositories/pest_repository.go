@@ -31,7 +31,7 @@ func (p *PestRepository) FindAllPest() ([]entities.PestEntity, error) {
 
 	err := p.db.Find(&entitiesPest)
 	if err.Error != nil {
-		return entitiesPest, fmt.Errorf("Erro ao buscar todas as pragas")
+		return entitiesPest, fmt.Errorf("erro ao buscar todas as pragas")
 	}
 
 	return entitiesPest, nil
@@ -43,7 +43,7 @@ func (p *PestRepository) FindByIdPest(id uint) (entities.PestEntity, error) {
 
 	if err := p.db.First(&pestEntity, id); err.Error != nil {
 		fmt.Println(err)
-		return pestEntity, fmt.Errorf("Erro ao buscar praga com o id fornecido")
+		return pestEntity, fmt.Errorf("erro ao buscar praga com o id fornecido")
 	}
 
 	return pestEntity, nil
@@ -54,7 +54,7 @@ func (p *PestRepository) CreatePest(entityPest entities.PestEntity) error {
 
 	if err := p.db.Create(&entityPest); err.Error != nil {
 		log.Print(err)
-		return fmt.Errorf("Erro ao criar Praga %w", err)
+		return fmt.Errorf("erro ao criar praga: %v", err)
 	}
 
 	return nil
@@ -64,11 +64,11 @@ func (p *PestRepository) UpdatePest(id uint, entityPest entities.PestEntity) err
 
 	existsPestEntity, err := p.FindByIdPest(id)
 	if err != nil {
-		return fmt.Errorf("Erro ao atualizar praga. Id não existe")
+		return fmt.Errorf("erro ao atualizar praga. Id não existe")
 	}
 
 	if err := p.db.Model(&entities.PestEntity{}).Where("id = ?", existsPestEntity.Id).Updates(entityPest); err.Error != nil {
-		return fmt.Errorf("Praga encontrada no banco de dados. Porém, não foi possível atualizá-la", err)
+		return fmt.Errorf("praga encontrada no banco de dados. Porém, não foi possível atualizá-la %v", err)
 	}
 
 	return nil
@@ -78,11 +78,11 @@ func (p *PestRepository) DeletePest(id uint) error {
 
 	existsPestEntity, err := p.FindByIdPest(id)
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return fmt.Errorf("%v", err)
 	}
 
 	if err := p.db.Delete(&existsPestEntity); err.Error != nil {
-		return fmt.Errorf("Praga encontrada no banco de dados. Porém, não foi possível atualizá-la: %w", err.Error)
+		return fmt.Errorf("praga encontrada no banco de dados. Porém, não foi possível atualizá-la: %v", err)
 	}
 
 	return nil

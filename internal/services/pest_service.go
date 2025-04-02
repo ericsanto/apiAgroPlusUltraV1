@@ -31,7 +31,7 @@ func (p *PestService) GetAllPest() ([]responses.PestResponse, error) {
 
 	result, err := p.pestRepository.FindAllPest()
 	if err != nil {
-		return responsesPests, fmt.Errorf("Erro: %w", err)
+		return responsesPests, fmt.Errorf("erro: %w", err)
 	}
 
 	for _, v := range result {
@@ -53,7 +53,7 @@ func (p *PestService) GetFindByIdPest(id uint) (responses.PestResponse, error) {
 
 	result, err := p.pestRepository.FindByIdPest(id)
 	if err != nil {
-		return responsePest, fmt.Errorf("Erro: %w", err)
+		return responsePest, fmt.Errorf("erro: %w", err)
 	}
 
 	responsePest = responses.PestResponse{
@@ -72,7 +72,7 @@ func (p *PestService) PostPest(requestPest requests.PestRequest) error {
 	}
 
 	if err := p.pestRepository.CreatePest(entityPest); err != nil {
-		return fmt.Errorf("Erro: %w", err)
+		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
@@ -86,7 +86,7 @@ func (p *PestService) PutPest(id uint, pestRequest requests.PestRequest) error {
 	}
 
 	if err := p.pestRepository.UpdatePest(id, pestEntity); err != nil {
-		return fmt.Errorf("Erro: %w", err)
+		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
@@ -95,7 +95,7 @@ func (p *PestService) PutPest(id uint, pestRequest requests.PestRequest) error {
 func (p *PestService) DeletePest(id uint) error {
 
 	if err := p.pestRepository.DeletePest(id); err != nil {
-		return fmt.Errorf(err.Error())
+		return fmt.Errorf("%v", err)
 	}
 
 	return nil
