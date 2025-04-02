@@ -123,10 +123,11 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 
 | Método | Rota                                                             | Descrição                                       |
 | ------ | ---------------------------------------------------------------- | ----------------------------------------------- |
-| GET    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=2` | Lista todas as relações entre pragas e culturas |
+| GET    | `/v1/pragas-das-culturas-agricolas`                              | Lista todas as relações entre pragas e culturas |
+| GET    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Lista uma realação entre praga e cultura        |
 | POST   | `/v1/pragas-das-culturas-agricolas`                              | Cria uma nova relação entre praga e cultura     |
-| PUT    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=2` | Atualiza uma relação entre praga e cultura      |
-| DELETE | `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=2` | Deleta uma relação entre praga e cultura        |
+| PUT    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Atualiza uma relação entre praga e cultura      |
+| DELETE | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Deleta uma relação entre praga e cultura        |
 
 
 
