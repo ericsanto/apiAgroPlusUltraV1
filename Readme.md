@@ -71,21 +71,64 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 
 ## 📡 Endpoints da API
 
-### 🌾 Culturas Agrícolas
-| Método | Rota                        | Descrição |
-|--------|-----------------------------|-----------|
-| `GET`  | `/v1/culturas-agricolas`    | Lista todas as culturas agrícolas |
-| `GET`  | `/v1/culturas-agricolas/{id}`| Detalha uma cultura agrícola específica |
-| `POST` | `/v1/culturas-agricolas`    | Cria uma nova cultura agrícola |
+## 🌱 Tipos de Solo
 
-### 🌱 Tipos de Solo
-| Método | Rota                         | Descrição |
-|--------|------------------------------|-----------|
-| `GET`  | `/v1/tipos-de-solo`          | Lista todos os tipos de solo |
-| `GET`  | `/v1/tipos-de-solo/{id}`     | Detalha um tipo de solo específico |
-| `POST` | `/v1/tipos-de-solo`          | Cria um novo tipo de solo |
-| `PUT`  | `/v1/tipos-de-solo/{id}`     | Atualiza um tipo de solo |
-| `DELETE` | `/v1/tipos-de-solo/{id}`    | Deleta um tipo de solo |
+| Método | Rota                     | Descrição                          |
+| ------ | ------------------------ | ---------------------------------- |
+| GET    | `/v1/tipos-de-solo`      | Lista todos os tipos de solo       |
+| GET    | `/v1/tipos-de-solo/{id}` | Detalha um tipo de solo específico |
+| POST   | `/v1/tipos-de-solo`      | Cria um novo tipo de solo          |
+| PUT    | `/v1/tipos-de-solo/{id}` | Atualiza um tipo de solo           |
+| DELETE | `/v1/tipos-de-solo/{id}` | Deleta um tipo de solo             |
+
+---
+
+## 🌾 Culturas Agrícolas
+
+| Método | Rota                          | Descrição                               |
+| ------ | ----------------------------- | --------------------------------------- |
+| GET    | `/v1/culturas-agricolas`      | Lista todas as culturas agrícolas       |
+| GET    | `/v1/culturas-agricolas/{id}` | Detalha uma cultura agrícola específica |
+| POST   | `/v1/culturas-agricolas`      | Cria uma nova cultura agrícola          |
+| PUT    | `/v1/culturas-agricolas/{id}` | Atualiza uma cultura agrícola           |
+| DELETE | `/v1/culturas-agricolas/{id}` | Deleta uma cultura agrícola             |
+
+---
+
+## 🐛 Tipos de Pragas
+
+| Método | Rota                       | Descrição                           |
+| ------ | -------------------------- | ----------------------------------- |
+| GET    | `/v1/tipos-de-pragas`      | Lista todos os tipos de pragas      |
+| GET    | `/v1/tipos-de-pragas/{id}` | Detalha um tipo de praga específico |
+| POST   | `/v1/tipos-de-pragas`      | Cria um novo tipo de praga          |
+| PUT    | `/v1/tipos-de-pragas/{id}` | Atualiza um tipo de praga           |
+| DELETE | `/v1/tipos-de-pragas/{id}` | Deleta um tipo de praga             |
+
+---
+
+## 🐞 Pragas
+
+| Método | Rota              | Descrição                    |
+| ------ | ----------------- | ---------------------------- |
+| GET    | `/v1/pragas`      | Lista todas as pragas        |
+| GET    | `/v1/pragas/{id}` | Detalha uma praga específica |
+| POST   | `/v1/pragas`      | Cria uma nova praga          |
+| PUT    | `/v1/pragas/{id}` | Atualiza uma praga           |
+| DELETE | `/v1/pragas/{id}` | Deleta uma praga             |
+
+---
+
+## 🌾🆚🐞 Relação Pragas x Culturas
+
+| Método | Rota                                                             | Descrição                                       |
+| ------ | ---------------------------------------------------------------- | ----------------------------------------------- |
+| GET    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=2` | Lista todas as relações entre pragas e culturas |
+| POST   | `/v1/pragas-das-culturas-agricolas`                              | Cria uma nova relação entre praga e cultura     |
+| PUT    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=2` | Atualiza uma relação entre praga e cultura      |
+| DELETE | `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=2` | Deleta uma relação entre praga e cultura        |
+
+
 
 ### 🚁 Monitoramento via Drones
 | Método | Rota                             | Descrição |
