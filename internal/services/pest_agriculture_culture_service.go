@@ -9,6 +9,14 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
+type PestAgricultureCultureServiceInterface interface {
+	GetAllPestAgricultureCulture() ([]responses.PestAgricultureCultureResponse, error)
+	GetFindByIdPestAgricultureCulture(pestId, cultureId uint) (responses.PestAgricultureCultureResponse, error)
+	PostPestAgricultureCulture(requestPestAgricultureCulture requests.PestAgricultureCultureRequest) error
+	PutPestAgricultureCulture(pestId, cultureId uint, requestAgricultureCulture requests.PestAgricultureCultureRequest) error
+	DeletePestAgricultureCulture(pestId, cultureId uint)
+}
+
 type PestAgricultureCultureService struct {
 	pestAgricultureCultureRepository *repositories.PestAgricultureCultureRepository
 }
