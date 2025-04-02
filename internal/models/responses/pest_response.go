@@ -1,8 +1,7 @@
 package responses
 
-
 type PestResponse struct {
-  Id         uint
-  Name       string
-  TypePestId uint
+	Id         uint   `json:"id"`
+	Name       string `json:"name"`
+	TypePestId uint   `json:"type_pest_id"`
 }
