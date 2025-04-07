@@ -129,6 +129,16 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Atualiza uma relação entre praga e cultura      |
 | DELETE | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Deleta uma relação entre praga e cultura        |
 
+---
+
+## 🌾🆚💧 Relação Irrigação x Culturas
+
+| Método | Rota                                                       | Descrição                                                |
+| ------ | ---------------------------------------------------------- | -------------------------------------------------------- |
+| GET    | `/v1/irrigacao-cultura/?cultureId=?`         | Busca recomendação de irrigação associada à cultura       |
+| POST   | `/v1/irrigacao-cultura/`                                    | Cria uma nova recomendação de irrigação para uma cultura  |
+| PUT    | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`         | Atualiza recomendação de irrigação para uma cultura       |
+| DELETE | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`         | Deleta recomendação de irrigação associada à cultura      |
 
 
 ### 🚁 Monitoramento via Drones
