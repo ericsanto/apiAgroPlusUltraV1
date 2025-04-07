@@ -8,7 +8,7 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
-	"github.com/ericsanto/apiAgroPlusUltraV1/utils"
+	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
 	"github.com/gin-gonic/gin"
 )
 
@@ -70,7 +70,7 @@ func (p *PestController) PostPestController(c *gin.Context) {
 		return
 	}
 
-	val, err := utils.ValidateFieldErrors422UnprocessableEntity(requestPest)
+	val, err := validators.ValidateFieldErrors422UnprocessableEntity(requestPest)
 	if err != nil {
 		log.Print(err)
 		return
@@ -117,7 +117,7 @@ func (p *PestController) PutPestController(c *gin.Context) {
 		return
 	}
 
-	valid, err := utils.ValidateFieldErrors422UnprocessableEntity(requesPest)
+	valid, err := validators.ValidateFieldErrors422UnprocessableEntity(requesPest)
 	if err != nil {
 		log.Print(err)
 		return

@@ -10,7 +10,7 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
-	"github.com/ericsanto/apiAgroPlusUltraV1/utils"
+	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
 	"github.com/gin-gonic/gin"
 )
 
@@ -88,7 +88,7 @@ func (p *PestAgricultureCultureController) PostPestAgricultureCultureController(
 		return
 	}
 
-	valid, err := utils.ValidateFieldErrors422UnprocessableEntity(requestPestAgricultureCulture)
+	valid, err := validators.ValidateFieldErrors422UnprocessableEntity(requestPestAgricultureCulture)
 	if err != nil {
 		return
 	}
@@ -165,7 +165,7 @@ func (p *PestAgricultureCultureController) PutPestAgricultureCulture(c *gin.Cont
 		return
 	}
 
-	valid, err := utils.ValidateFieldErrors422UnprocessableEntity(requestPestAgricultureCulture)
+	valid, err := validators.ValidateFieldErrors422UnprocessableEntity(requestPestAgricultureCulture)
 
 	if err != nil {
 		log.Fatal(err)
