@@ -17,8 +17,8 @@ func SetupRouterPestAgricultureCulture(r *gin.Engine) {
 
 	pestAgricultureCultureRouter := r.Group("/v1/pragas-das-culturas-agricolas")
 	pestAgricultureCultureRouter.GET("/", pestAgricultureCultureController.GetAllAgricultureCultureController)
-	pestAgricultureCultureRouter.GET("/relacao", middlewares.ValidateQueryParam(), pestAgricultureCultureController.GetFindByIdAgricultureCultureController)
+	pestAgricultureCultureRouter.GET("/relacao", middlewares.ValidateQueryParamPestAgricultureCulture(), pestAgricultureCultureController.GetFindByIdAgricultureCultureController)
 	pestAgricultureCultureRouter.POST("/", pestAgricultureCultureController.PostPestAgricultureCultureController)
-	pestAgricultureCultureRouter.PUT("/relacao", middlewares.ValidateQueryParam(), pestAgricultureCultureController.PutPestAgricultureCulture)
-	pestAgricultureCultureRouter.DELETE("/relacao", middlewares.ValidateQueryParam(), pestAgricultureCultureController.DeletePestAgricultureCultureController)
+	pestAgricultureCultureRouter.PUT("/relacao", middlewares.ValidateQueryParamPestAgricultureCulture(), pestAgricultureCultureController.PutPestAgricultureCulture)
+	pestAgricultureCultureRouter.DELETE("/relacao", middlewares.ValidateQueryParamPestAgricultureCulture(), pestAgricultureCultureController.DeletePestAgricultureCultureController)
 }
