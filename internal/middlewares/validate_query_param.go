@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ValidateQueryParam() gin.HandlerFunc {
+func ValidateQueryParamPestAgricultureCulture() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
