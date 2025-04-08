@@ -5,17 +5,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 func SetupRoutes() *gin.Engine {
 
+	router := gin.Default()
 
-  router := gin.Default()
+	routesgroup.SetupRouterAgricultureCulture(router)
+	routesgroup.SetupRoutesSoilType(router)
+	routesgroup.SetupRoutesTypePest(router)
+	routesgroup.SetupRouterPest(router)
+	routesgroup.SetupRouterPestAgricultureCulture(router)
+	routesgroup.SetupRouterIrrigationRecomended(router)
+	routesgroup.SetupRouterAgricultureCultureIrrigation(router)
+	routesgroup.SetupRouterSustainablePestControl(router)
 
-  routesgroup.SetupRouterAgricultureCulture(router)
-  routesgroup.SetupRoutesSoilType(router)
-  routesgroup.SetupRoutesTypePest(router)
-  routesgroup.SetupRouterPest(router)
-  routesgroup.SetupRouterPestAgricultureCulture(router)
-
-  return router
+	return router
 }
