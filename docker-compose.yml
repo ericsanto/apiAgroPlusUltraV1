@@ -1,15 +1,6 @@
 services:
-  golang-app:
-    build: .
-    ports:
-      - "8080:8080"
-    networks:
-      - golang-postgres
-    depends_on:
-      - db
-
   db:
-    image: postgres:17.4-alpine3.21
+    image: postgres:17
     environment:
       POSTGRES_USER: go
       POSTGRES_PASSWORD: go
@@ -20,6 +11,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - golang-postgres
+
+  golang-app:
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - golang-postgres
+    depends_on:
+      - db
 
   pg-admin:
     image: dpage/pgadmin4
