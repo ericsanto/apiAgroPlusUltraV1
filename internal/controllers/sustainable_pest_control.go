@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -116,4 +117,21 @@ func (s *SustainablePestControlController) PutSustainablePestControl(c *gin.Cont
 
 	c.Status(http.StatusOK)
 
+}
+
+func (s *SustainablePestControlController) DeleteSustainablePestControl(c *gin.Context) {
+
+	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+
+	if err := s.sustainablePestControlService.DeleteSustainablePestControl(id); err != nil {
+		if strings.Contains(err.Error(), fmt.Sprintf("obejto com id %d não existe", id)) {
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("obejto com id %d não existe", id), c)
+			return
+		}
+
+		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }

@@ -69,3 +69,17 @@ func (s *SustainablePestControlRepository) UpdateSustainablePestControl(id uint,
 
 	return nil
 }
+
+func (s *SustainablePestControlRepository) DeleteSustainablePestControl(id uint) error {
+
+	entitySustainablePestControl, err := s.FindByIdSustainablePestControl(id)
+	if err != nil {
+		return fmt.Errorf("erro: %v", err)
+	}
+
+	if err := s.db.Where("id = ?", entitySustainablePestControl.Id).Delete(&entitySustainablePestControl).Error; err != nil {
+		return fmt.Errorf("erro ao deletar objeto: %v", err)
+	}
+
+	return nil
+}

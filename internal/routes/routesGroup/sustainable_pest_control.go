@@ -19,5 +19,6 @@ func SetupRouterSustainablePestControl(r *gin.Engine) {
 	routerSustainablePestControl.GET("/", controllerSustainablePestControl.GetAllSustainablePestControl)
 	routerSustainablePestControl.POST("/", controllerSustainablePestControl.PostSustainablePestControl)
 	routerSustainablePestControl.GET("/:id", middlewares.ValidateIdParam("id"), controllerSustainablePestControl.GetFindByIdSustainablePestControl)
-	routerSustainablePestControl.PUT(":id/", middlewares.ValidateIdParam("id"), controllerSustainablePestControl.PutSustainablePestControl)
+	routerSustainablePestControl.PUT("/:id", middlewares.ValidateIdParam("id"), controllerSustainablePestControl.PutSustainablePestControl)
+	routerSustainablePestControl.DELETE("/:id", middlewares.ValidateIdParam("id"), controllerSustainablePestControl.DeleteSustainablePestControl)
 }
