@@ -82,3 +82,12 @@ func (s *SustainablePestControlService) PutSustainablePestControl(id uint, reque
 
 	return nil
 }
+
+func (s *SustainablePestControlService) DeleteSustainablePestControl(id uint) error {
+
+	if err := s.sustainablePestControlRepository.DeleteSustainablePestControl(id); err != nil {
+		return fmt.Errorf("erro: %v", err)
+	}
+
+	return nil
+}
