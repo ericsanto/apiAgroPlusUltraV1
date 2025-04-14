@@ -17,6 +17,7 @@ func SetupRoutes() *gin.Engine {
 	routesgroup.SetupRouterIrrigationRecomended(router)
 	routesgroup.SetupRouterAgricultureCultureIrrigation(router)
 	routesgroup.SetupRouterSustainablePestControl(router)
+	routesgroup.SetupAgricultureCulturePestMethod(router)
 
 	return router
 }
