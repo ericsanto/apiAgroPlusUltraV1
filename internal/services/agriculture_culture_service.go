@@ -40,7 +40,9 @@ func (a *AgricultureCultureService) FindAllAgricultureCultureService() ([]respon
 		agricultureCultureResponse := responses.AgricultureCultureResponse{
 			Id:                         v.Id,
 			Name:                       v.Name,
-			NameCientific:              v.NameCientific,
+			Variety:                    v.Variety,
+			Region:                     v.Region,
+			UseType:                    v.UseType,
 			SoilTypeId:                 v.SoilTypeId,
 			PhIdealSoil:                v.PhIdealSoil,
 			MaxTemperature:             v.MaxTemperature,
@@ -70,7 +72,9 @@ func (a *AgricultureCultureService) FindByIdAgricultureCultureService(id uint) (
 	agricultureCultureResponse = responses.AgricultureCultureResponse{
 		Id:                         result.Id,
 		Name:                       result.Name,
-		NameCientific:              result.NameCientific,
+		Variety:                    result.Variety,
+		Region:                     result.Region,
+		UseType:                    result.UseType,
 		SoilTypeId:                 result.SoilTypeId,
 		PhIdealSoil:                result.PhIdealSoil,
 		MaxTemperature:             result.MaxTemperature,
@@ -88,7 +92,9 @@ func (a *AgricultureCultureService) CreateAgricultureCultureService(agricultureC
 
 	agricultureCultureEntity := entities.AgricultureCultureEntity{
 		Name:                      agricultureCulture.Name,
-		NameCientific:             agricultureCulture.NameCientific,
+		Variety:                   agricultureCulture.Variety,
+		Region:                    agricultureCulture.Region,
+		UseType:                   agricultureCulture.UseType,
 		SoilTypeId:                agricultureCulture.SoilTypeId,
 		PhIdealSoil:               agricultureCulture.PhIdealSoil,
 		MaxTemperature:            agricultureCulture.MaxTemperature,
@@ -112,7 +118,9 @@ func (a *AgricultureCultureService) PutAgricultureCultureService(id uint, agricu
 
 	agricultureCultureEntity := entities.AgricultureCultureEntity{
 		Name:                      agricultureCulture.Name,
-		NameCientific:             agricultureCulture.NameCientific,
+		Variety:                   agricultureCulture.Variety,
+		Region:                    agricultureCulture.Region,
+		UseType:                   agricultureCulture.UseType,
 		SoilTypeId:                agricultureCulture.SoilTypeId,
 		PhIdealSoil:               agricultureCulture.PhIdealSoil,
 		MaxTemperature:            agricultureCulture.MaxTemperature,

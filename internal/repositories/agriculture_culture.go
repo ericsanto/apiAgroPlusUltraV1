@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
@@ -51,6 +52,9 @@ func (a *AgricultureCultureRepository) FindByIdAgricultureCulture(id uint) (enti
 func (a *AgricultureCultureRepository) CreateAgricultureCulture(agriculutreCulture *entities.AgricultureCultureEntity) error {
 
 	if err := a.db.Create(&agriculutreCulture).Error; err != nil {
+		if errors.Is(err, gorm.ErrCheckConstraintViolated) {
+			return fmt.Errorf("já existe cultura agrícola com essa variedade")
+		}
 		return fmt.Errorf("não foi possivel salvar tipo de cultura no banco de dados %v", err)
 	}
 
