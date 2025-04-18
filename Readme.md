@@ -81,6 +81,15 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/tipos-de-solo/{id}` | Atualiza um tipo de solo           |
 | DELETE | `/v1/tipos-de-solo/{id}` | Deleta um tipo de solo             |
 
+#### POST `/v1/tipos-de-solo`
+
+```json
+{
+  "name": "Argiloso",
+  "description": "Solo com alta capacidade de retenção de água e nutrientes."
+}
+```
+
 ---
 
 ## 🌾 Culturas Agrícolas
@@ -92,6 +101,25 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | POST   | `/v1/culturas-agricolas`      | Cria uma nova cultura agrícola          |
 | PUT    | `/v1/culturas-agricolas/{id}` | Atualiza uma cultura agrícola           |
 | DELETE | `/v1/culturas-agricolas/{id}` | Deleta uma cultura agrícola             |
+
+#### POST `/v1/culturas-agricolas`
+
+```json
+{
+  "name": "Milho",
+  "variety": "Milho Doce",
+  "soil_type_id": 1,
+  "region": "SOUTHEAST",
+  "use_type": "ALIMENTACAO_HUMANA",
+  "ph_ideal_soil": 6.5,
+  "max_temperature": 35.0,
+  "min_temperature": 10.0,
+  "excellent_temperature": 25.0,
+  "weekly_water_requirement_max": 50.0,
+  "weekly_water_requirement_min": 30.0,
+  "sunlight_requirement": 8
+}
+```
 
 ---
 
@@ -105,6 +133,13 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/tipos-de-pragas/{id}` | Atualiza um tipo de praga           |
 | DELETE | `/v1/tipos-de-pragas/{id}` | Deleta um tipo de praga             |
 
+#### POST `/v1/tipos-de-pragas`
+
+```json
+{
+  "name": "Inseto"
+}
+```
 ---
 
 ## 🐞 Pragas
@@ -116,6 +151,16 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | POST   | `/v1/pragas`      | Cria uma nova praga          |
 | PUT    | `/v1/pragas/{id}` | Atualiza uma praga           |
 | DELETE | `/v1/pragas/{id}` | Deleta uma praga             |
+
+#### POST `/v1/pragas` 
+
+```json
+{
+  "name": "Lagarta do cartucho",
+  "type_pest_id": 1
+}
+
+```
 
 ---
 
@@ -129,19 +174,92 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Atualiza uma relação entre praga e cultura      |
 | DELETE | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Deleta uma relação entre praga e cultura        |
 
+#### POST `/v1/pragas-das-culturas-agricolas`
+
+```json
+{
+  "agriculture_culture_id": 1,
+  "pest_id": 2,
+  "description": "Causa danos nas folhas e reduz o rendimento da cultura.",
+  "image": "https://exemplo.com/imagem-praga.jpg"
+}
+```
+
+#### GET `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=lagartadocartucho?`
+```json
+{
+  "agriculture_culture_name": "Milho",
+  "pest_name": "Lagarta do cartucho",
+  "description": "Causa danos severos nas folhas e espigas do milho, reduzindo a produtividade.",
+  "image_url": "https://exemplo.com/imagens/lagarta-do-cartucho.jpg"
+}
+``` 
+---
+## 🌾🆚💧 Irrigação
+
+| Método | Rota                                                       | Descrição                                                 |
+| ------ | ---------------------------------------------------------- | --------------------------------------------------------  |
+| GET    | `/v1/irrigação`                                            | Lista todas as irrigações                                 |
+| GET    | `/v1/irrigação/id`                                         | Detalha uma irrigação específica                          |
+| POST   | `/v1/irrigacao`                                            | Cria uma nova irrigação                                   |
+| PUT    | `/v1/irrigacao/id`                                         | Atualiza irrigação                                        |
+| DELETE | `/v1/irrigacao/id`                                         | Deleta irrigação                                          |
+
+#### POST `/v1/irrigacao` 
+
+```json
+{
+  "phenological_phase": "Floração",
+  "phase_duration_days": 20,
+  "irrigation_max": 60.0,
+  "irrigation_min": 40.0,
+  "description": "Durante a floração, recomenda-se irrigação moderada.",
+  "unit": "mm"
+}
+```
 ---
 
 ## 🌾🆚💧 Relação Irrigação x Culturas
 
-| Método | Rota                                                       | Descrição                                                |
-| ------ | ---------------------------------------------------------- | -------------------------------------------------------- |
-| GET    | `/v1/irrigacao-cultura/?cultureId=?`         | Busca recomendação de irrigação associada à cultura       |
-| POST   | `/v1/irrigacao-cultura/`                                    | Cria uma nova recomendação de irrigação para uma cultura  |
-| PUT    | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`         | Atualiza recomendação de irrigação para uma cultura       |
-| DELETE | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`         | Deleta recomendação de irrigação associada à cultura      |
+| Método | Rota                                                       | Descrição                                                 |
+| ------ | ---------------------------------------------------------- | --------------------------------------------------------  |
+| GET    | `/v1/irrigacao-cultura/?cultureId=?`                       | Busca recomendação de irrigação associada à cultura       |
+| POST   | `/v1/irrigacao-cultura/`                                   | Cria uma nova recomendação de irrigação para uma cultura  |
+| PUT    | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`        | Atualiza recomendação de irrigação para uma cultura       |
+| DELETE | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`        | Deleta recomendação de irrigação associada à cultura      |
 
+#### POST `irrigacao-cultura`
 
-Claro! Aqui está a documentação da URL `{{baseUrl}}/controle-de-praga-agricultura` formatada como tabela, no mesmo estilo que você usou anteriormente:
+```json
+{
+  "agriculture_culture_id": 1,
+  "irrigation_recomended_id": 1
+}
+```
+
+#### GET `/v1/irrigacao-cultura/?cultureId=milho`
+
+```json
+[
+  {
+    "name": "Milho",
+    "pheneological_phase": "Fase de floração",
+    "phase_duration_days": 20,
+    "irrigation_max": 30.0,
+    "irrigation_min": 18.0,
+    "unit": "mm/dia"
+  },
+
+  {
+  "name": "Milho",
+  "pheneological_phase": "Fase vegetativa",
+  "phase_duration_days": 25,
+  "irrigation_max": 25.0,
+  "irrigation_min": 15.0,
+  "unit": "mm/dia"
+  }
+]
+```
 
 ---
 
@@ -155,6 +273,26 @@ Claro! Aqui está a documentação da URL `{{baseUrl}}/controle-de-praga-agricul
 | PUT    | `/v1/controle-de-praga-agricultura?agricultureCultureName=?&pestName=?&sustainablePestControlMethod=?`     | Atualiza uma relação entre cultura, praga e método sustentável de controle                 |
 | DELETE | `/v1/controle-de-praga-agricultura?agricultureCultureName=?&pestName=?&sustainablePestControlMethod=?`     | Deleta uma relação entre cultura, praga e método sustentável de controle                   |
 
+#### POST `/v1/controle-de-praga-agricultura`
+
+```json
+{
+  "agriculture_culture_id": 1,
+  "pest_id": 2,
+  "sustainable_pest_control_id": 3,
+  "description": "Uso de inimigos naturais para controle da praga."
+}
+```
+#### GET  `/v1/controle-de-praga-agricultura?agricultureCultureName=soja&pestName=percevejomarrom&sustainablePestControlMethod=biologico` 
+
+```json
+{
+  "agriculture_culture_name": "Soja",
+  "pest_name": "Percevejo-marrom",
+  "sustainable_pest_control_method": "Controle biológico com parasitoides",
+  "description": "Aplicação de vespas parasitoides para controle natural da população de percevejos."
+}
+```
 ---
 
 ## 📦🌱 Batchs (Lotes Agrícolas)
@@ -171,27 +309,30 @@ Claro! Aqui está a documentação da URL `{{baseUrl}}/controle-de-praga-agricul
 
 ### 📤 Exemplo de Request (POST / PUT)
 
+```json
 {
   "name": "Lote Norte",
   "area": 12.5,
   "unit": "hectare"
 }
-
+```
 ---
 
 ### 📥 Exemplo de Response (GET /v1/batchs/:id)
 
+```json
 {
   "id": 1,
   "name": "Lote Norte",
   "area": 12.5,
   "unit": "hectare"
 }
-
+```
 ---
 
 ### 📥 Exemplo de Response (GET /v1/batchs)
 
+```json
 [
   {
     "id": 1,
@@ -206,6 +347,7 @@ Claro! Aqui está a documentação da URL `{{baseUrl}}/controle-de-praga-agricul
     "unit": "hectare"
   }
 ]
+```
 ---
 
 ### 🚁 Monitoramento via Drones
