@@ -289,7 +289,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 
 ### 📥 Exemplo de Response (GET /v1/batchs)
 
-```json```
+```json
 [
   {
     "id": 1,
