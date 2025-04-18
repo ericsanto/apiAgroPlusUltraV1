@@ -183,10 +183,19 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
   "description": "Causa danos nas folhas e reduz o rendimento da cultura.",
   "image": "https://exemplo.com/imagem-praga.jpg"
 }
-
 ```
+
+#### GET `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=lagartadocartucho?`
+```json
+{
+  "agriculture_culture_name": "Milho",
+  "pest_name": "Lagarta do cartucho",
+  "description": "Causa danos severos nas folhas e espigas do milho, reduzindo a produtividade.",
+  "image_url": "https://exemplo.com/imagens/lagarta-do-cartucho.jpg"
+}
+``` 
 ---
-## 🌾🆚💧 Relação Irrigação x Culturas
+## 🌾🆚💧 Irrigação
 
 | Método | Rota                                                       | Descrição                                                 |
 | ------ | ---------------------------------------------------------- | --------------------------------------------------------  |
@@ -228,6 +237,30 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 }
 ```
 
+#### GET `/v1/irrigacao-cultura/?cultureId=milho`
+
+```json
+[
+  {
+    "name": "Milho",
+    "pheneological_phase": "Fase de floração",
+    "phase_duration_days": 20,
+    "irrigation_max": 30.0,
+    "irrigation_min": 18.0,
+    "unit": "mm/dia"
+  },
+
+  {
+  "name": "Milho",
+  "pheneological_phase": "Fase vegetativa",
+  "phase_duration_days": 25,
+  "irrigation_max": 25.0,
+  "irrigation_min": 15.0,
+  "unit": "mm/dia"
+  }
+]
+```
+
 ---
 
 ## 🌿🦟🛡️ Relação Métodos Sustentáveis x Pragas x Culturas
@@ -248,6 +281,16 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
   "pest_id": 2,
   "sustainable_pest_control_id": 3,
   "description": "Uso de inimigos naturais para controle da praga."
+}
+```
+#### GET  `/v1/controle-de-praga-agricultura?agricultureCultureName=soja&pestName=percevejomarrom&sustainablePestControlMethod=biologico` 
+
+```json
+{
+  "agriculture_culture_name": "Soja",
+  "pest_name": "Percevejo-marrom",
+  "sustainable_pest_control_method": "Controle biológico com parasitoides",
+  "description": "Aplicação de vespas parasitoides para controle natural da população de percevejos."
 }
 ```
 ---
