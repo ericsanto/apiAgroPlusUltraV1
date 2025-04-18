@@ -152,7 +152,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/pragas/{id}` | Atualiza uma praga           |
 | DELETE | `/v1/pragas/{id}` | Deleta uma praga             |
 
-#### POST `/v1/pragas` 
+### ✅ Exemplo de Request: `POST /v1/pragas` 
 
 ```json
 {
@@ -174,7 +174,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Atualiza uma relação entre praga e cultura      |
 | DELETE | `/v1/pragas-das-culturas-agricolas/relacao?pestId=?&cultureId=?` | Deleta uma relação entre praga e cultura        |
 
-#### POST `/v1/pragas-das-culturas-agricolas`
+### ✅ Exemplo de Request: `POST /v1/pragas-das-culturas-agricolas`
 
 ```json
 {
@@ -185,7 +185,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 }
 ```
 
-#### GET `/v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=lagartadocartucho?`
+### ✅ Exemplo de Reponse: `GET /v1/pragas-das-culturas-agricolas/relacao?pestId=2&cultureId=lagartadocartucho?`
 ```json
 {
   "agriculture_culture_name": "Milho",
@@ -205,7 +205,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/irrigacao/id`                                         | Atualiza irrigação                                        |
 | DELETE | `/v1/irrigacao/id`                                         | Deleta irrigação                                          |
 
-#### POST `/v1/irrigacao` 
+### ✅ Exemplo de Request: `POST /v1/irrigacao` 
 
 ```json
 {
@@ -228,7 +228,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`        | Atualiza recomendação de irrigação para uma cultura       |
 | DELETE | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`        | Deleta recomendação de irrigação associada à cultura      |
 
-#### POST `irrigacao-cultura`
+### ✅ Exemplo de Request: `POST irrigacao-cultura`
 
 ```json
 {
@@ -237,7 +237,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 }
 ```
 
-#### GET `/v1/irrigacao-cultura/?cultureId=milho`
+### ✅ Exemplo de Response: `GET /v1/irrigacao-cultura/?cultureId=milho`
 
 ```json
 [
@@ -273,7 +273,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/controle-de-praga-agricultura?agricultureCultureName=?&pestName=?&sustainablePestControlMethod=?`     | Atualiza uma relação entre cultura, praga e método sustentável de controle                 |
 | DELETE | `/v1/controle-de-praga-agricultura?agricultureCultureName=?&pestName=?&sustainablePestControlMethod=?`     | Deleta uma relação entre cultura, praga e método sustentável de controle                   |
 
-#### POST `/v1/controle-de-praga-agricultura`
+### ✅ Exemplo de Request: ` POST /v1/controle-de-praga-agricultura`
 
 ```json
 {
@@ -283,7 +283,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
   "description": "Uso de inimigos naturais para controle da praga."
 }
 ```
-#### GET  `/v1/controle-de-praga-agricultura?agricultureCultureName=soja&pestName=percevejomarrom&sustainablePestControlMethod=biologico` 
+### ✅ Exemplo de Response: `GET /v1/controle-de-praga-agricultura?agricultureCultureName=soja&pestName=percevejomarrom&sustainablePestControlMethod=biologico` 
 
 ```json
 {
@@ -348,6 +348,33 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
   }
 ]
 ```
+---
+
+
+## 💰🌱 Custos de Produção
+
+| Método | Rota                                     | Descrição                                 |
+|--------|------------------------------------------|-------------------------------------------|
+| GET    | `/v1/custos-plantacoes`                  | Lista todos os custos de produção         |
+| GET    | `/v1/custos-plantacoes/:id`              | Detalha um custo de produção específico   |
+| POST   | `/v1/custos-plantacoes`                  | Cria um novo custo de produção            |
+| PUT    | `/v1/custos-plantacoes/:id`              | Atualiza um custo de produção             |
+| DELETE | `/v1/custos-plantacoes/:id`              | Deleta um custo de produção               |
+
+---
+
+### ✅ Exemplo de Request: `POST /v1/custos-plantacoes`
+
+```json
+{
+  "planting_id": 1,
+  "item_name": "Adubo NPK",
+  "unit": "kg",
+  "quantity": 50.0,
+  "cost_per_unit": 2.5,
+  "cost_date": "2024-07-10T00:00:00Z"
+}
+
 ---
 
 ### 🚁 Monitoramento via Drones
