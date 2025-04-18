@@ -141,6 +141,73 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | DELETE | `/v1/irrigacao-cultura/?cultureId=?&irrigationId=?`         | Deleta recomendação de irrigação associada à cultura      |
 
 
+Claro! Aqui está a documentação da URL `{{baseUrl}}/controle-de-praga-agricultura` formatada como tabela, no mesmo estilo que você usou anteriormente:
+
+---
+
+## 🌿🦟🛡️ Relação Métodos Sustentáveis x Pragas x Culturas
+
+| Método | Rota                                                                                                       | Descrição                                                                                  |
+|--------|------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| GET    | `/v1/controle-de-praga-agricultura`                                                                        | Lista todas as relações entre cultura, praga e método sustentável de controle              |
+| GET    | `/v1/controle-de-praga-agricultura?agricultureCultureName=?&pestName=?&sustainablePestControlMethod=?`     | Retorna uma relação específica filtrada por cultura, praga e método sustentável            |
+| POST   | `/v1/controle-de-praga-agricultura`                                                                        | Cria uma nova relação entre cultura, praga e método sustentável de controle                |
+| PUT    | `/v1/controle-de-praga-agricultura?agricultureCultureName=?&pestName=?&sustainablePestControlMethod=?`     | Atualiza uma relação entre cultura, praga e método sustentável de controle                 |
+| DELETE | `/v1/controle-de-praga-agricultura?agricultureCultureName=?&pestName=?&sustainablePestControlMethod=?`     | Deleta uma relação entre cultura, praga e método sustentável de controle                   |
+
+---
+
+## 📦🌱 Batchs (Lotes Agrícolas)
+
+| Método | Rota                | Descrição                                           | Status esperado |
+|--------|---------------------|-----------------------------------------------------|-----------------|
+| POST   | `/v1/batchs/`       | Cria um novo lote agrícola                          | `201 Created`   |
+| GET    | `/v1/batchs/`       | Lista todos os lotes agrícolas                      | `200 OK`        |
+| GET    | `/v1/batchs/:id`    | Busca um lote agrícola pelo ID                      | `200 OK`        |
+| PUT    | `/v1/batchs/:id`    | Atualiza os dados de um lote agrícola pelo ID       | `200 OK`        |
+| DELETE | `/v1/batchs/:id`    | Deleta um lote agrícola pelo ID                     | `204 No Content`|
+
+---
+
+### 📤 Exemplo de Request (POST / PUT)
+
+{
+  "name": "Lote Norte",
+  "area": 12.5,
+  "unit": "hectare"
+}
+
+---
+
+### 📥 Exemplo de Response (GET /v1/batchs/:id)
+
+{
+  "id": 1,
+  "name": "Lote Norte",
+  "area": 12.5,
+  "unit": "hectare"
+}
+
+---
+
+### 📥 Exemplo de Response (GET /v1/batchs)
+
+[
+  {
+    "id": 1,
+    "name": "Lote Norte",
+    "area": 12.5,
+    "unit": "hectare"
+  },
+  {
+    "id": 2,
+    "name": "Lote Sul",
+    "area": 8.3,
+    "unit": "hectare"
+  }
+]
+---
+
 ### 🚁 Monitoramento via Drones
 | Método | Rota                             | Descrição |
 |--------|----------------------------------|-----------|
