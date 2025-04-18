@@ -374,7 +374,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
   "cost_per_unit": 2.5,
   "cost_date": "2024-07-10T00:00:00Z"
 }
-
+```
 ---
 
 ### 🚁 Monitoramento via Drones
