@@ -21,6 +21,7 @@ func SetupRoutes() *gin.Engine {
 	routesgroup.SetupBatchRouter(router)
 	routesgroup.SetupRouterPlanting(router)
 	routesgroup.SetupProductionCostRouter(router)
+	routesgroup.SetupSalePlantingRouter(router)
 
 	return router
 }
