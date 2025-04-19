@@ -9,4 +9,5 @@ type PlantingEntity struct {
 	IsPlanting           bool                   `gorm:"default:false"`
 	StartDatePlanting    time.Time              `gorm:"type:timestamp"`
 	ProductionCost       []ProductionCostEntity `gorm:"foreignKey:PlantingID"`
+	SalePlanting         []SalePlantingEntity   `gorm:"foreignKey:PlantingID"`
 }

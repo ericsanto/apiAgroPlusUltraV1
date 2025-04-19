@@ -81,7 +81,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/tipos-de-solo/{id}` | Atualiza um tipo de solo           |
 | DELETE | `/v1/tipos-de-solo/{id}` | Deleta um tipo de solo             |
 
-#### POST `/v1/tipos-de-solo`
+### ✅ Exemplo de Request: `POST /v1/tipos-de-solo`
 
 ```json
 {
@@ -102,7 +102,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/culturas-agricolas/{id}` | Atualiza uma cultura agrícola           |
 | DELETE | `/v1/culturas-agricolas/{id}` | Deleta uma cultura agrícola             |
 
-#### POST `/v1/culturas-agricolas`
+### ✅ Exemplo de Request: `POST /v1/culturas-agricolas`
 
 ```json
 {
@@ -133,7 +133,7 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 | PUT    | `/v1/tipos-de-pragas/{id}` | Atualiza um tipo de praga           |
 | DELETE | `/v1/tipos-de-pragas/{id}` | Deleta um tipo de praga             |
 
-#### POST `/v1/tipos-de-pragas`
+### ✅ Exemplo de Request: `POST /v1/tipos-de-pragas`
 
 ```json
 {
@@ -375,6 +375,31 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
   "cost_date": "2024-07-10T00:00:00Z"
 }
 ```
+---
+
+
+## 💰🌱 Venda de Plantação
+
+| Método | Rota                                     | Descrição                                 |
+|--------|------------------------------------------|-------------------------------------------|
+| GET    | `/v1/vendas-plantacoes`                  | Lista todos as vendas de plantações       |
+| GET    | `/v1/vendas-plantacoes/id`               | Detalha uma venda de uma plantação        |
+| POST   | `/v1/vendas-plantacoes`                  | Cria uma nova venda de plantação          |
+| PUT    | `/v1/vendas-plantacoes/id`               | Atualiza uma venda de plantação           |
+| DELETE | `/v1/vendas-plantacoes/id`               | Deleta uma venda de uma plantação         |
+
+---
+
+### ✅ Exemplo de Request: `POST /v1/vendas-plantacoes`
+
+```json
+{
+  "planting_id": 1,
+  "value_sale": 150.75
+}
+
+```
+
 ---
 
 ### 🚁 Monitoramento via Drones
