@@ -84,7 +84,7 @@ func (p *PlantingRepository) FindPlantingByID(id uint) (entities.PlantingEntity,
 
 	if err := p.db.First(&entityPlanting, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return entityPlanting, fmt.Errorf("não existe plantação com o id %d", id)
+			return entityPlanting, fmt.Errorf("não existe plantação com o id %d. %w", id, err)
 		}
 
 		return entityPlanting, fmt.Errorf("erro ao buscar plantações")
