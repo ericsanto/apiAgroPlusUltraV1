@@ -402,6 +402,25 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 
 ---
 
+## 💰🌱 Lucro
+
+| Método | Rota                                     | Descrição                                     |
+|--------|------------------------------------------|-----------------------------------------------|
+| GET    | `/v1/lucro/:id`                          | Calcula o lucro de uma plantação em específico|
+
+### ✅ Exemplo de Response: `GET /v1/lucro/1`
+
+```json
+{
+    "value_sale_plantiation": 301.5,
+    "total_cost": 1530,
+    "profit": -1228.5,
+    "profit_margen": -12.285
+}
+```
+
+---
+
 ### 🚁 Monitoramento via Drones
 | Método | Rota                             | Descrição |
 |--------|----------------------------------|-----------|
