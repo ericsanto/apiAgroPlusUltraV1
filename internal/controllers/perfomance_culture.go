@@ -12,24 +12,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PerfomancePlantingController struct {
-	servvicePerfomancePlanting *services.PerfomancePlantingService
+type PerformancePlantingController struct {
+	servvicePerformancePlanting *services.PerformancePlantingService
 }
 
-func NewPerfomancePlantingController(servvicePerfomancePlanting *services.PerfomancePlantingService) *PerfomancePlantingController {
-	return &PerfomancePlantingController{servvicePerfomancePlanting: servvicePerfomancePlanting}
+func NewPerformancePlantingController(servvicePerformancePlanting *services.PerformancePlantingService) *PerformancePlantingController {
+	return &PerformancePlantingController{servvicePerformancePlanting: servvicePerformancePlanting}
 }
 
-func (p *PerfomancePlantingController) PostPerfomanceCulture(c *gin.Context) {
+func (p *PerformancePlantingController) PostPerformanceCulture(c *gin.Context) {
 
-	var requestPerfomanceCulture requests.PerfomancePlantingRequest
+	var requestPerformanceCulture requests.PerformancePlantingRequest
 
-	if err := c.ShouldBindJSON(&requestPerfomanceCulture); err != nil {
+	if err := c.ShouldBindJSON(&requestPerformanceCulture); err != nil {
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
 		return
 	}
 
-	validate, err := validators.ValidateFieldErrors422UnprocessableEntity(requestPerfomanceCulture)
+	validate, err := validators.ValidateFieldErrors422UnprocessableEntity(requestPerformanceCulture)
 	if err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 		return
@@ -40,7 +40,7 @@ func (p *PerfomancePlantingController) PostPerfomanceCulture(c *gin.Context) {
 		return
 	}
 
-	if err := p.servvicePerfomancePlanting.PostPerfomancePlanting(requestPerfomanceCulture); err != nil {
+	if err := p.servvicePerformancePlanting.PostPerformancePlanting(requestPerformanceCulture); err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrDuplicateKey):
 			myerror.HttpErrors(http.StatusConflict, err.Error(), c)
@@ -65,27 +65,27 @@ func (p *PerfomancePlantingController) PostPerfomanceCulture(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-func (p *PerfomancePlantingController) GetAllPerfomancePlanting(c *gin.Context) {
+func (p *PerformancePlantingController) GetAllPerformancePlanting(c *gin.Context) {
 
-	perfomancePlanting, err := p.servvicePerfomancePlanting.GetAllPerfomancePlanting()
+	performancePlanting, err := p.servvicePerformancePlanting.GetAllPerformancePlanting()
 	if err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
-	c.JSON(http.StatusOK, perfomancePlanting)
+	c.JSON(http.StatusOK, performancePlanting)
 }
 
-func (p *PerfomancePlantingController) PutPerfomancePlanting(c *gin.Context) {
+func (p *PerformancePlantingController) PutPerformancePlanting(c *gin.Context) {
 
-	var requestPerfomancePlanting requests.PerfomancePlantingRequest
+	var requestPerformancePlanting requests.PerformancePlantingRequest
 
-	if err := c.ShouldBindJSON(&requestPerfomancePlanting); err != nil {
+	if err := c.ShouldBindJSON(&requestPerformancePlanting); err != nil {
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
 		return
 	}
 
-	validate, err := validators.ValidateFieldErrors422UnprocessableEntity(requestPerfomancePlanting)
+	validate, err := validators.ValidateFieldErrors422UnprocessableEntity(requestPerformancePlanting)
 
 	if err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
@@ -99,7 +99,7 @@ func (p *PerfomancePlantingController) PutPerfomancePlanting(c *gin.Context) {
 
 	id := validators.GetAndValidateIdMidlware(c, "validatedID")
 
-	if err := p.servvicePerfomancePlanting.PutPerformancePlanting(id, requestPerfomancePlanting); err != nil {
+	if err := p.servvicePerformancePlanting.PutPerformancePlanting(id, requestPerformancePlanting); err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrDuplicateKey):
 			myerror.HttpErrors(http.StatusConflict, err.Error(), c)
@@ -119,11 +119,11 @@ func (p *PerfomancePlantingController) PutPerfomancePlanting(c *gin.Context) {
 
 }
 
-func (p *PerfomancePlantingController) GetPerformancePlantingByID(c *gin.Context) {
+func (p *PerformancePlantingController) GetPerformancePlantingByID(c *gin.Context) {
 
 	id := validators.GetAndValidateIdMidlware(c, "validatedID")
 
-	responsePerfomancePlanting, err := p.servvicePerfomancePlanting.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id)
+	responsePerformancePlanting, err := p.servvicePerformancePlanting.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrNotFound):
@@ -137,14 +137,14 @@ func (p *PerfomancePlantingController) GetPerformancePlantingByID(c *gin.Context
 
 	}
 
-	c.JSON(http.StatusOK, responsePerfomancePlanting)
+	c.JSON(http.StatusOK, responsePerformancePlanting)
 }
 
-func (p *PerfomancePlantingController) DeletePerfomancePlanting(c *gin.Context) {
+func (p *PerformancePlantingController) DeletePerformancePlanting(c *gin.Context) {
 
 	id := validators.GetAndValidateIdMidlware(c, "validatedID")
 
-	if err := p.servvicePerfomancePlanting.DeletePerfomancePlanting(id); err != nil {
+	if err := p.servvicePerformancePlanting.DeletePerformancePlanting(id); err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrNotFound):
 			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)

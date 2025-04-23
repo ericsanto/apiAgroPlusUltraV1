@@ -11,51 +11,51 @@ import (
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-type PerfomancePlantingService struct {
-	perfomanceCultureRepository *repositories.PerfomancePlantingRepository
+type PerformancePlantingService struct {
+	performanceCultureRepository *repositories.PerformancePlantingRepository
 }
 
-func NewPerfomancePlantingService(perfomanceCultureRepository *repositories.PerfomancePlantingRepository) *PerfomancePlantingService {
-	return &PerfomancePlantingService{perfomanceCultureRepository: perfomanceCultureRepository}
+func NewPerformancePlantingService(performanceCultureRepository *repositories.PerformancePlantingRepository) *PerformancePlantingService {
+	return &PerformancePlantingService{performanceCultureRepository: performanceCultureRepository}
 }
 
-func (p *PerfomancePlantingService) PostPerfomancePlanting(requestPerfomanceCulture requests.PerfomancePlantingRequest) error {
+func (p *PerformancePlantingService) PostPerformancePlanting(requestPerformanceCulture requests.PerformancePlantingRequest) error {
 
-	if validateUnit := enums.IsValidateFieldUnitEnum(requestPerfomanceCulture.UnitProductionObtained); !validateUnit {
+	if validateUnit := enums.IsValidateFieldUnitEnum(requestPerformanceCulture.UnitProductionObtained); !validateUnit {
 		return fmt.Errorf("o campo unit_production_obtained %w", myerror.ErrEnumInvalid)
 	}
 
-	if validateUnit := enums.IsValidateFieldUnitEnum(requestPerfomanceCulture.UnitHarvestedArea); !validateUnit {
+	if validateUnit := enums.IsValidateFieldUnitEnum(requestPerformanceCulture.UnitHarvestedArea); !validateUnit {
 		return fmt.Errorf("o campo unit_harvested_area  %w", myerror.ErrEnumInvalid)
 	}
 
-	entityPerfomanceCulture := entities.PerfomancePlantingEntity{
-		PlantingID:             requestPerfomanceCulture.PlantingID,
-		ProductionObtained:     requestPerfomanceCulture.ProductionObtained,
-		UnitProductionObtained: requestPerfomanceCulture.UnitProductionObtained,
-		HarvestedArea:          requestPerfomanceCulture.HarvestedArea,
-		UnitHarvestedArea:      requestPerfomanceCulture.UnitHarvestedArea,
-		HarvestedDate:          requestPerfomanceCulture.HarvestedDate,
+	entityPerformanceCulture := entities.PerformancePlantingEntity{
+		PlantingID:             requestPerformanceCulture.PlantingID,
+		ProductionObtained:     requestPerformanceCulture.ProductionObtained,
+		UnitProductionObtained: requestPerformanceCulture.UnitProductionObtained,
+		HarvestedArea:          requestPerformanceCulture.HarvestedArea,
+		UnitHarvestedArea:      requestPerformanceCulture.UnitHarvestedArea,
+		HarvestedDate:          requestPerformanceCulture.HarvestedDate,
 	}
 
-	if err := p.perfomanceCultureRepository.CreatePerfomancePlanting(entityPerfomanceCulture); err != nil {
+	if err := p.performanceCultureRepository.CreatePerformancePlanting(entityPerformanceCulture); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
 }
 
-func (p *PerfomancePlantingService) GetAllPerfomancePlanting() ([]responses.PerfomanceCultureResponse, error) {
+func (p *PerformancePlantingService) GetAllPerformancePlanting() ([]responses.PerformanceCultureResponse, error) {
 
-	var reponsePerformancesCultures []responses.PerfomanceCultureResponse
+	var reponsePerformancesCultures []responses.PerformanceCultureResponse
 
-	dbResult, err := p.perfomanceCultureRepository.FindAll()
+	dbResult, err := p.performanceCultureRepository.FindAll()
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
 
 	for _, v := range dbResult {
-		responsePerfomanceCulture := responses.PerfomanceCultureResponse{
+		responsePerformanceCulture := responses.PerformanceCultureResponse{
 			Planting: responses.BatchPlantiesResponse{
 				BatchName:              v.BatchName,
 				AgricultureCultureName: v.AgricultureCultureName,
@@ -70,59 +70,59 @@ func (p *PerfomancePlantingService) GetAllPerfomancePlanting() ([]responses.Perf
 			HarvestedDate:              v.HarvestedDate,
 		}
 
-		reponsePerformancesCultures = append(reponsePerformancesCultures, responsePerfomanceCulture)
+		reponsePerformancesCultures = append(reponsePerformancesCultures, responsePerformanceCulture)
 	}
 
 	return reponsePerformancesCultures, nil
 }
 
-func (p *PerfomancePlantingService) PutPerformancePlanting(id uint, requestPerfomanceEntity requests.PerfomancePlantingRequest) error {
+func (p *PerformancePlantingService) PutPerformancePlanting(id uint, requestPerformanceEntity requests.PerformancePlantingRequest) error {
 
-	entityPerfomancePlanting := entities.PerfomancePlantingEntity{
-		PlantingID:             requestPerfomanceEntity.PlantingID,
-		ProductionObtained:     requestPerfomanceEntity.ProductionObtained,
-		UnitProductionObtained: requestPerfomanceEntity.UnitProductionObtained,
-		HarvestedArea:          requestPerfomanceEntity.HarvestedArea,
-		UnitHarvestedArea:      requestPerfomanceEntity.UnitHarvestedArea,
-		HarvestedDate:          requestPerfomanceEntity.HarvestedDate,
+	entityPerformancePlanting := entities.PerformancePlantingEntity{
+		PlantingID:             requestPerformanceEntity.PlantingID,
+		ProductionObtained:     requestPerformanceEntity.ProductionObtained,
+		UnitProductionObtained: requestPerformanceEntity.UnitProductionObtained,
+		HarvestedArea:          requestPerformanceEntity.HarvestedArea,
+		UnitHarvestedArea:      requestPerformanceEntity.UnitHarvestedArea,
+		HarvestedDate:          requestPerformanceEntity.HarvestedDate,
 	}
 
-	if err := p.perfomanceCultureRepository.UpdatePerfomancePlanting(id, entityPerfomancePlanting); err != nil {
+	if err := p.performanceCultureRepository.UpdatePerformancePlanting(id, entityPerformancePlanting); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
 }
 
-func (p *PerfomancePlantingService) GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id uint) (*responses.PerfomanceCultureResponse, error) {
+func (p *PerformancePlantingService) GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id uint) (*responses.PerformanceCultureResponse, error) {
 
-	dBResultPerfomancePlanting, err := p.perfomanceCultureRepository.FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(id)
+	dBResultPerformancePlanting, err := p.performanceCultureRepository.FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
 
-	responsePerfomancePlanting := responses.PerfomanceCultureResponse{
+	responsePerformancePlanting := responses.PerformanceCultureResponse{
 		Planting: responses.BatchPlantiesResponse{
-			BatchName:              dBResultPerfomancePlanting.BatchName,
-			AgricultureCultureName: dBResultPerfomancePlanting.AgricultureCultureName,
-			IsPlanting:             dBResultPerfomancePlanting.IsPlanting,
-			StartDatePlanting:      dBResultPerfomancePlanting.StartDatePlanting,
+			BatchName:              dBResultPerformancePlanting.BatchName,
+			AgricultureCultureName: dBResultPerformancePlanting.AgricultureCultureName,
+			IsPlanting:             dBResultPerformancePlanting.IsPlanting,
+			StartDatePlanting:      dBResultPerformancePlanting.StartDatePlanting,
 		},
 
-		ID:                         dBResultPerfomancePlanting.ID,
-		ProductionObtained:         dBResultPerfomancePlanting.ProductionObtained,
-		ProductionObtainedFormated: dBResultPerfomancePlanting.ProductionObtainedFormated,
-		HarvestedArea:              dBResultPerfomancePlanting.HarvestedArea,
-		HarvestedAreaFormated:      dBResultPerfomancePlanting.HarvestedAreaFormated,
-		HarvestedDate:              dBResultPerfomancePlanting.HarvestedDate,
+		ID:                         dBResultPerformancePlanting.ID,
+		ProductionObtained:         dBResultPerformancePlanting.ProductionObtained,
+		ProductionObtainedFormated: dBResultPerformancePlanting.ProductionObtainedFormated,
+		HarvestedArea:              dBResultPerformancePlanting.HarvestedArea,
+		HarvestedAreaFormated:      dBResultPerformancePlanting.HarvestedAreaFormated,
+		HarvestedDate:              dBResultPerformancePlanting.HarvestedDate,
 	}
 
-	return &responsePerfomancePlanting, nil
+	return &responsePerformancePlanting, nil
 }
 
-func (p *PerfomancePlantingService) DeletePerfomancePlanting(id uint) error {
+func (p *PerformancePlantingService) DeletePerformancePlanting(id uint) error {
 
-	if err := p.perfomanceCultureRepository.DeletePerfomancePlanting(id); err != nil {
+	if err := p.performanceCultureRepository.DeletePerformancePlanting(id); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 

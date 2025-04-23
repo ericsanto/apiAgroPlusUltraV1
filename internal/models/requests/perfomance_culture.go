@@ -6,7 +6,7 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/enums"
 )
 
-type PerfomancePlantingRequest struct {
+type PerformancePlantingRequest struct {
 	PlantingID             uint       `json:"planting_id" validate:"required"`
 	ProductionObtained     float64    `json:"production_obtained" validate:"required"`
 	UnitProductionObtained enums.Unit `json:"unit_production_obtained" validate:"required"`

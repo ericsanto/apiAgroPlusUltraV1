@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type PerfomanceCultureResponse struct {
+type PerformanceCultureResponse struct {
 	Planting                   BatchPlantiesResponse `json:"planting"`
 	ID                         uint                  `json:"id"`
 	ProductionObtained         float64               `json:"production_obtained"`
@@ -14,7 +14,7 @@ type PerfomanceCultureResponse struct {
 	HarvestedDate              time.Time             `json:"harvested_date"`
 }
 
-type DbResultPerfomancePlanting struct {
+type DbResultPerformancePlanting struct {
 	PlantingID                 uint
 	BatchName                  string
 	AgricultureCultureName     string
