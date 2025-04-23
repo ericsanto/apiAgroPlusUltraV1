@@ -6,8 +6,10 @@ type PlantingEntity struct {
 	ID                   uint `gorm:"primaryKey;autoIncrement"`
 	BatchID              uint
 	AgricultureCultureID uint
-	IsPlanting           bool                   `gorm:"default:false"`
-	StartDatePlanting    time.Time              `gorm:"type:timestamp"`
-	ProductionCost       []ProductionCostEntity `gorm:"foreignKey:PlantingID"`
-	SalePlanting         []SalePlantingEntity   `gorm:"foreignKey:PlantingID"`
+	IsPlanting           bool                        `gorm:"default:false"`
+	StartDatePlanting    time.Time                   `gorm:"type:timestamp"`
+	ExpectedProduction   float64                     `gorm:"not null"`
+	ProductionCost       []ProductionCostEntity      `gorm:"foreignKey:PlantingID"`
+	SalePlanting         []SalePlantingEntity        `gorm:"foreignKey:PlantingID"`
+	PerformancePlanting  []PerformancePlantingEntity `gorm:"foreignKey:PlantingID"`
 }
