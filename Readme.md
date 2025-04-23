@@ -421,6 +421,54 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 
 ---
 
+# 📊🌾 Performance de Plantação
+
+
+| Método | Rota                                         | Descrição                                          |
+|--------|----------------------------------------------|----------------------------------------------------|
+| GET    | `/v1/performances-das-plantacoes`             | Lista todas as performances de plantações          |
+| GET    | `/v1/performances-das-plantacoes/:id`         | Detalha a performance de uma plantação específica  |
+| POST   | `/v1/performances-das-plantacoes`             | Cria um registro de performance de plantação       |
+| PUT    | `/v1/performances-das-plantacoes/:id`         | Atualiza uma performance de plantação              |
+| DELETE | `/v1/performances-das-plantacoes/:id`         | Remove uma performance de plantação                |
+
+---
+
+### ✅ Exemplo de Response: `GET /v1/performances-das-plantacoes/:id`
+
+```json
+{
+  "planting": {
+    "batch_name": "Lote 04",
+    "is_planting": false,
+    "agriculture_culture_name": "Manga",
+    "start_date_planting": "2025-04-23T12:21:53.399681Z"
+  },
+  "id": 1,
+  "production_obtained": 1500.5,
+  "production_obtained_formated": "1500.5kg",
+  "harvested_area": 2.5,
+  "harvested_area_formated": "2.5ha",
+  "harvested_date": "2025-04-23T12:21:53.399681Z"
+}
+```
+
+### ✅ Exemplo de Request: `POST /v1/performances-das-plantacoes/`
+
+```json
+{
+  "planting_id": 1,
+  "production_obtained": 1500.5,
+  "unit_production_obtained": "kg",
+  "harvested_area": 2.5,
+  "unit_harvested_area": "ha",
+  "harvested_date": 2.5
+}
+
+```
+
+---
+
 ### 🚁 Monitoramento via Drones
 | Método | Rota                             | Descrição |
 |--------|----------------------------------|-----------|
