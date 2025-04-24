@@ -23,7 +23,7 @@ func SetupRoutes() *gin.Engine {
 	routesgroup.SetupProductionCostRouter(router)
 	routesgroup.SetupSalePlantingRouter(router)
 	routesgroup.SetupProfitRouter(router)
-	routesgroup.SetupPerfomancePlantingRouter(router)
+	routesgroup.SetupPerformancePlantingRouter(router)
 
 	return router
 }
