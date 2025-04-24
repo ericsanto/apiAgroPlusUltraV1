@@ -23,6 +23,8 @@ var ErrDuplicateSale = errors.New("já existe uma venda para este planting_id")
 var ErrNotFoundSale = errors.New("não existe venda com id")
 var ErrViolatedForeingKey = errors.New("nao existe")
 var ErrNotFound = errors.New("não existe")
+var ErrDuplicateKey = errors.New("já existe")
+var ErrEnumInvalid = errors.New("está invalido")
 
 func InterpolationErrViolatedForeingKey(message string, id uint) string {
 	return fmt.Sprintf("%s %d ", message, id)
