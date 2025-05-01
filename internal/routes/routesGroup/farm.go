@@ -9,12 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupProfitRouter(r *gin.Engine) {
+func SetupRouterFarm(r *gin.Engine) {
 
-	repository := repositories.NewProfitRepository(config.DB)
-	service := services.NewProfitService(repository)
-	controller := controllers.NewProfitController(service)
+	farmRepository := repositories.NewFarmRepository(config.DB)
+	farmService := services.NewFarmService(farmRepository)
+	farmController := controllers.NewFarmController(farmService)
 
-	routerProfit := r.Group("/v1/lucro")
-	routerProfit.GET("/:id", middlewares.ValidateIdParam("id"), middlewares.ValidateJWT(), controller.GetProfit)
+	farmRouterGroup := r.Group("/v1/fazenda")
+	farmRouterGroup.POST("/", middlewares.ValidateJWT(), farmController.PostFarm)
+
 }
