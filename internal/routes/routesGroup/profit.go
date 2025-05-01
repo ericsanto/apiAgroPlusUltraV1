@@ -16,5 +16,5 @@ func SetupProfitRouter(r *gin.Engine) {
 	controller := controllers.NewProfitController(service)
 
 	routerProfit := r.Group("/v1/lucro")
-	routerProfit.GET("/:id", middlewares.ValidateIdParam("id"), controller.GetProfit)
+	routerProfit.GET("/:id", middlewares.ValidateIdParam("id"), middlewares.ValidateJWT(), controller.GetProfit)
 }

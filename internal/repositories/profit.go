@@ -32,6 +32,7 @@ func (p *ProfitRepository) FindProfit(plantingID uint) (*responses.ProfitRespons
 	FROM planting_entities
 	INNER JOIN production_cost_entities ON production_cost_entities.planting_id = planting_entities.id
 	INNER JOIN sale_planting_entities ON sale_planting_entities.planting_id = planting_entities.id
+	
 	WHERE planting_entities.id = ?`
 
 	var responseProfit responses.ProfitResponse
