@@ -15,9 +15,9 @@ func NewProfitService(profitRepository *repositories.ProfitRepository) *ProfitSe
 	return &ProfitService{profitRepository: profitRepository}
 }
 
-func (p *ProfitService) GetProfit(plantingID uint) (*responses.ProfitResponse, error) {
+func (p *ProfitService) GetProfit(plantingID, userID uint) (*responses.ProfitResponse, error) {
 
-	profitResponse, err := p.profitRepository.FindProfit(plantingID)
+	profitResponse, err := p.profitRepository.FindProfit(plantingID, userID)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
