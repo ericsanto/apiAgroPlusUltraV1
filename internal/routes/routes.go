@@ -24,6 +24,7 @@ func SetupRoutes() *gin.Engine {
 	routesgroup.SetupSalePlantingRouter(router)
 	routesgroup.SetupProfitRouter(router)
 	routesgroup.SetupPerformancePlantingRouter(router)
+	routesgroup.SetupRouterFarm(router)
 
 	return router
 }
