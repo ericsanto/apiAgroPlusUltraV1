@@ -105,3 +105,11 @@ func VerifyIdExists(id uint, db *sql.DB, tableName string) (bool, error) {
 
 	return true, nil
 }
+
+func QueryVerifyIdExists(params ...string) string {
+
+	var queryVerifyIdExists string = fmt.Sprintf(`SELECT EXISTS(SELECT 1 FROM %s WHERE %s.%s = ? AND %s.%s = ?)`, params[0], params[1],
+		params[2], params[3], params[4])
+
+	return queryVerifyIdExists
+}

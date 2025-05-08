@@ -7,11 +7,11 @@ import (
 
 type ErrorApp struct {
 	Message   interface{} `json:"message"`
-	Code      uint        `json:"code"`
+	Code      int         `json:"code"`
 	Timestamp string      `json:"timestamp"`
 }
 
-func NewError(message, timestamp string, code uint) *ErrorApp {
+func NewError(message, timestamp string, code int) *ErrorApp {
 	return &ErrorApp{Message: message, Code: code, Timestamp: timestamp}
 }
 

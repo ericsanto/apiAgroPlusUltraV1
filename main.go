@@ -5,15 +5,16 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/routes"
 )
 
-
 func main() {
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("erro ao carregar variáveis do .env %w", err)
+	// }
 
-  config.Conect()
+	config.Conect()
 
-  routes := routes.SetupRoutes() 
+	routes := routes.SetupRoutes()
 
-  routes.Run(":8080")
+	routes.Run(":8080")
 
 }
-
-
