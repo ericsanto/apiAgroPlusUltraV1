@@ -2,8 +2,11 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
@@ -15,18 +18,20 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
+var (
+	SECRET_KEY_MINIO = os.Getenv("SECRET_KEY_MINIO")
+	ACCESS_KEY_MINIO = os.Getenv("ACESS_KEY_ID_MINIO")
+	ENDPOINT         = "minio:9000"
+)
+
 func DetectPestImage(c *gin.Context) {
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 
 	defer cancel()
 
-	endpoint := "172.18.0.2:9000"
-	acessaKeyId := "Drc6MYn9RSGvrhxGkzzd"
-	secretKey := "QLSkP6aBlS3OF90ipLda4OreXfP5p6XWvkISyxB7"
-
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(acessaKeyId, secretKey, ""),
+	minioClient, err := minio.New(ENDPOINT, &minio.Options{
+		Creds:  credentials.NewStaticV4(ACCESS_KEY_MINIO, SECRET_KEY_MINIO, ""),
 		Secure: false,
 	})
 
@@ -47,36 +52,28 @@ func DetectPestImage(c *gin.Context) {
 	region := ""
 	objectLookin := false
 
-	resultChan := make(chan struct {
-		success bool
-		err     error
-	})
+	upload, err := bucket.AsyncSendImageToBucket(ctx, minioClient, bucketName, file, *header, region, objectLookin)
 
-	go func() {
-		upload, err := bucket.SendImageToBucket(ctx, minioClient, bucketName, file, *header, region, objectLookin)
+	log.Println(upload)
 
-		resultChan <- struct {
-			success bool
-			err     error
-		}{success: upload, err: err}
-	}()
+	if err != nil {
 
-	select {
-	case <-ctx.Done():
-		myerror.HttpErrors(http.StatusRequestTimeout, "A requisição excedeu o limite de tempo", c)
-		return
-
-	case result := <-resultChan:
-		if !result.success {
-			myerror.HttpErrors(http.StatusBadRequest, result.err.Error(), c)
+		if errors.Is(err, ctx.Err()) {
+			myerror.HttpErrors(http.StatusRequestTimeout, "tempo excedido", c)
 			return
 		}
+
+		myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
+		return
 	}
 
-	urlImageBucket := fmt.Sprintf("%s/%s/%s", endpoint, bucketName, header.Filename)
+	urlImage := fmt.Sprintf("http://%s/%s/%s", ENDPOINT, bucketName, header.Filename)
 
-	if err := kafka.SendMessageKafka(urlImageBucket); err != nil {
-		myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
+	successSendedChannelMessage, err := kafka.KafkaChannelMessage(ctx, urlImage)
+
+	if !successSendedChannelMessage {
+		myerror.HttpErrors(http.StatusRequestTimeout, "tempo excedido", c)
+		log.Print(err)
 		return
 	}
 
