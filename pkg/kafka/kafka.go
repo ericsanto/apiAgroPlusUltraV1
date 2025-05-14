@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -42,4 +43,30 @@ func SendMessageKafka(urlImage string) error {
 	fmt.Println(partiton, offset)
 
 	return nil
+}
+
+func KafkaChannelMessage(ctx context.Context, url string) (bool, error) {
+
+	type KafkaSendMessage struct {
+		Success bool
+		Err     error
+	}
+
+	resultSendedMessage := make(chan KafkaSendMessage)
+
+	go func() {
+
+		err := SendMessageKafka(url)
+		resultSendedMessage <- KafkaSendMessage{Success: err == nil, Err: err}
+
+	}()
+
+	select {
+
+	case <-ctx.Done():
+		return false, ctx.Err()
+
+	case result := <-resultSendedMessage:
+		return result.Success, result.Err
+	}
 }
