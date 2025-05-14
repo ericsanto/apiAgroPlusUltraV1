@@ -9,7 +9,7 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-func SendImageToBucket(ctx context.Context, minioClient *minio.Client, bucketName string, image multipart.File, header multipart.FileHeader, region string, objectLookin bool) (bool, error) {
+func SyncSendImageToBucket(ctx context.Context, minioClient *minio.Client, bucketName string, image multipart.File, header multipart.FileHeader, region string, objectLookin bool) (bool, error) {
 
 	IsCreatedBucket, err := CreateBucket(ctx, minioClient, bucketName, region, objectLookin)
 	if err != nil {
@@ -28,4 +28,30 @@ func SendImageToBucket(ctx context.Context, minioClient *minio.Client, bucketNam
 	log.Printf("Successfully uploaded %s of size %d\n", header.Filename, info.Size)
 
 	return true, nil
+}
+
+func AsyncSendImageToBucket(ctx context.Context, minioClient *minio.Client, bucketName string, image multipart.File, header multipart.FileHeader, region string, objectLookin bool) (bool, error) {
+
+	type SendedImage struct {
+		Success bool
+		Err     error
+	}
+
+	resultSendedImage := make(chan SendedImage)
+
+	go func() {
+
+		_, err := SyncSendImageToBucket(ctx, minioClient, bucketName, image, header, region, objectLookin)
+
+		resultSendedImage <- SendedImage{Success: err == nil, Err: err}
+	}()
+
+	select {
+	case <-ctx.Done():
+		return false, ctx.Err()
+
+	case result := <-resultSendedImage:
+		return result.Success, result.Err
+	}
+
 }
