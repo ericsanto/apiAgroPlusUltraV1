@@ -8,7 +8,6 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
-	github.com/joho/godotenv v1.5.1
 	github.com/minio/minio-go/v7 v7.0.91
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.10

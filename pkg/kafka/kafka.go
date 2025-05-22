@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/google/uuid"
 )
 
-func SendMessageKafka(urlImage string) error {
+func SendMessageKafka(urlImage string) (string, error) {
 
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
@@ -19,7 +20,7 @@ func SendMessageKafka(urlImage string) error {
 	producer, err := sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		log.Println(err)
-		return fmt.Errorf("erro ao criar produtor")
+		return "", fmt.Errorf("erro ao criar produtor")
 	}
 
 	defer producer.Close()
@@ -42,31 +43,69 @@ func SendMessageKafka(urlImage string) error {
 
 	fmt.Println(partiton, offset)
 
-	return nil
+	return requestID.String(), nil
 }
 
-func KafkaChannelMessage(ctx context.Context, url string) (bool, error) {
+func KafkaChannelMessage(ctx context.Context, url string) (bool, string, error) {
 
 	type KafkaSendMessage struct {
-		Success bool
-		Err     error
+		MessageKey string
+		Success    bool
+		Err        error
 	}
 
 	resultSendedMessage := make(chan KafkaSendMessage)
 
 	go func() {
 
-		err := SendMessageKafka(url)
-		resultSendedMessage <- KafkaSendMessage{Success: err == nil, Err: err}
+		messageKey, err := SendMessageKafka(url)
+		resultSendedMessage <- KafkaSendMessage{Success: err == nil, Err: err, MessageKey: messageKey}
 
 	}()
 
 	select {
 
 	case <-ctx.Done():
-		return false, ctx.Err()
+		return false, "", ctx.Err()
 
 	case result := <-resultSendedMessage:
-		return result.Success, result.Err
+		return result.Success, result.MessageKey, result.Err
+	}
+}
+
+func ConsumerMessageKafka(messageKey string) (string, error) {
+
+	config := sarama.NewConfig()
+	config.Consumer.Return.Errors = true
+
+	brokers := []string{"kafka:9092"}
+
+	consumer, err := sarama.NewConsumer(brokers, config)
+
+	if err != nil {
+		return "", fmt.Errorf("erro ao criar consumer: %w", err)
+	}
+
+	defer consumer.Close()
+
+	topicName := "result-analysis"
+
+	partitionConsumer, err := consumer.ConsumePartition(topicName, 0, sarama.OffsetNewest)
+
+	if err != nil {
+		return "", fmt.Errorf("erro ao definir particao: %w", err)
+	}
+
+	for {
+		select {
+		case result := <-partitionConsumer.Messages():
+			if string(result.Key) == (messageKey) {
+				return string(result.Value), nil
+			}
+		case err := <-partitionConsumer.Errors():
+			return "", err
+		case <-time.After(5 * time.Second):
+			return "", fmt.Errorf("timeout: mensagem com key %s não encontrada", messageKey)
+		}
 	}
 }

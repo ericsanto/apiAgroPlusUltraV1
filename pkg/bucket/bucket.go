@@ -14,6 +14,8 @@ func BuckerIsExists(ctx context.Context, miniClient *minio.Client, bucketName st
 		return false, fmt.Errorf("erro ao verificar existência do bucket com o nome %s: %w", bucketName, errBucketExist)
 	}
 
+	fmt.Println(exist)
+
 	return exist, nil
 }
 
