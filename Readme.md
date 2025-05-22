@@ -469,6 +469,37 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 
 ---
 
+# 📊🌾 Identificacao de Pragas
+
+
+| Método | Rota                                         | Descrição                                          |
+|--------|----------------------------------------------|----------------------------------------------------|
+| POST   | `/v1/reconhecimento-de-praga`                | Envia imagem para identificar qual a praga         |
+
+### ✅ Exemplo de Request: `POST /v1/reconhecimento-de-praga`
+
+```curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@/caminho/para/sua/imagem.jpg"
+```
+
+### ✅ Exemplo de Response: `POST /v1/reconhecimento-de-praga`
+
+```json
+{
+    "detections": [
+        {
+            "pest": "Cicadellidae",
+            "confidence": 0.8987361,
+            "hit_percentage": 90,
+            "hit_percentage_formated": "90%"
+        }
+    ]
+}
+```
+
+---
+
 ### 🚁 Monitoramento via Drones
 | Método | Rota                             | Descrição |
 |--------|----------------------------------|-----------|
