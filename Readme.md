@@ -478,7 +478,9 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 
 ### ✅ Exemplo de Request: `POST /v1/reconhecimento-de-praga`
 
-```curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
+
+```bash
+curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
   -H "Content-Type: multipart/form-data" \
   -F "file=@/caminho/para/sua/imagem.jpg"
 ```
