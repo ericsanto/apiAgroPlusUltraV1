@@ -27,6 +27,7 @@ func SetupRoutes() *gin.Engine {
 	routesgroup.SetupRouterFarm(router)
 	routesgroup.SetupRouterDetectPestImage(router)
 	routesgroup.RouterGroupDiseaseDetect(router)
+	routesgroup.RouterGroupOpenWeather(router)
 
 	return router
 }
