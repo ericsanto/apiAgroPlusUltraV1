@@ -5,15 +5,11 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/routes"
 )
 
-
 func main() {
+	config.Conect()
 
-  config.Conect()
+	routes := routes.SetupRoutes()
 
-  routes := routes.SetupRoutes() 
-
-  routes.Run(":8080")
+	routes.Run(":8080")
 
 }
-
-

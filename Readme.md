@@ -469,6 +469,72 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 
 ---
 
+# 📊🌾 Identificacao de Pragas
+
+
+| Método | Rota                                         | Descrição                                          |
+|--------|----------------------------------------------|----------------------------------------------------|
+| POST   | `/v1/reconhecimento-de-praga`                | Envia imagem para identificar qual a praga         |
+
+### ✅ Exemplo de Request: `POST /v1/reconhecimento-de-praga`
+
+
+```bash
+curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@/caminho/para/sua/imagem.jpg"
+```
+
+### ✅ Exemplo de Response: `POST /v1/reconhecimento-de-praga`
+
+```json
+{
+    "detections": [
+        {
+            "pest": "Cicadellidae",
+            "confidence": 0.8987361,
+            "hit_percentage": 90,
+            "hit_percentage_formated": "90%"
+        }
+    ]
+}
+```
+
+---
+
+# ☀️🌧️ Dados Climaticos
+
+| Método | Rota              | Descrição                                                     |
+|--------|-------------------|---------------------------------------------------------------|
+| GET    | v1/weather-current?lat=?&long=?| Retorna as condições climáticas atuais da cidade |
+
+### ✅ Exemplo de Request: `GET v1/weather-current?lat=-38.379&long=-89.2343`
+
+### ✅ Exemplo de Response: `GET /weather-current`
+
+```json
+{
+  "main": {
+    "temp": 28.27,
+    "temp_max": 28.27,
+    "temperature_min": 28.27,
+    "feels_like": 28.66,
+    "pressure": 1016,
+    "humidity": 49
+  },
+  "rain": {
+    "1h": 0,
+    "3h": 0
+  },
+  "wind": {
+    "deg": 137,
+    "speed": 3.79
+  },
+  "city": "Nome da cidade"
+}
+```
+---
+
 ### 🚁 Monitoramento via Drones
 | Método | Rota                             | Descrição |
 |--------|----------------------------------|-----------|

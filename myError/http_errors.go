@@ -17,7 +17,7 @@ import (
 
 func HttpErrors(statusCode int, message interface{}, c *gin.Context) {
 	c.AbortWithStatusJSON(statusCode, ErrorApp{
-		Code:      uint(statusCode),
+		Code:      statusCode,
 		Message:   message,
 		Timestamp: time.Now().Format(time.RFC3339),
 	})

@@ -23,7 +23,15 @@ func (p *ProfitController) GetProfit(c *gin.Context) {
 
 	id := validators.GetAndValidateIdMidlware(c, "validatedID")
 
-	responseProfit, err := p.profitService.GetProfit(id)
+	val, exists := c.Get("userID")
+
+	if !exists {
+		return
+	}
+
+	userID := val.(uint)
+
+	responseProfit, err := p.profitService.GetProfit(id, userID)
 	if err != nil {
 
 		switch {

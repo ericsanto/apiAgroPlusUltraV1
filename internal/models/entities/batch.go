@@ -6,4 +6,5 @@ type BatchEntity struct {
 	Area     float32          `gorm:"not null"`
 	Unit     string           `gorm:"size:10;not null"`
 	Planting []PlantingEntity `gorm:"foreignKey:BatchID"`
+	FarmID   uint
 }
