@@ -2,11 +2,12 @@ package openweather
 
 import (
 	"log"
+	"os"
 
 	owm "github.com/briandowns/openweathermap"
 )
 
-var apiKey = "cc4e916a8fd13f530b3807c748326181"
+var apiKey = os.Getenv("OPEN_WEATHER_API_KEY")
 
 type Main struct {
 	Temperature    float64 `json:"temp"`
