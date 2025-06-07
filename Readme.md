@@ -502,6 +502,8 @@ curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
 
 ---
 
+# ☀️🌧️ Dados Climaticos
+
 | Método | Rota              | Descrição                                                     |
 |--------|-------------------|---------------------------------------------------------------|
 | GET    | v1/weather-current?lat=?&long=?| Retorna as condições climáticas atuais da cidade |
