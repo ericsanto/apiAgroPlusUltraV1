@@ -9,5 +9,5 @@ import (
 func SetupRouterDetectPestImage(r *gin.Engine) {
 
 	detectPestImageRouter := r.Group("/v1/reconhecimento-de-praga")
-	detectPestImageRouter.POST("/", middlewares.ValidateJWT(), controllers.DetectPestImage)
+	detectPestImageRouter.POST("/", middlewares.ValidateJWT(), controllers.DetectPestImageController)
 }
