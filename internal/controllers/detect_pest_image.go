@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/IBM/sarama"
@@ -18,18 +19,23 @@ func DetectPestImageController(c *gin.Context) {
 	responseApiPython, err := services.DetectPestImage(c.Request)
 
 	if err != nil {
-		if errors.Is(err, ctx.Err()) {
+		switch {
+		case errors.Is(err, ctx.Err()):
 			myerror.HttpErrors(http.StatusRequestTimeout, err.Error(), c)
-			return
-		}
 
-		if errors.As(err, &sarama.ConsumerError{}) {
-			myerror.HttpErrors(http.StatusBadGateway, err.Error(), c)
-			return
-		}
+		case errors.As(err, &sarama.ConsumerError{}):
+			log.Println(err.Error())
+			myerror.HttpErrors(http.StatusBadGateway, "erro ao consultar servidor externo", c)
 
-		myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
-		return
+		case errors.Is(err, myerror.ErrImageSizeToLarge):
+			myerror.HttpErrors(413, err.Error(), c)
+
+		case errors.Is(err, myerror.ErrUnsupportedImageType):
+			myerror.HttpErrors(http.StatusUnsupportedMediaType, err.Error(), c)
+
+		default:
+			myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
+		}
 	}
 
 	c.JSON(http.StatusOK, responseApiPython)
