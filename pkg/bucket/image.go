@@ -87,7 +87,7 @@ func VerifyImageType(header *multipart.FileHeader) error {
 	return nil
 }
 
-func ValidateImageSizeAndTypeImage(header *multipart.FileHeader) error {
+func ValidateImageSizeAndType(header *multipart.FileHeader) error {
 
 	if err := VerifyImageSize(header); err != nil {
 		return err
@@ -100,7 +100,7 @@ func ValidateImageSizeAndTypeImage(header *multipart.FileHeader) error {
 	return nil
 }
 
-func UploadImageToBucketService(ctx context.Context, minioClient *minio.Client, bucketName string, file multipart.File, header *multipart.FileHeader, region string, objectLookin bool) error {
+func UploadImageToBucket(ctx context.Context, minioClient *minio.Client, bucketName string, file multipart.File, header *multipart.FileHeader, region string, objectLookin bool) error {
 
 	_, err := AsyncSendImageToBucket(ctx, minioClient, bucketName, file, *header, region, objectLookin)
 
