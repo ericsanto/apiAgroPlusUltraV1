@@ -2,15 +2,17 @@ package kafka
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM/sarama"
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/google/uuid"
 )
 
-func SendMessageKafka(urlImage string) (string, error) {
+func SendMessageKafka(urlImage string, typeDetect string) (string, error) {
 
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
@@ -34,6 +36,9 @@ func SendMessageKafka(urlImage string) (string, error) {
 		Topic: "pending-analysis",
 		Key:   sarama.StringEncoder(requestID.String()),
 		Value: sarama.StringEncoder(urlImage),
+		Headers: []sarama.RecordHeader{
+			{Key: []byte("key"), Value: []byte(typeDetect)},
+		},
 	}
 
 	partiton, offset, err := producer.SendMessage(message)
@@ -46,7 +51,7 @@ func SendMessageKafka(urlImage string) (string, error) {
 	return requestID.String(), nil
 }
 
-func KafkaChannelMessage(ctx context.Context, url string) (bool, string, error) {
+func KafkaChannelMessage(ctx context.Context, url string, typeDetect string) (bool, string, error) {
 
 	type KafkaSendMessage struct {
 		MessageKey string
@@ -58,7 +63,7 @@ func KafkaChannelMessage(ctx context.Context, url string) (bool, string, error) 
 
 	go func() {
 
-		messageKey, err := SendMessageKafka(url)
+		messageKey, err := SendMessageKafka(url, typeDetect)
 		resultSendedMessage <- KafkaSendMessage{Success: err == nil, Err: err, MessageKey: messageKey}
 
 	}()
@@ -108,4 +113,57 @@ func ConsumerMessageKafka(messageKey string) (string, error) {
 			return "", fmt.Errorf("timeout: mensagem com key %s não encontrada", messageKey)
 		}
 	}
+}
+
+func SendAndReceiver(ctx context.Context, urlImage, typeDetect string) (string, error) {
+
+	successSendedChannelMessage, messageKey, err := KafkaChannelMessage(ctx, urlImage, typeDetect)
+
+	if !successSendedChannelMessage {
+		log.Println(err)
+
+		if errors.Is(err, ctx.Err()) {
+			return "", fmt.Errorf("%s", myerror.ErrTimeOut)
+		}
+
+		return "", fmt.Errorf("%s", err.Error())
+	}
+
+	message, err := ConsumerMessageKafka(messageKey)
+	if err != nil {
+
+		switch errTyped := err.(type) {
+		case *sarama.ConsumerError:
+			return "", errTyped
+
+		default:
+			return "", errTyped
+		}
+
+	}
+
+	return message, nil
+}
+
+func SendAndReceiverKafkaService(ctx context.Context, urlImage, typeDetect string) (string, error) {
+
+	message, err := SendAndReceiver(ctx, urlImage, typeDetect)
+
+	if err != nil {
+
+		if errors.Is(err, ctx.Err()) {
+			log.Println(err.Error())
+			return "", fmt.Errorf("tempo excedido ao tentar se comunicar com o kafka")
+		}
+
+		if errors.As(err, &sarama.ConsumerError{}) {
+			log.Println(err.Error())
+			return "", fmt.Errorf("erro ao consumir mensagem do kafka")
+		}
+
+		log.Println(err.Error())
+		return "", fmt.Errorf("erro ao se comunicar com o servidor")
+	}
+
+	return message, nil
 }
