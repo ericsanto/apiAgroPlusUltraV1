@@ -6,11 +6,6 @@ import (
 )
 
 func main() {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("erro ao carregar variáveis do .env %w", err)
-	// }
-
 	config.Conect()
 
 	routes := routes.SetupRoutes()
