@@ -2,11 +2,17 @@ package bucket
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"mime/multipart"
 
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/minio/minio-go/v7"
+)
+
+const (
+	maxSizeFile = 1024 * 1024 * 20
 )
 
 func SyncSendImageToBucket(ctx context.Context, minioClient *minio.Client, bucketName string, image multipart.File, header multipart.FileHeader, region string, objectLookin bool) (bool, error) {
@@ -54,4 +60,58 @@ func AsyncSendImageToBucket(ctx context.Context, minioClient *minio.Client, buck
 		return result.Success, result.Err
 	}
 
+}
+
+func VerifyImageSize(header *multipart.FileHeader) error {
+
+	if header.Size > maxSizeFile {
+		return myerror.ErrImageSizeToLarge
+	}
+
+	return nil
+
+}
+
+func VerifyImageType(header *multipart.FileHeader) error {
+
+	allowedTypesImage := map[string]bool{
+		"image/png":  true,
+		"image/jpeg": true,
+		"image/jpg":  true,
+	}
+
+	if !allowedTypesImage[header.Header.Get("Content-type")] {
+		return myerror.ErrUnsupportedImageType
+	}
+
+	return nil
+}
+
+func ValidateImageSizeAndTypeImage(header *multipart.FileHeader) error {
+
+	if err := VerifyImageSize(header); err != nil {
+		return err
+	}
+
+	if err := VerifyImageType(header); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UploadImageToBucketService(ctx context.Context, minioClient *minio.Client, bucketName string, file multipart.File, header *multipart.FileHeader, region string, objectLookin bool) error {
+
+	_, err := AsyncSendImageToBucket(ctx, minioClient, bucketName, file, *header, region, objectLookin)
+
+	if err != nil {
+
+		if errors.Is(err, ctx.Err()) {
+			return fmt.Errorf("tempo excedido")
+		}
+
+		return err
+	}
+
+	return nil
 }
