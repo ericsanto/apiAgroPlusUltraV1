@@ -36,25 +36,25 @@ func DetectPestImage(formFile upload.UploadFileInterface) (map[string][]Response
 
 	defer cancel()
 
-	minioClient, err := CreateClientMinio(ACCESS_KEY_MINIO, SECRET_KEY_MINIO, "", false)
+	minioClient, err := bucket.CreateMinioClient(ENDPOINT, ACCESS_KEY_MINIO, SECRET_KEY_MINIO, "", false)
 
 	if err != nil {
-		log.Println(err)
-		return nil, fmt.Errorf("erro ao se conectar com minio %w", err)
+		log.Println(err.Error())
+		return nil, fmt.Errorf("erro ao se conectar com minio")
 	}
 
-	file, header, err := upload.UploadFile(formFile)
+	file, header, err := upload.UploadFile(formFile, "image")
 	if err != nil {
 		return nil, err
 	}
 
 	defer file.Close()
 
-	if err := bucket.ValidateImageSizeAndTypeImage(header); err != nil {
+	if err := bucket.ValidateImageSizeAndType(header); err != nil {
 		return nil, err
 	}
 
-	if err := bucket.UploadImageToBucketService(ctx, minioClient, bucketName, file, header, region, objectLookin); err != nil {
+	if err := bucket.UploadImageToBucket(ctx, minioClient, bucketName, file, header, region, objectLookin); err != nil {
 		return nil, err
 	}
 
