@@ -3,13 +3,15 @@ package upload
 import (
 	"fmt"
 	"mime/multipart"
-
-	"github.com/gin-gonic/gin"
 )
 
-func UploadFile(c *gin.Context) (multipart.File, *multipart.FileHeader, error) {
+type UploadFileInterface interface {
+	FormFile(string) (multipart.File, *multipart.FileHeader, error)
+}
 
-	file, header, err := c.Request.FormFile("file")
+func UploadFile(c UploadFileInterface, key string) (multipart.File, *multipart.FileHeader, error) {
+
+	file, header, err := c.FormFile(key)
 	if err != nil {
 		return nil, nil, fmt.Errorf("erro: %w", err)
 	}
