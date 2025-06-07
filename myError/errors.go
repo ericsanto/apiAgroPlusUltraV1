@@ -12,6 +12,9 @@ var ErrNotFound = errors.New("não existe")
 var ErrDuplicateKey = errors.New("já existe")
 var ErrEnumInvalid = errors.New("está invalido")
 var ErrStatusServiceUnavailable = errors.New("servico temporariamente fora do ar. Tente novamente mais tarde")
+var ErrTimeOut = errors.New("tempo excedido")
+var ErrImageSizeToLarge = errors.New("tamanho da imagem maior que 20MB")
+var ErrUnsupportedImageType = errors.New("tipo da imagem nao e png, jpg ou jpeg")
 
 type ErrorApp struct {
 	Message   interface{} `json:"message"`
