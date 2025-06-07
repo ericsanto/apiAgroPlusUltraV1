@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 
 func ValidateJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		secretKey := "4etjkdfk?jse07ghf8ffper9fd!@78&L!"
+		secretKey := os.Getenv("JWT_SECRET_KEY")
 
 		authorization := c.GetHeader("Authorization")
 
