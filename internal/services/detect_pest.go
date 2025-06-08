@@ -30,7 +30,7 @@ var (
 	typeDetect       = "pest"
 )
 
-func DetectPestImage(formFile upload.UploadFileInterface) (map[string][]ResponseApiPython, error) {
+func DetectPestImage(formFile upload.UploadFileInterface, formKey string) (map[string][]ResponseApiPython, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
@@ -43,7 +43,7 @@ func DetectPestImage(formFile upload.UploadFileInterface) (map[string][]Response
 		return nil, fmt.Errorf("erro ao se conectar com minio")
 	}
 
-	file, header, err := upload.UploadFile(formFile, "image")
+	file, header, err := upload.UploadFile(formFile, formKey)
 	if err != nil {
 		return nil, err
 	}
