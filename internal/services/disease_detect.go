@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/bucket"
@@ -13,24 +12,7 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/upload"
 )
 
-type ResponseApiPython struct {
-	Pest                  string  `json:"pest"`
-	Confidence            float32 `json:"confidence"`
-	HitPercentage         float32 `json:"hit_percentage"`
-	HitPercentageFormated string  `json:"hit_percentage_formated"`
-}
-
-var (
-	ENDPOINT         = os.Getenv("ENDPOINT")
-	SECRET_KEY_MINIO = os.Getenv("SECRET_KEY_MINIO")
-	ACCESS_KEY_MINIO = os.Getenv("ACCESS_KEY_ID_MINIO")
-	bucketName       = os.Getenv("BUCKET_NAME")
-	region           = ""
-	objectLookin     = false
-	typeDetect       = "pest"
-)
-
-func DetectPestImage(formFile upload.UploadFileInterface, formKey string) (map[string][]ResponseApiPython, error) {
+func DiseaseDetect(formFile upload.UploadFileInterface, formKey string) (map[string]string, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
@@ -60,12 +42,16 @@ func DetectPestImage(formFile upload.UploadFileInterface, formKey string) (map[s
 
 	urlImage := fmt.Sprintf("http://%s/%s/%s", ENDPOINT, bucketName, header.Filename)
 
+	typeDetect := "disease"
+
 	message, err := kafka.SendAndReceiverKafkaService(ctx, urlImage, typeDetect)
 	if err != nil {
 		return nil, err
 	}
 
-	var responseApiPython map[string][]ResponseApiPython
+	var responseApiPython map[string]string
+
+	fmt.Println(message)
 
 	err = jsonutil.ConvertStringToJson(message, &responseApiPython)
 	log.Println(err)
