@@ -10,5 +10,5 @@ func RouterGroupDiseaseDetect(r *gin.Engine) {
 
 	routerDiseaseDetectGroup := r.Group("/v1/disease-detect")
 
-	routerDiseaseDetectGroup.POST("/", middlewares.ValidateJWT(), controllers.DiseaseDetect)
+	routerDiseaseDetectGroup.POST("/", middlewares.ValidateJWT(), controllers.DiseaseDetectController)
 }
