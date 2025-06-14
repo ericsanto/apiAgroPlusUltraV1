@@ -20,9 +20,10 @@ func NewBatchService(batchRepository *repositories.BatchRepository) *BatchServic
 func (b *BatchService) PostBatchService(requestBatchService requests.BatchRequest) error {
 
 	batchEntity := entities.BatchEntity{
-		Name: requestBatchService.Name,
-		Area: requestBatchService.Area,
-		Unit: requestBatchService.Unit,
+		Name:   requestBatchService.Name,
+		Area:   requestBatchService.Area,
+		Unit:   requestBatchService.Unit,
+		FarmID: requestBatchService.FarmID,
 	}
 
 	if err := b.batchRepository.Create(batchEntity); err != nil {
