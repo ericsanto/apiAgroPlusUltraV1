@@ -15,6 +15,12 @@ var ErrStatusServiceUnavailable = errors.New("servico temporariamente fora do ar
 var ErrTimeOut = errors.New("tempo excedido")
 var ErrImageSizeToLarge = errors.New("tamanho da imagem maior que 20MB")
 var ErrUnsupportedImageType = errors.New("tipo da imagem nao e png, jpg ou jpeg")
+var ErrNewCurrent = errors.New("erro ao criar cliente para buscar dados atuais do tempo")
+var ErrCreateClientMosquitto = errors.New("erro ao criar cliente mosquitto")
+var ErrSearchCurrentByCoordinatesOpenWeather = errors.New("erro ao buscar dados climaticos a partir das corrdenadas fornecidas")
+var ErrGetUVSolarRadiationOpenWeather = errors.New("erro ao buscar radiacao solar")
+var ErrConectDeepSeek = errors.New("erro ao tentar se conectar com api deepseek")
+var ErrPublishMosquitto = errors.New("erro ao publicar mensagem no broker")
 
 type ErrorApp struct {
 	Message   interface{} `json:"message"`
