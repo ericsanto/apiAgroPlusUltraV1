@@ -43,31 +43,339 @@ A **AgroPlusUltra API** é uma plataforma para o monitoramento inteligente de cu
 ## 📦 Instalação e Uso
 
 ### Requisitos:
-- **Go 1.18+** instalado
+
 - **Docker** instalado
-- **PostgreSQL** configurado
+- **MQTT Explorer** instalado
 
 ### Passos:
 
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/seu-usuario/agrohero-api.git
-   cd agrohero-api
-   ```
+Claro! Aqui está o README completo, sem a parte sobre as imagens:
 
-2. Configure as variáveis de ambiente no arquivo `.env`.
+---
 
-3. Instale as dependências do Go:
-   ```bash
-   go mod tidy
-   ```
+# Projeto Agrohero - Ambiente Completo
 
-4. Suba a aplicação com Docker:
-   ```bash
-   docker-compose up -d
-   ```
+Este documento explica como configurar e rodar todo o ambiente local do projeto Agrohero, que inclui:
 
-5. Acesse a API em `http://localhost:8080`.
+* API principal Agrohero
+* API de autenticação separada
+* Banco de dados PostgreSQL + PGAdmin
+* MinIO (armazenamento)
+* Kafka + Zookeeper + Kafdrop (UI Kafka)
+* Mosquitto MQTT Broker
+* Como instalar o MQTT Explorer (AppImage) para testes
+
+---
+
+## Pré-requisitos
+
+* Docker & Docker Compose
+* Git
+* Linux com suporte a FUSE (para rodar AppImage)
+
+---
+
+## Passos para rodar o projeto completo
+
+### 1. Criar a pasta do projeto e clonar os repositórios
+
+No terminal, escolha a pasta onde quer trabalhar e faça:
+
+```bash
+mkdir agrohero-full
+cd agrohero-full
+
+git clone https://github.com/ericsanto/apiAgroPlusUltraV1.git
+git clone https://github.com/ericsanto/api_authentication.git
+git clone https://github.com/ericsanto/kafka_minio_python.git
+```
+
+---
+
+### 2. Criar os arquivos `.env` em cada pasta clonada
+
+Configure as variáveis de ambiente para cada API:
+
+* `apiAgroPlusUltraV1/.env`
+* `api_authentication/.env`
+
+Exemplo apiAgroPlusUltraV1:
+
+```
+JWT_SECRET_KEY= 
+ACCESS_KEY_ID_MINIO= 
+SECRET_KEY_MINIO=
+BUCKET_NAME= 
+ENDPOINT=minio:9000 
+OPEN_WEATHER_API_KEY=
+DEEPSEEK_API_KEY=
+URL_BROKER_MOSQUITTO=ws://mosquitto:9005
+PASSWORD_BROKER_MOSQUITTO=
+USERNAME_BROKER_MOSQUITTO=
+```
+
+Exemplo api_authentication:
+
+```
+JWT_SECRET_KEY=
+```
+
+Exemplo python_minio_kafka:
+
+```
+MINIO_ACCESS_KEY=
+MINIO_SECRET_KEY=
+---
+
+### 3. Salvar o arquivo `docker-compose.yml` no diretório raiz `agrohero-full`
+
+Crie um arquivo `docker-compose.yml` com o conteúdo:
+
+```yaml
+services:
+  app1:
+    build:
+      context: ./apiAgroPlusUltraV1
+      dockerfile: Dockerfile
+    ports: 
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - app-network
+    command: air
+    env_file:
+      - ./apiAgroPlusUltraV1/.env
+
+  app2:
+    build:
+      context: ./api_authentication
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    networks:
+      - app-network
+    env_file:
+      - ./api_authentication/.env
+
+  db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: go 
+      POSTGRES_PASSWORD: go
+      POSTGRES_DB: go
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"  # Porta da API
+      - "9001:9001"  # Porta do painel administrativo
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - app-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    networks:
+      - app-network
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    networks:
+      - app-network
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    networks:
+      - app-network
+    depends_on:
+      - kafka
+    ports:
+      - 19000:9000
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "8883:8883"   # TLS MQTT
+      - "9005:9005"   # TLS WebSocket
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+      - ./mosquitto/config/pwfile:/mosquitto/config/pwfile
+      - ./mosquitto/certs:/mosquitto/certs
+    networks:
+      - app-network
+
+
+volumes:
+  pgdata:
+  minio_data:
+
+networks:
+  app-network:
+    driver: bridge
+```
+
+---
+
+### 4. Subir todo o ambiente
+
+No terminal:
+
+```bash
+docker-compose up -d --build
+```
+
+---
+
+### 5. Acessar serviços importantes
+
+* API Agrohero: [http://localhost:8080](http://localhost:8080)
+* API Authentication: [http://localhost:8081](http://localhost:8081)
+* PGAdmin: [http://localhost:5050](http://localhost:5050)
+* MinIO Console: [http://localhost:9001](http://localhost:9001)
+* Kafka UI (Kafdrop): [http://localhost:19000](http://localhost:19000)
+* MQTT Broker (Mosquitto): Porta TLS MQTT `8883` e TLS WebSocket `9005`
+
+---
+
+### 6. Executar servico Python
+
+```bash
+
+cd kafka_minio_python
+
+python -m venv venv
+
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+python main.py
+```
+
+## Como usar o MQTT Explorer no Linux
+
+### 1. Baixar o AppImage
+
+Acesse a página oficial ou baixe direto pelo terminal:
+
+```bash
+wget https://github.com/thomasnordquist/MQTT-Explorer/releases/latest/download/MQTT-Explorer.AppImage
+```
+
+---
+
+### 2. Tornar o arquivo executável
+
+```bash
+chmod +x MQTT-Explorer.AppImage
+```
+
+---
+
+### 3. Instalar dependências necessárias (FUSE)
+
+O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
+
+* **Debian/Ubuntu**
+
+  ```bash
+  sudo apt update
+  sudo apt install fuse libfuse2
+  ```
+
+* **Arch Linux/Manjaro**
+
+  ```bash
+  sudo pacman -S fuse2
+  ```
+
+* **Fedora**
+
+  ```bash
+  sudo dnf install fuse
+  ```
+
+> ⚠️ Se ainda não executar, reinicie o sistema.
+
+---
+
+### 4. Executar o MQTT Explorer
+
+```bash
+./MQTT-Explorer.AppImage
+```
+
+> Se der erro, tente:
+
+```bash
+./MQTT-Explorer.AppImage --no-sandbox
+```
+
+---
+
+## Dicas para rodar e debugar
+
+* Para ver logs do Agrohero API:
+
+  ```bash
+  docker-compose logs -f app1
+  ```
+
+* Parar o ambiente:
+
+  ```bash
+  docker-compose down
+  ```
+
+---
+
 
 ## 📡 Endpoints da API
 
@@ -541,7 +849,7 @@ curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
 |--------|----------------------------------|-----------------------------------------------------------------------|
 | `GET`  | `/v1/irrigation-deepseek?lat=?&long=?`| calcula a quantidade correta de irrigacao que a planta necessita |
 
-### ✅ Exemplo de Response: `GET /v1/irrigation-deepseek?lat=-10.685&long=-38.2885?`
+### ✅ Exemplo de Response: `GET /v1/irrigation-deepseek?lat=-10.685&long=-38.2885`
 
 ```json
 {
