@@ -125,6 +125,8 @@ Exemplo python_minio_kafka:
 ```
 MINIO_ACCESS_KEY=
 MINIO_SECRET_KEY=
+```
+
 ---
 
 ### 3. Salvar o arquivo `docker-compose.yml` no diretório raiz `agrohero-full`
@@ -296,7 +298,7 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 
-python main.py
+python3 main.py
 ```
 
 ## Como usar o MQTT Explorer no Linux
