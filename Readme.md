@@ -533,6 +533,28 @@ curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
   "city": "Nome da cidade"
 }
 ```
+
+---
+
+# 💧 Recomendacao de Irrigacao por IA Baseado nos Dados Climaticos 
+| Método | Rota                             |                               Descrição                               |
+|--------|----------------------------------|-----------------------------------------------------------------------|
+| `GET`  | `/v1/irrigation-deepseek?lat=?&long=?`| calcula a quantidade correta de irrigacao que a planta necessita |
+
+### ✅ Exemplo de Response: `GET /v1/irrigation-deepseek?lat=-10.685&long=-38.2885?`
+
+```json
+{
+  "lote": "Lote 01",
+  "estagio_fenologico_atual": "germinacao/emergencia",
+  "decisao": false,
+  "motivo": "Umidade do solo (90%) adequada para o estagio atual (80-90%)",
+  "etc": 1.23,
+  "lamina_de_irrigacao_em_mm": 0,
+  "volume_por_planta_em_litros": 0
+}
+```
+
 ---
 
 ### 🚁 Monitoramento via Drones
@@ -542,3 +564,6 @@ curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
 | `POST` | `/v1/drones/monitoramento/pragas`| Envia imagem para detecção de pragas via visão computacional |
 | `GET`  | `/v1/drones/monitoramento/irrigacao`| Obtém dados de monitoramento para otimização de irrigação |
 
+
+# Provavel Arquitetura do Sistema
+![alt text](<./docs/images/ARQUITETURA DO SISTEMA IA.excalidraw(2).png>)
