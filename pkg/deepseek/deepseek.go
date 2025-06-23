@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/cohesion-org/deepseek-go"
+
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
 var (
@@ -41,13 +43,15 @@ func CreatePromptDeepSeek(currentTemperature, relativeAirHumidity, windSpeed, wi
 			"   - Lâmina de irrigação em mm\n"+
 			"   - Volume por planta em litros\n\n"+
 			"FORMATO DE SAÍDA ESPERADO:\n"+
-			"- Lote: [nome]\n"+
-			"- Estágio fenológico atual: [estágio calculado]\n"+
-			"- Decisão: [true/false]\n"+
-			"- Motivo: [ex: \"Umidade do solo (X%%) abaixo da necessidade da cultura neste estágio (Y%%)\"]\n"+
-			"- ETc (Evapotranspiração da cultura, mm/dia): [valor]\n"+
-			"- Lâmina de irrigação (mm): [valor]\n"+
-			"- Volume por planta (litros): [valor]\n",
+			"SAIDA FINAL\n"+
+			"- lote: [nome]\n"+
+			"- estagio_fenologico_atual: [estágio calculado]\n"+
+			"- decisao: [true/false]\n"+
+			"- motivo: [ex: \"Umidade do solo (X%%) abaixo da necessidade da cultura neste estágio (Y%%)\"]\n"+
+			"- ETc: [valor]\n"+
+			"- lamina_de_irrigacao_mm: [valor]\n"+
+			"- volume_por_planta_litros: [valor]\n"+
+			"Eu nao quero que vc escreva nada abaixo do texto da saida final. Se tiver observacoes, escreva antes da saida final. Alias, quero que essa saida seja formatada em formato json e vc remova o titulo SAIDA FINAL, so me envie o json sem titulo e sem nenhum acento nas palavras. Mas antes desse json, eu quero as explicacoes das decisoes tomadas\n",
 		batchName, agricultureCulture, startDatePlanting, currentDate, currentTemperature, relativeAirHumidity, windSpeed,
 		windDirection, solarRadiation, atmosphericPressure, soilHumidity, spaceBetweenPlants, spaceBetweenRows,
 		systemIrrigationEfficiency, irrigationType)
@@ -82,7 +86,7 @@ func SendTheRequestAndHandleTheResponse(client *deepseek.Client, request *deepse
 	ctx := context.Background()
 	response, err := client.CreateChatCompletion(ctx, request)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao conectar com Deepseek %v", err)
+		return nil, fmt.Errorf("%w: %v", myerror.ErrConectDeepSeek, err)
 	}
 
 	return response, nil
@@ -108,7 +112,7 @@ func RequestRecommendationIrrigationDeepSeek(currentTemperature, relativeAirHumi
 	}
 
 	// Print the response
-	fmt.Println("Response:", response.Choices[0].Message.Content)
+	// fmt.Println("Response:", response.Choices[0].Message.Content)
 
 	return response.Choices[0].Message.Content, nil
 }
