@@ -34,6 +34,9 @@ func (p *PlantingService) GetByParam(batchID uint) (responses.PlantingResponse, 
 		AgricultureCultureID: planting.AgricultureCultureID,
 		IsPlanting:           planting.IsPlanting,
 		StartDatePlanting:    planting.StartDatePlanting,
+		SpaceBetweenPlants:   planting.SpaceBetweenPlants,
+		SpaceBetweenRows:     planting.SpaceBetweenPlants,
+		IrrigationTypeID:     planting.IrrigationTypeID,
 	}
 
 	return plantingResponse, nil
@@ -53,6 +56,9 @@ func (p *PlantingService) PostPlanting(requestPlanting requests.PlantingRequest)
 		AgricultureCultureID: requestPlanting.AgricultureCultureID,
 		StartDatePlanting:    time.Now(),
 		IsPlanting:           *requestPlanting.IsPlanting,
+		SpaceBetweenPlants:   requestPlanting.SpaceBetweenPlants,
+		SpaceBetweenRows:     requestPlanting.SpaceBetweenRows,
+		IrrigationTypeID:     requestPlanting.IrrigationTypeID,
 	}
 
 	if err := p.plantingRepository.CreatePlanting(entityPlanting); err != nil {
@@ -78,6 +84,9 @@ func (p *PlantingService) GetAllPlanting() ([]responses.PlantingResponse, error)
 			BatchID:              v.BatchID,
 			AgricultureCultureID: v.AgricultureCultureID,
 			IsPlanting:           v.IsPlanting,
+			SpaceBetweenPlants:   v.SpaceBetweenPlants,
+			SpaceBetweenRows:     v.SpaceBetweenRows,
+			IrrigationTypeID:     v.IrrigationTypeID,
 		}
 
 		responseListPlanting = append(responseListPlanting, planting)
@@ -102,6 +111,9 @@ func (p *PlantingService) PutPlanting(id uint, requestPlanting requests.Planting
 		BatchID:              requestPlanting.BatchID,
 		AgricultureCultureID: requestPlanting.AgricultureCultureID,
 		IsPlanting:           *requestPlanting.IsPlanting,
+		SpaceBetweenPlants:   requestPlanting.SpaceBetweenPlants,
+		SpaceBetweenRows:     requestPlanting.SpaceBetweenRows,
+		IrrigationTypeID:     requestPlanting.IrrigationTypeID,
 	}
 
 	if err := p.plantingRepository.UpdatePlanting(id, entityPlanting); err != nil {

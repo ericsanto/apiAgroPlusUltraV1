@@ -1,8 +1,9 @@
 package routes
 
 import (
-	routesgroup "github.com/ericsanto/apiAgroPlusUltraV1/internal/routes/routesGroup"
 	"github.com/gin-gonic/gin"
+
+	routesgroup "github.com/ericsanto/apiAgroPlusUltraV1/internal/routes/routesGroup"
 )
 
 func SetupRoutes() *gin.Engine {
@@ -28,6 +29,8 @@ func SetupRoutes() *gin.Engine {
 	routesgroup.SetupRouterDetectPestImage(router)
 	routesgroup.RouterGroupDiseaseDetect(router)
 	routesgroup.RouterGroupOpenWeather(router)
+	routesgroup.SetupRouterIrrigationDeepSeek(router)
+	routesgroup.SetupRouterIrrigationType(router)
 
 	return router
 }

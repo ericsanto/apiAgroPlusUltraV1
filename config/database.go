@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 )
 
 var DB *gorm.DB
@@ -21,7 +22,7 @@ func Conect() error {
 		&entities.PestEntity{}, &entities.PestAgricultureCulture{}, &entities.IrrigationRecomendedEntity{},
 		&entities.AgricultureCultureIrrigation{}, &entities.SustainablePestControlEntity{}, &entities.AgricultureCulturePestMethodEntity{},
 		&entities.FarmEntity{}, &entities.BatchEntity{},
-		&entities.PlantingEntity{}, &entities.ProductionCostEntity{}, &entities.SalePlantingEntity{}, &entities.PerformancePlantingEntity{})
+		&entities.IrrigationTypeEntity{}, &entities.PlantingEntity{}, &entities.ProductionCostEntity{}, &entities.SalePlantingEntity{}, &entities.PerformancePlantingEntity{})
 
 	DB = db
 

@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 
+	"gorm.io/gorm"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
-	"gorm.io/gorm"
 )
 
 type PlantingRepository struct {
@@ -47,11 +48,17 @@ func (p *PlantingRepository) FindByParamBatchNameOrIsActivePlanting(batchName st
 	query := `SELECT 
 		batch_entities.name AS batch_name, 
 		planting_entities.is_planting, 
-		agriculture_culture_entities.name AS agriculture_culture_name, 
-		planting_entities.start_date_planting
+		agriculture_culture_entities.name AS agriculture_culture_name,
+		soil_type_entities.name AS soil_type_name,  
+		planting_entities.start_date_planting,
+		planting_entities.space_between_plants AS space_between_plants,
+		planting_entities.space_between_rows AS space_between_rows,
+		irrigation_type_entities.name AS irrigation_type
 	FROM planting_entities 
 	INNER JOIN batch_entities ON batch_entities.id = planting_entities.batch_id 
-	INNER JOIN agriculture_culture_entities ON agriculture_culture_entities.id = planting_entities.agriculture_culture_id 
+	INNER JOIN agriculture_culture_entities ON agriculture_culture_entities.id = planting_entities.agriculture_culture_id
+	INNER JOIN soil_type_entities ON  soil_type_entities.id = agriculture_culture_entities.soil_type_id
+	INNER JOIN irrigation_type_entities ON irrigation_type_entities.id = planting_entities.irrigation_type_id
 	WHERE 
 		( ? = '' OR REPLACE(batch_entities.name, ' ', '') ILIKE ?)
 		 AND (planting_entities.is_planting = ?)`
