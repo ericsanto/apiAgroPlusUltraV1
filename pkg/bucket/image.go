@@ -17,11 +17,10 @@ type ImageValidateInterface interface {
 }
 
 type ValidateImage struct {
-	header *multipart.FileHeader
 }
 
-func NewValidateImage(header *multipart.FileHeader) *ValidateImage {
-	return &ValidateImage{header: header}
+func NewValidateImage() ImageValidateInterface {
+	return &ValidateImage{}
 }
 
 func (vi *ValidateImage) VerifyImageSize(header *multipart.FileHeader) error {

@@ -9,11 +9,15 @@ import (
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-type IrrigationRecommendedDeepseekController struct {
-	irrigationDeepseekService *services.IrrigationRecommendedDeepSeekService
+type IrrigationRecommendedDeepSeekControllerInterface interface {
+	IrrigationDeepseek(c *gin.Context)
 }
 
-func NewIrrigationRecommendedDeepseekController(irrigationDeepseekService *services.IrrigationRecommendedDeepSeekService) *IrrigationRecommendedDeepseekController {
+type IrrigationRecommendedDeepseekController struct {
+	irrigationDeepseekService services.IrrigationRecommendedDeepSeekServiceInterface
+}
+
+func NewIrrigationRecommendedDeepseekController(irrigationDeepseekService services.IrrigationRecommendedDeepSeekServiceInterface) IrrigationRecommendedDeepSeekControllerInterface {
 	return &IrrigationRecommendedDeepseekController{irrigationDeepseekService: irrigationDeepseekService}
 
 }

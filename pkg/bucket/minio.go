@@ -7,14 +7,12 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-
-	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/bucket/config"
 )
 
 type BucketClientInterface interface {
-	CreateBucket(ctx context.Context, configs config.BucketConfig) (bool, error)
-	BucketIsExists(ctx context.Context, configs config.BucketConfig) (bool, error)
-	PutObject(ctx context.Context, configsBucket config.BucketConfig, header *multipart.FileHeader, image multipart.File) error
+	CreateBucket(ctx context.Context, configsBucket BucketConfig) (bool, error)
+	BucketIsExists(ctx context.Context, configsBucket BucketConfig) (bool, error)
+	PutObject(ctx context.Context, configsBucket BucketConfig, header *multipart.FileHeader, image multipart.File) error
 }
 
 type MinioConfig struct {
@@ -40,7 +38,7 @@ func NewMinioClient(configs MinioConfig) (*MinioClient, error) {
 	return &MinioClient{client: minioClient}, nil
 }
 
-func (mc *MinioClient) BucketIsExists(ctx context.Context, configsBucket config.BucketConfig) (bool, error) {
+func (mc *MinioClient) BucketIsExists(ctx context.Context, configsBucket BucketConfig) (bool, error) {
 
 	exist, errBucketExist := mc.client.BucketExists(ctx, configsBucket.Name)
 	if errBucketExist != nil {
@@ -50,7 +48,7 @@ func (mc *MinioClient) BucketIsExists(ctx context.Context, configsBucket config.
 	return exist, nil
 }
 
-func (mc *MinioClient) CreateBucket(ctx context.Context, configsBucket config.BucketConfig) (bool, error) {
+func (mc *MinioClient) CreateBucket(ctx context.Context, configsBucket BucketConfig) (bool, error) {
 
 	exits, err := mc.BucketIsExists(ctx, configsBucket)
 	if err != nil {
@@ -67,7 +65,7 @@ func (mc *MinioClient) CreateBucket(ctx context.Context, configsBucket config.Bu
 
 }
 
-func (mc *MinioClient) PutObject(ctx context.Context, configsBucket config.BucketConfig, header *multipart.FileHeader, image multipart.File) error {
+func (mc *MinioClient) PutObject(ctx context.Context, configsBucket BucketConfig, header *multipart.FileHeader, image multipart.File) error {
 
 	_, err := mc.client.PutObject(ctx, configsBucket.Name, header.Filename, image, header.Size, minio.PutObjectOptions{ContentType: header.Header.Get("Content-Type")})
 	if err != nil {

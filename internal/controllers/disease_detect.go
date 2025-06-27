@@ -1,45 +1,46 @@
 package controllers
 
-import (
-	"context"
-	"errors"
-	"log"
-	"net/http"
+// import (
+// 	"context"
+// 	"errors"
+// 	"log"
+// 	"net/http"
 
-	"github.com/IBM/sarama"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
-	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
-	"github.com/gin-gonic/gin"
-)
+// 	"github.com/IBM/sarama"
+// 	"github.com/gin-gonic/gin"
 
-func DiseaseDetectController(c *gin.Context) {
+// 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
+// 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
+// )
 
-	ctx := context.Background()
+// func DiseaseDetectController(c *gin.Context) {
 
-	formKey := "image"
+// 	ctx := context.Background()
 
-	responseApiPython, err := services.DiseaseDetect(c.Request, formKey)
+// 	formKey := "image"
 
-	if err != nil {
-		switch {
-		case errors.Is(err, ctx.Err()):
-			myerror.HttpErrors(http.StatusRequestTimeout, err.Error(), c)
-			return
-		case errors.As(err, &sarama.ConsumerError{}):
-			log.Println(err.Error())
-			myerror.HttpErrors(http.StatusBadGateway, "erro ao consultar servidor externo", c)
-			return
-		case errors.Is(err, myerror.ErrImageSizeToLarge):
-			myerror.HttpErrors(413, err.Error(), c)
-			return
-		case errors.Is(err, myerror.ErrUnsupportedImageType):
-			myerror.HttpErrors(http.StatusUnsupportedMediaType, err.Error(), c)
-			return
-		default:
-			myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
-			return
-		}
-	}
+// 	responseApiPython, err := services.DiseaseDetect(c.Request, formKey)
 
-	c.JSON(http.StatusOK, responseApiPython)
-}
+// 	if err != nil {
+// 		switch {
+// 		case errors.Is(err, ctx.Err()):
+// 			myerror.HttpErrors(http.StatusRequestTimeout, err.Error(), c)
+// 			return
+// 		case errors.As(err, &sarama.ConsumerError{}):
+// 			log.Println(err.Error())
+// 			myerror.HttpErrors(http.StatusBadGateway, "erro ao consultar servidor externo", c)
+// 			return
+// 		case errors.Is(err, myerror.ErrImageSizeToLarge):
+// 			myerror.HttpErrors(413, err.Error(), c)
+// 			return
+// 		case errors.Is(err, myerror.ErrUnsupportedImageType):
+// 			myerror.HttpErrors(http.StatusUnsupportedMediaType, err.Error(), c)
+// 			return
+// 		default:
+// 			myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
+// 			return
+// 		}
+// 	}
+
+// 	c.JSON(http.StatusOK, responseApiPython)
+// }

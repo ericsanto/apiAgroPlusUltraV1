@@ -6,18 +6,26 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type PlantingController struct {
-	plantingService *services.PlantingService
+type PlantingControllerInterface interface {
+	PostPlanting(c *gin.Context)
+	GetPlantingQueryParamBatchNameOrActive(c *gin.Context)
+	PutPlanting(c *gin.Context)
+	DeletePlanting(c *gin.Context)
 }
 
-func NewPlantingController(plantingService *services.PlantingService) *PlantingController {
+type PlantingController struct {
+	plantingService services.PlantingServiceInterface
+}
+
+func NewPlantingController(plantingService services.PlantingServiceInterface) PlantingControllerInterface {
 	return &PlantingController{plantingService: plantingService}
 }
 

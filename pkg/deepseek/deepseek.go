@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/cohesion-org/deepseek-go"
@@ -12,15 +11,47 @@ import (
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-var (
-	DEEPSEEK_API_KEY = os.Getenv("DEEPSEEK_API_KEY")
-)
+type PromptModel struct {
+	CurrentTemperature         float64
+	RelativeAirHumidity        float64
+	WindSpeed                  float64
+	WindDirection              float64
+	SolarRadiation             float64
+	SoilHumidity               float64
+	SystemIrrigationEfficiency float64
+	SpaceBetweenPlants         float64
+	SpaceBetweenRows           float64
+	AtmosphericPressure        float64
+	StartDatePlanting          string
+	SoilType                   string
+	IrrigationType             string
+	AgricultureCulture         string
+	BatchName                  string
+}
+
+type LLMMethods interface {
+	RequestRecommendationIrrigation(promptModel PromptModel) (string, error)
+}
+
+type DeepSeekInterface interface {
+	CreatePrompt(promptModel PromptModel) string
+	CreateRequest(content string) *deepseek.ChatCompletionRequest
+	SendTheRequestAndHandleTheResponse(request *deepseek.ChatCompletionRequest) (*deepseek.ChatCompletionResponse, error)
+}
+
+type DeepSeek struct {
+	apiKey         string
+	deepseekClient *deepseek.Client
+}
+
+func NewDeepSeek(apiKey string) LLMMethods {
+	return &DeepSeek{apiKey: apiKey,
+		deepseekClient: deepseek.NewClient(apiKey)}
+}
 
 //func ConnectDeepSeek(temperatureMax, relativeAirHumidity, windSpeed, solarRadiation, soilHumidity float64, fenologicalStage, soilType, s)
 
-func CreatePromptDeepSeek(currentTemperature, relativeAirHumidity, windSpeed, windDirection, solarRadiation, soilHumidity,
-	systemIrrigationEfficiency, spaceBetweenPlants, spaceBetweenRows, atmosphericPressure float64,
-	startDatePlanting, soilType, irrigationType, agricultureCulture, batchName string) string {
+func (ds *DeepSeek) CreatePrompt(promptModel PromptModel) string {
 
 	currentDate := time.Now().String()
 
@@ -35,6 +66,7 @@ func CreatePromptDeepSeek(currentTemperature, relativeAirHumidity, windSpeed, wi
 			"Espaçamento entre plantas: %.2f m. Espaçamento entre linhas: %.2f m.\n"+
 			"Eficiência do sistema de irrigação: %.2f%%.\n"+
 			"Tipo de irrigacao: %s\n"+
+			"Tipo de solo: %s\n"+
 			"Pergunta: Devo irrigar a plantação nas próximas 24h? Se sim, indique aproximadamente quantos milímetros de água são necessários para irrigar adequadamente. "+
 			"1. Calcule o estágio fenológico atual considerando a data de plantio e o ciclo da cultura\n"+
 			"2. Calcule a evapotranspiração da cultura (ETc) considerando o estágio fenológico\n"+
@@ -52,23 +84,18 @@ func CreatePromptDeepSeek(currentTemperature, relativeAirHumidity, windSpeed, wi
 			"- lamina_de_irrigacao_mm: [valor]\n"+
 			"- volume_por_planta_litros: [valor]\n"+
 			"Eu nao quero que vc escreva nada abaixo do texto da saida final. Se tiver observacoes, escreva antes da saida final. Alias, quero que essa saida seja formatada em formato json e vc remova o titulo SAIDA FINAL, so me envie o json sem titulo e sem nenhum acento nas palavras. Mas antes desse json, eu quero as explicacoes das decisoes tomadas\n",
-		batchName, agricultureCulture, startDatePlanting, currentDate, currentTemperature, relativeAirHumidity, windSpeed,
-		windDirection, solarRadiation, atmosphericPressure, soilHumidity, spaceBetweenPlants, spaceBetweenRows,
-		systemIrrigationEfficiency, irrigationType)
+		promptModel.BatchName, promptModel.AgricultureCulture, promptModel.StartDatePlanting,
+		currentDate, promptModel.CurrentTemperature, promptModel.RelativeAirHumidity,
+		promptModel.WindSpeed, promptModel.WindDirection, promptModel.SolarRadiation,
+		promptModel.AtmosphericPressure, promptModel.SoilHumidity, promptModel.SpaceBetweenPlants,
+		promptModel.SpaceBetweenRows, promptModel.SystemIrrigationEfficiency, promptModel.IrrigationType,
+		promptModel.SoilType)
 
 	return content
 
 }
 
-func ConnectDeepSeek(secretKey string) *deepseek.Client {
-
-	client := deepseek.NewClient(secretKey)
-
-	return client
-
-}
-
-func CreateRequestDeepSeek(content string) *deepseek.ChatCompletionRequest {
+func (ds *DeepSeek) CreateRequest(content string) *deepseek.ChatCompletionRequest {
 
 	request := &deepseek.ChatCompletionRequest{
 		Model: deepseek.DeepSeekChat,
@@ -81,10 +108,10 @@ func CreateRequestDeepSeek(content string) *deepseek.ChatCompletionRequest {
 
 }
 
-func SendTheRequestAndHandleTheResponse(client *deepseek.Client, request *deepseek.ChatCompletionRequest) (*deepseek.ChatCompletionResponse, error) {
+func (ds *DeepSeek) SendTheRequestAndHandleTheResponse(request *deepseek.ChatCompletionRequest) (*deepseek.ChatCompletionResponse, error) {
 
 	ctx := context.Background()
-	response, err := client.CreateChatCompletion(ctx, request)
+	response, err := ds.deepseekClient.CreateChatCompletion(ctx, request)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", myerror.ErrConectDeepSeek, err)
 	}
@@ -93,19 +120,13 @@ func SendTheRequestAndHandleTheResponse(client *deepseek.Client, request *deepse
 
 }
 
-func RequestRecommendationIrrigationDeepSeek(currentTemperature, relativeAirHumidity, windSpeed, windDirection, solarRadiation, soilHumidity,
-	systemIrrigationEfficiency, spaceBetweenPlants, spaceBetweenRows, atmosphericPressure float64,
-	startDatePlanting, soilType, irrigationType, agricultureCulture, batchName string) (string, error) {
+func (ds *DeepSeek) RequestRecommendationIrrigation(promptModel PromptModel) (string, error) {
 
-	content := CreatePromptDeepSeek(currentTemperature, relativeAirHumidity, windSpeed, windDirection, solarRadiation, soilHumidity,
-		systemIrrigationEfficiency, spaceBetweenPlants, spaceBetweenRows, atmosphericPressure, startDatePlanting,
-		soilType, irrigationType, agricultureCulture, batchName)
+	content := ds.CreatePrompt(promptModel)
 
-	client := ConnectDeepSeek(DEEPSEEK_API_KEY)
+	request := ds.CreateRequest(content)
 
-	request := CreateRequestDeepSeek(content)
-
-	response, err := SendTheRequestAndHandleTheResponse(client, request)
+	response, err := ds.SendTheRequestAndHandleTheResponse(request)
 	if err != nil {
 		log.Println(err.Error())
 		return "", err

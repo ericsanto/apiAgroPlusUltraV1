@@ -27,7 +27,7 @@ func SetupRoutes() *gin.Engine {
 	routesgroup.SetupPerformancePlantingRouter(router)
 	routesgroup.SetupRouterFarm(router)
 	routesgroup.SetupRouterDetectPestImage(router)
-	routesgroup.RouterGroupDiseaseDetect(router)
+	// routesgroup.RouterGroupDiseaseDetect(router)
 	routesgroup.RouterGroupOpenWeather(router)
 	routesgroup.SetupRouterIrrigationDeepSeek(router)
 	routesgroup.SetupRouterIrrigationType(router)

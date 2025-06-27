@@ -9,26 +9,31 @@ import (
 	openweather "github.com/ericsanto/apiAgroPlusUltraV1/pkg/open_weather"
 )
 
-type IrrigationRecommendedDeepSeekService struct {
-	plantingRepository *repositories.PlantingRepository
+type IrrigationRecommendedDeepSeekServiceInterface interface {
+	IrrigationRecommendedDeepSeek(latitude, longitude float64) error
 }
 
-func NewIrrigationRecomendedDeepseekService(plantingRepository *repositories.PlantingRepository) *IrrigationRecommendedDeepSeekService {
-	return &IrrigationRecommendedDeepSeekService{plantingRepository: plantingRepository}
+type IrrigationRecommendedDeepSeekService struct {
+	plantingRepository repositories.PlantingRepositoryInterface
+	openWeather        openweather.OpenWeatherInterface
+	mosquittoClient    mosquitto.MosquittoInterface
+	deepseekClient     deepseek.LLMMethods
+}
+
+func NewIrrigationRecomendedDeepseekService(plantingRepository repositories.PlantingRepositoryInterface, openWeather openweather.OpenWeatherInterface,
+	mosquittoClient mosquitto.MosquittoInterface, deepseekClient deepseek.LLMMethods) IrrigationRecommendedDeepSeekServiceInterface {
+	return &IrrigationRecommendedDeepSeekService{plantingRepository: plantingRepository,
+		openWeather:     openWeather,
+		mosquittoClient: mosquittoClient,
+		deepseekClient:  deepseekClient}
 }
 
 func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(latitude, longitude float64) error {
 
-	responseOpenWeather, err := openweather.CurrentOpenWeather(latitude, longitude)
+	responseOpenWeather, err := p.openWeather.CurrentOpenWeather(latitude, longitude)
 
 	if err != nil {
 		log.Println(err)
-		return err
-	}
-
-	clientMQTT, err := mosquitto.CreateClient()
-
-	if err != nil {
 		return err
 	}
 
@@ -48,31 +53,46 @@ func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(lat
 	systemIrrigationEfficiency := 80
 	atmosphericPressure := responseOpenWeather.Main.Pressure
 
-	solarRadiation, err := openweather.GetSolarRadiation(latitude, longitude)
+	solarRadiation, err := p.openWeather.GetSolarRadiation(latitude, longitude)
 	if err != nil {
 		return err
 	}
 
 	for _, v := range plantingIsTrue {
 
-		content, err := deepseek.RequestRecommendationIrrigationDeepSeek(temperature, float64(humidityAirRelative), windSpeed,
-			windDirection, solarRadiation, float64(soilHumidity), float64(systemIrrigationEfficiency),
-			v.SpaceBetweenPlants, v.SpaceBetweenRows, atmosphericPressure, v.StartDatePlanting.String(),
-			v.SoilTypeName, v.IrrigationType, v.AgricultureCultureName, v.BatchName)
+		valuesPromptModel := deepseek.PromptModel{
+			CurrentTemperature:         temperature,
+			RelativeAirHumidity:        float64(humidityAirRelative),
+			WindSpeed:                  windSpeed,
+			WindDirection:              windDirection,
+			SoilHumidity:               float64(soilHumidity),
+			SystemIrrigationEfficiency: float64(systemIrrigationEfficiency),
+			SpaceBetweenPlants:         v.SpaceBetweenPlants,
+			SpaceBetweenRows:           v.SpaceBetweenRows,
+			AtmosphericPressure:        atmosphericPressure,
+			StartDatePlanting:          v.StartDatePlanting.String(),
+			SoilType:                   v.SoilTypeName,
+			IrrigationType:             v.IrrigationType,
+			AgricultureCulture:         v.AgricultureCultureName,
+			BatchName:                  v.BatchName,
+			SolarRadiation:             solarRadiation,
+		}
+
+		content, err := p.deepseekClient.RequestRecommendationIrrigation(valuesPromptModel)
 
 		if err != nil {
 			log.Println(err.Error())
 			return err
 		}
 
-		jsons, err := mosquitto.FormatResponseDeepSeekInJSONForMqttBrokerPublisher(content, "```json", "```")
+		jsons, err := p.mosquittoClient.FormatResponseDeepSeekInJSONForMqttBrokerPublisher(content, "```json", "```")
 
 		if err != nil {
 			log.Println(err.Error())
 			return err
 		}
 
-		isSendMessage, err := mosquitto.Publisher(clientMQTT, "irrigation", jsons)
+		isSendMessage, err := p.mosquittoClient.Publisher("irrigation", jsons)
 
 		if !isSendMessage {
 			log.Println(err.Error())
@@ -80,7 +100,7 @@ func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(lat
 		}
 	}
 
-	clientMQTT.Disconnect(250)
+	p.mosquittoClient.Disconnect(250)
 
 	return nil
 }

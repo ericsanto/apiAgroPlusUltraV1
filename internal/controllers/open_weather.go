@@ -3,12 +3,25 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	openweather "github.com/ericsanto/apiAgroPlusUltraV1/pkg/open_weather"
-	"github.com/gin-gonic/gin"
 )
 
-func CurrentOpenWeather(c *gin.Context) {
+type OpenWeatherControllerInterface interface {
+	CurrentOpenWeather(c *gin.Context)
+}
+
+type OpenWeatherController struct {
+	openWeatherService openweather.OpenWeatherInterface
+}
+
+func NewOpenWeather(openWeatherService openweather.OpenWeatherInterface) OpenWeatherControllerInterface {
+	return &OpenWeatherController{openWeatherService: openWeatherService}
+}
+
+func (opwc *OpenWeatherController) CurrentOpenWeather(c *gin.Context) {
 
 	val, _ := c.Get("lat")
 
@@ -18,7 +31,7 @@ func CurrentOpenWeather(c *gin.Context) {
 
 	long := val.(float64)
 
-	response, err := openweather.CurrentOpenWeather(lat, long)
+	response, err := opwc.openWeatherService.CurrentOpenWeather(lat, long)
 
 	if err != nil {
 		myerror.HttpErrors(http.StatusBadGateway, "problema de comunicacao com servidor externo", c)

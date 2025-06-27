@@ -7,18 +7,31 @@ import (
 	"net/http"
 
 	"github.com/IBM/sarama"
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
-	"github.com/gin-gonic/gin"
 )
 
-func DetectPestImageController(c *gin.Context) {
+type DetectPestImageControllerInterface interface {
+	DetectPestImage(c *gin.Context)
+}
+
+type DetectPestImageController struct {
+	DetectPestImageService services.DetectPestImageServiceInterface
+}
+
+func NewDetectPestImageController(detectPestImageService services.DetectPestImageServiceInterface) DetectPestImageControllerInterface {
+	return &DetectPestImageController{DetectPestImageService: detectPestImageService}
+}
+
+func (dpc *DetectPestImageController) DetectPestImage(c *gin.Context) {
 
 	ctx := context.Background()
 
 	formKey := "image"
 
-	responseApiPython, err := services.DetectPestImage(c.Request, formKey)
+	responseApiPython, err := dpc.DetectPestImageService.DetectPestImage(c.Request, formKey)
 
 	if err != nil {
 		switch {

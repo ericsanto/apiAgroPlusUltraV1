@@ -1,4 +1,4 @@
-package config
+package bucket
 
 type BucketConfig struct {
 	Name          string

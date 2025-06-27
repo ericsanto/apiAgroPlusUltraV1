@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 	"mime/multipart"
-
-	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/bucket/config"
 )
 
 type ProccessImageToBucket struct {
@@ -18,7 +16,7 @@ func NewProccessImageToBucket(minioClient BucketClientInterface) *ProccessImageT
 	return &ProccessImageToBucket{MinioClient: minioClient}
 }
 
-func (pib *ProccessImageToBucket) SyncSendImageToBucket(ctx context.Context, configsBucket config.BucketConfig, image multipart.File, header *multipart.FileHeader) (bool, error) {
+func (pib *ProccessImageToBucket) SyncSendImageToBucket(ctx context.Context, configsBucket BucketConfig, image multipart.File, header *multipart.FileHeader) (bool, error) {
 
 	IsCreatedBucket, err := pib.MinioClient.CreateBucket(ctx, configsBucket)
 	if err != nil {
@@ -38,7 +36,7 @@ func (pib *ProccessImageToBucket) SyncSendImageToBucket(ctx context.Context, con
 	return true, nil
 }
 
-func (pib *ProccessImageToBucket) AsyncSendImageToBucket(ctx context.Context, configsBucket config.BucketConfig, image multipart.File, header *multipart.FileHeader) (bool, error) {
+func (pib *ProccessImageToBucket) AsyncSendImageToBucket(ctx context.Context, configsBucket BucketConfig, image multipart.File, header *multipart.FileHeader) (bool, error) {
 
 	type SendedImage struct {
 		Success bool
@@ -64,7 +62,7 @@ func (pib *ProccessImageToBucket) AsyncSendImageToBucket(ctx context.Context, co
 
 }
 
-func (pib *ProccessImageToBucket) UploadImageToBucket(ctx context.Context, configsBucket config.BucketConfig, image multipart.File, header *multipart.FileHeader) error {
+func (pib *ProccessImageToBucket) UploadImageToBucket(ctx context.Context, configsBucket BucketConfig, image multipart.File, header *multipart.FileHeader) error {
 
 	_, err := pib.AsyncSendImageToBucket(ctx, configsBucket, image, header)
 

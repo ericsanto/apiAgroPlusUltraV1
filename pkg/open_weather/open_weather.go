@@ -3,14 +3,11 @@ package openweather
 import (
 	"fmt"
 	"log"
-	"os"
 
 	owm "github.com/briandowns/openweathermap"
 
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
-
-var apiKey = os.Getenv("OPEN_WEATHER_API_KEY")
 
 type Main struct {
 	Temperature    float64 `json:"temp"`
@@ -38,9 +35,22 @@ type ResponseOpenWeather struct {
 	CityName string `json:"city"`
 }
 
-func CurrentOpenWeather(latitude, longitude float64) (*ResponseOpenWeather, error) {
+type OpenWeatherInterface interface {
+	CurrentOpenWeather(latitude, longitude float64) (*ResponseOpenWeather, error)
+	GetSolarRadiation(latitude, longitude float64) (float64, error)
+}
 
-	w, err := owm.NewCurrent("C", "pt", apiKey)
+type OpenWeather struct {
+	apiKey string
+}
+
+func NewOpenWeather(apiKey string) OpenWeatherInterface {
+	return &OpenWeather{apiKey: apiKey}
+}
+
+func (ow *OpenWeather) CurrentOpenWeather(latitude, longitude float64) (*ResponseOpenWeather, error) {
+
+	w, err := owm.NewCurrent("C", "pt", ow.apiKey)
 	if err != nil {
 		log.Println(err)
 		return nil, fmt.Errorf("%w: %v", myerror.ErrNewCurrent, err)
@@ -83,9 +93,9 @@ func CurrentOpenWeather(latitude, longitude float64) (*ResponseOpenWeather, erro
 
 }
 
-func GetSolarRadiation(latitude, longitude float64) (float64, error) {
+func (ow *OpenWeather) GetSolarRadiation(latitude, longitude float64) (float64, error) {
 
-	uv, err := owm.NewUV(apiKey)
+	uv, err := owm.NewUV(ow.apiKey)
 	if err != nil {
 		log.Println(err)
 		return 0, fmt.Errorf("%w: %v", myerror.ErrGetUVSolarRadiationOpenWeather, err)
