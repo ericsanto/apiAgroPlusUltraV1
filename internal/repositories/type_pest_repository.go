@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
 type TypePestRepositoryInterface interface {
@@ -16,10 +16,10 @@ type TypePestRepositoryInterface interface {
 }
 
 type TypePestRepository struct {
-	db *gorm.DB
+	db interfaces.GORMRepositoryInterface
 }
 
-func NewTypePestRepository(db *gorm.DB) *TypePestRepository {
+func NewTypePestRepository(db interfaces.GORMRepositoryInterface) TypePestRepositoryInterface {
 	return &TypePestRepository{db: db}
 }
 
@@ -35,19 +35,19 @@ func (t *TypePestRepository) FindAllTypePest() ([]entities.TypePestEntity, error
 	return typesPests, nil
 }
 
-func (t *TypePestRepository) FindByIdTypePest(id uint) (entities.TypePestEntity, error) {
+func (t *TypePestRepository) FindByIdTypePest(id uint) (*entities.TypePestEntity, error) {
 
 	var typePest entities.TypePestEntity
 
 	err := t.db.First(&typePest, id)
 	if err.Error != nil {
-		return typePest, fmt.Errorf("não existe praga com esse id")
+		return &typePest, fmt.Errorf("não existe praga com esse id")
 	}
 
-	return typePest, nil
+	return &typePest, nil
 }
 
-func (t *TypePestRepository) CreateTypePest(typePestEntity *entities.TypePestEntity) error {
+func (t *TypePestRepository) CreateTypePest(typePestEntity entities.TypePestEntity) error {
 
 	err := t.db.Create(&typePestEntity)
 	if err.Error != nil {

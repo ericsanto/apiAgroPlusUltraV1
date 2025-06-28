@@ -1,25 +1,20 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
-)
 
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
+)
 
 func SetupRoutesTypePest(r *gin.Engine) {
 
-  typePestRepository := repositories.NewTypePestRepository(config.DB)
-  typePestService := services.NewTypePestService(typePestRepository)
-  typePestController := controllers.NewTypePestController(typePestService) 
+	typePestsController := di.NewTypePestBuilder().Builder()
 
-  typePests := r.Group("/v1/tipos-de-pragas")
-  typePests.GET("/", typePestController.GetAllTypePestController)
-  typePests.GET("/:id", middlewares.ValidateIdParam("id"), typePestController.GetAllTypePestFindByIdController)
-  typePests.POST("/", typePestController.PostTypePestController)
-  typePests.PUT("/:id", middlewares.ValidateIdParam("id"), typePestController.PutTypePestController)
-  typePests.DELETE("/:id", middlewares.ValidateIdParam("id"), typePestController.DeleteTypePestController)
+	typePests := r.Group("/v1/tipos-de-pragas")
+	typePests.GET("/", typePestsController.GetAllTypePestController)
+	typePests.GET("/:id", middlewares.ValidateIdParam("id"), typePestsController.GetAllTypePestFindByIdController)
+	typePests.POST("/", typePestsController.PostTypePestController)
+	typePests.PUT("/:id", middlewares.ValidateIdParam("id"), typePestsController.PutTypePestController)
+	typePests.DELETE("/:id", middlewares.ValidateIdParam("id"), typePestsController.DeleteTypePestController)
 }
