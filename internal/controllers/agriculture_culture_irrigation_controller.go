@@ -5,18 +5,26 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type AgricultureCultureIrrigationController struct {
-	agricultureCultureIrrigationService *services.AgricultureCultureIrrigationService
+type AgricultureCultureIrrigationControllerInterface interface {
+	GetAgricultureCultureIrrigationFindByIDController(c *gin.Context)
+	PostAgricultureCultureIrrigationController(c *gin.Context)
+	PutAgricultureCultureIrrigation(c *gin.Context)
+	DeleteAgricultureCulturueIrrigation(c *gin.Context)
 }
 
-func NewAgricultureCultureIrrigationController(agricultureCultureIrrigationService *services.AgricultureCultureIrrigationService) *AgricultureCultureIrrigationController {
+type AgricultureCultureIrrigationController struct {
+	agricultureCultureIrrigationService services.AgricultureCultureIrrigationServiceInterface
+}
+
+func NewAgricultureCultureIrrigationController(agricultureCultureIrrigationService services.AgricultureCultureIrrigationServiceInterface) AgricultureCultureIrrigationControllerInterface {
 	return &AgricultureCultureIrrigationController{agricultureCultureIrrigationService: agricultureCultureIrrigationService}
 }
 
