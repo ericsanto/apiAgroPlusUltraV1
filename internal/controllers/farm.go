@@ -4,22 +4,27 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type FamrController struct {
-	serviceFarm *services.FarmService
+type FarmControllerInterface interface {
+	PostFarm(c *gin.Context)
 }
 
-func NewFarmController(serviceFarm *services.FarmService) *FamrController {
-	return &FamrController{serviceFarm: serviceFarm}
+type FarmController struct {
+	serviceFarm services.FarmServiceInterface
 }
 
-func (fc *FamrController) PostFarm(c *gin.Context) {
+func NewFarmController(serviceFarm services.FarmServiceInterface) FarmControllerInterface {
+	return &FarmController{serviceFarm: serviceFarm}
+}
+
+func (fc *FarmController) PostFarm(c *gin.Context) {
 
 	var farmRequest requests.FarmRequest
 
