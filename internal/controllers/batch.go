@@ -6,19 +6,28 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-type BatchController struct {
-	batchService *services.BatchService
+type BatchControllerInterface interface {
+	PostBatch(c *gin.Context)
+	GetBatchFindById(c *gin.Context)
+	GetAllBatch(c *gin.Context)
+	PutBatch(c *gin.Context)
+	DeleteBatch(c *gin.Context)
 }
 
-func NewBatchController(batchService *services.BatchService) *BatchController {
+type BatchController struct {
+	batchService services.BatchServiceInterface
+}
+
+func NewBatchController(batchService services.BatchServiceInterface) BatchControllerInterface {
 	return &BatchController{batchService: batchService}
 }
 
