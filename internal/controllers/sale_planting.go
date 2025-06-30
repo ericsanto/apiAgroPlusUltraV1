@@ -4,18 +4,27 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type SalePlantingController struct {
-	salePlantingService *services.SalePlantingService
+type SalePlantingControllerInterface interface {
+	PostSalePlanting(c *gin.Context)
+	GetAllSalePlanting(c *gin.Context)
+	GetSalePlantingByID(c *gin.Context)
+	PutSalePlanting(c *gin.Context)
+	DeleteSalePlanting(c *gin.Context)
 }
 
-func NewSalePlantingController(salePlantingService *services.SalePlantingService) *SalePlantingController {
+type SalePlantingController struct {
+	salePlantingService services.SalePlantingServiceInterface
+}
+
+func NewSalePlantingController(salePlantingService services.SalePlantingServiceInterface) SalePlantingControllerInterface {
 	return &SalePlantingController{salePlantingService: salePlantingService}
 }
 
