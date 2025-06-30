@@ -1,19 +1,15 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
 )
 
 func SetupRouterFarm(r *gin.Engine) {
 
-	farmRepository := repositories.NewFarmRepository(config.DB)
-	farmService := services.NewFarmService(farmRepository)
-	farmController := controllers.NewFarmController(farmService)
+	farmController := di.NewFarmBuilder().Builder()
 
 	farmRouterGroup := r.Group("/v1/fazenda")
 	farmRouterGroup.POST("/", middlewares.ValidateJWT(), farmController.PostFarm)
