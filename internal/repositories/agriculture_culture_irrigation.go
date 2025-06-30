@@ -4,24 +4,27 @@ import (
 	"errors"
 	"fmt"
 
+	"gorm.io/gorm"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
 var queryVerifyIdExists string = `SELECT EXISTS(SELECT 1 FROM agriculture_culture_irrigations WHERE agriculture_culture_irrigations.agriculture_culture_id = ? AND agriculture_culture_irrigations.irrigation_recomended_id = ?)`
 
 type AgricultureCultureIrrigationRepositoryInterface interface {
-	FindByIdAgricultureCultureIrrigation(culture_id uint) ([]responses.AgricultureCultureIrrigationResponse, error)
+	FindByIdAgricultureCultureIrrigation(cultureId uint) ([]responses.AgricultureCultureIrrigationResponse, error)
 	CreateAgricultureCultureIrrigation(entityAgricultureCultureIrrigation entities.AgricultureCultureIrrigation) error
 	UpdateAgricultureCultureIrrigation(cultureId, irrigationId uint, entityAgricultureCultureIrrigation entities.AgricultureCultureIrrigation) error
+	DeleteAgricultureCulturueIrrigation(cultureId, irrigationId uint) error
 }
 
 type AgricultureCultureIrrigationRepository struct {
-	db *gorm.DB
+	db interfaces.GORMRepositoryInterface
 }
 
-func NewAgricultureCultureIrrigationRepository(db *gorm.DB) *AgricultureCultureIrrigationRepository {
+func NewAgricultureCultureIrrigationRepository(db interfaces.GORMRepositoryInterface) AgricultureCultureIrrigationRepositoryInterface {
 	return &AgricultureCultureIrrigationRepository{db: db}
 }
 
