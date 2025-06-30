@@ -1,19 +1,15 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
 )
 
 func SetupRouterSustainablePestControl(r *gin.Engine) {
 
-	repositorySustainablePestControl := repositories.NewSustainablePestControlRepository(config.DB)
-	serviceSustainablePestControl := services.NewSustainablePestControlService(repositorySustainablePestControl)
-	controllerSustainablePestControl := controllers.NewSustainablePestControlController(serviceSustainablePestControl)
+	controllerSustainablePestControl := di.NewSustainablePestControl().Builder()
 
 	routerSustainablePestControl := r.Group("/v1/controle-de-pragas")
 	routerSustainablePestControl.GET("/", controllerSustainablePestControl.GetAllSustainablePestControl)
