@@ -10,11 +10,19 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type SustainablePestControlService struct {
-	sustainablePestControlRepository *repositories.SustainablePestControlRepository
+type SustainablePestControlServiceInterface interface {
+	GetAllSustainablePestControl() ([]responses.SustainablePestControlResponse, error)
+	PostSustainablePestControl(requestSustainablePestControl requests.SustainablePestControlRequest) error
+	GetFindByIdSustainablePestControl(id uint) (responses.SustainablePestControlResponse, error)
+	PutSustainablePestControl(id uint, requestSustainablePestControl requests.SustainablePestControlRequest) error
+	DeleteSustainablePestControl(id uint) error
 }
 
-func NewSustainablePestControlService(sustainablePestControlRepository *repositories.SustainablePestControlRepository) *SustainablePestControlService {
+type SustainablePestControlService struct {
+	sustainablePestControlRepository repositories.SustainablePestControlRepositoryInterface
+}
+
+func NewSustainablePestControlService(sustainablePestControlRepository repositories.SustainablePestControlRepositoryInterface) SustainablePestControlServiceInterface {
 	return &SustainablePestControlService{sustainablePestControlRepository: sustainablePestControlRepository}
 }
 
