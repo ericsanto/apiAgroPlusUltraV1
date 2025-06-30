@@ -4,17 +4,28 @@ import (
 	"errors"
 	"fmt"
 
+	"gorm.io/gorm"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
-	"gorm.io/gorm"
 )
 
-type PerformancePlantingRepository struct {
-	db *gorm.DB
+type PerformancePlantingRepositoryInterface interface {
+	CreatePerformancePlanting(entityPerformanceCulutre entities.PerformancePlantingEntity) error
+	FindAll() ([]responses.DbResultPerformancePlanting, error)
+	FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(id uint) (*responses.DbResultPerformancePlanting, error)
+	FindPerformancePlantingByID(id uint) (*entities.PerformancePlantingEntity, error)
+	UpdatePerformancePlanting(id uint, entityPerformancePlanting entities.PerformancePlantingEntity) error
+	DeletePerformancePlanting(id uint) error
 }
 
-func NewPerformanceCultureRepository(db *gorm.DB) *PerformancePlantingRepository {
+type PerformancePlantingRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewPerformanceCultureRepository(db interfaces.GORMRepositoryInterface) PerformancePlantingRepositoryInterface {
 	return &PerformancePlantingRepository{db: db}
 }
 
