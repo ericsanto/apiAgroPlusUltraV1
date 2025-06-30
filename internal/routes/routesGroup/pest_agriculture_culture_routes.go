@@ -1,19 +1,15 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
 )
 
 func SetupRouterPestAgricultureCulture(r *gin.Engine) {
 
-	pestAgricultureCultureRepository := repositories.NewPestAgricultureCultureRepository(config.DB)
-	pestAgricultureCultureService := services.NewPestAgricultureCultureService(pestAgricultureCultureRepository)
-	pestAgricultureCultureController := controllers.NewPestAgricultureCultureController(pestAgricultureCultureService)
+	pestAgricultureCultureController := di.NewPestAgricultureCultureBuilder().Builder()
 
 	pestAgricultureCultureRouter := r.Group("/v1/pragas-das-culturas-agricolas")
 	pestAgricultureCultureRouter.GET("/", pestAgricultureCultureController.GetAllAgricultureCultureController)
