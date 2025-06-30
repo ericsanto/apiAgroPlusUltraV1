@@ -1,7 +1,7 @@
 package di
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
+	"github.com/ericsanto/apiAgroPlusUltraV1/config/db"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
@@ -15,7 +15,7 @@ func NewTypePestBuilder() *TypePestBuilder {
 
 func (tpb *TypePestBuilder) Builder() controllers.TypePestControllerInterface {
 
-	typePestRepository := repositories.NewTypePestRepository(config.DB)
+	typePestRepository := repositories.NewTypePestRepository(db.DB)
 	typePestService := services.NewTypePestService(typePestRepository)
 	typeServiceController := controllers.NewTypePestController(typePestService)
 
