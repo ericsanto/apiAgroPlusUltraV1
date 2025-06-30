@@ -4,22 +4,22 @@ import (
 	"fmt"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
 type SoilTypeInterface interface {
 	FindAllSoilType() ([]entities.SoilTypeEntity, error)
-	FindByIdSoilType(id uint) (entities.SoilTypeEntity, error)
-	CreateSoilType(soilTypeModel *entities.SoilTypeEntity) error
+	FindByIdSoilType(id uint) (*entities.SoilTypeEntity, error)
+	CreateSoilType(soilTypeModel entities.SoilTypeEntity) error
 	UpdateSoilType(id uint, soilTypeModel entities.SoilTypeEntity) error
-	DeleteSoilType(id uint)
+	DeleteSoilType(id uint) error
 }
 
 type SoilTypeRepository struct {
-	db *gorm.DB
+	db interfaces.GORMRepositoryInterface
 }
 
-func NewSoilRepository(db *gorm.DB) *SoilTypeRepository {
+func NewSoilRepository(db interfaces.GORMRepositoryInterface) SoilTypeInterface {
 	return &SoilTypeRepository{db: db}
 }
 
@@ -32,16 +32,16 @@ func (r *SoilTypeRepository) FindAllSoilType() ([]entities.SoilTypeEntity, error
 	return soilTypes, err
 }
 
-func (r *SoilTypeRepository) FindByIdSoilType(id uint) (entities.SoilTypeEntity, error) {
+func (r *SoilTypeRepository) FindByIdSoilType(id uint) (*entities.SoilTypeEntity, error) {
 
 	var soilType entities.SoilTypeEntity
 
 	err := r.db.First(&soilType, id).Error
 
-	return soilType, err
+	return &soilType, err
 }
 
-func (r *SoilTypeRepository) CreateSoilType(soilTypeModel *entities.SoilTypeEntity) error {
+func (r *SoilTypeRepository) CreateSoilType(soilTypeModel entities.SoilTypeEntity) error {
 
 	result := r.db.Create(soilTypeModel)
 
