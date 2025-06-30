@@ -5,18 +5,26 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type AgricultureCultureController struct {
-	agricultureCultureService *services.AgricultureCultureService
+type AgricultureCultureControllerInterface interface {
+	GetAllAgriculturesCulturesController(c *gin.Context)
+	PostAgricultureCultureController(c *gin.Context)
+	PutAgricultureCultureController(c *gin.Context)
+	DeleteAgricultureCultureController(c *gin.Context)
 }
 
-func NewAgricultureController(agricultureCultureService *services.AgricultureCultureService) *AgricultureCultureController {
+type AgricultureCultureController struct {
+	agricultureCultureService services.AgricultureCultureServiceInterface
+}
+
+func NewAgricultureController(agricultureCultureService services.AgricultureCultureServiceInterface) AgricultureCultureControllerInterface {
 
 	return &AgricultureCultureController{agricultureCultureService: agricultureCultureService}
 }
