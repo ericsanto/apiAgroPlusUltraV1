@@ -11,11 +11,19 @@ import (
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-type PerformancePlantingService struct {
-	performanceCultureRepository *repositories.PerformancePlantingRepository
+type PerformancePlantingServiceInterface interface {
+	PostPerformancePlanting(requestPerformanceCulture requests.PerformancePlantingRequest) error
+	GetAllPerformancePlanting() ([]responses.PerformanceCultureResponse, error)
+	PutPerformancePlanting(id uint, requestPerformanceEntity requests.PerformancePlantingRequest) error
+	GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id uint) (*responses.PerformanceCultureResponse, error)
+	DeletePerformancePlanting(id uint) error
 }
 
-func NewPerformancePlantingService(performanceCultureRepository *repositories.PerformancePlantingRepository) *PerformancePlantingService {
+type PerformancePlantingService struct {
+	performanceCultureRepository repositories.PerformancePlantingRepositoryInterface
+}
+
+func NewPerformancePlantingService(performanceCultureRepository repositories.PerformancePlantingRepositoryInterface) PerformancePlantingServiceInterface {
 	return &PerformancePlantingService{performanceCultureRepository: performanceCultureRepository}
 }
 
