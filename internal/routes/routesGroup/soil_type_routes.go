@@ -1,28 +1,22 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
 )
 
+func SetupRoutesSoilType(r *gin.Engine) {
 
-func SetupRoutesSoilType(r *gin.Engine){
+	soilTypeController := di.NewSoilTypeBuilder().Builder()
 
-  typeSoilRepo := repositories.NewSoilRepository(config.DB)
-  typeSoilService := services.NewSoilTypeService(typeSoilRepo)
-  typeSoilHandler := controllers.NewSoilTypeController(typeSoilService)
+	soilTypeRouterGroup := r.Group("/v1/tipos-de-solo")
 
-  soilTypeRouterGroup := r.Group("/v1/tipos-de-solo")
-
-  soilTypeRouterGroup.GET("/", typeSoilHandler.GetAllSoilTypes)
-  soilTypeRouterGroup.GET("/:id",middlewares.ValidateIdParam("id"), typeSoilHandler.GetSoilTypeFindById)
-  soilTypeRouterGroup.POST("/", typeSoilHandler.PostSoilType)
-  soilTypeRouterGroup.PUT("/:id", middlewares.ValidateIdParam("id"), typeSoilHandler.PutSoilType)
-  soilTypeRouterGroup.DELETE("/:id",middlewares.ValidateIdParam("id"), typeSoilHandler.DeleteSoilType)
- 
+	soilTypeRouterGroup.GET("/", soilTypeController.GetAllSoilTypes)
+	soilTypeRouterGroup.GET("/:id", middlewares.ValidateIdParam("id"), soilTypeController.GetSoilTypeFindById)
+	soilTypeRouterGroup.POST("/", soilTypeController.PostSoilType)
+	soilTypeRouterGroup.PUT("/:id", middlewares.ValidateIdParam("id"), soilTypeController.PutSoilType)
+	soilTypeRouterGroup.DELETE("/:id", middlewares.ValidateIdParam("id"), soilTypeController.DeleteSoilType)
 
 }
