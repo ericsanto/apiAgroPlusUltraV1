@@ -5,16 +5,26 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
-	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"gorm.io/gorm"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-type BatchRepository struct {
-	db *gorm.DB
+type BatchRepositoryInterface interface {
+	Create(batchEntity entities.BatchEntity) error
+	FindAllBatch() ([]entities.BatchEntity, error)
+	BatchFindById(id uint) (*entities.BatchEntity, error)
+	Update(id uint, entityBatch entities.BatchEntity) error
+	DeleteBatch(id uint) error
 }
 
-func NewBatchRepository(db *gorm.DB) *BatchRepository {
+type BatchRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewBatchRepository(db interfaces.GORMRepositoryInterface) BatchRepositoryInterface {
 	return &BatchRepository{db: db}
 }
 
