@@ -7,11 +7,15 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type ProfitService struct {
-	profitRepository *repositories.ProfitRepository
+type ProfitServiceInterface interface {
+	GetProfit(plantingID, userID uint) (*responses.ProfitResponse, error)
 }
 
-func NewProfitService(profitRepository *repositories.ProfitRepository) *ProfitService {
+type ProfitService struct {
+	profitRepository repositories.ProfitRepositoryInterface
+}
+
+func NewProfitService(profitRepository repositories.ProfitRepositoryInterface) ProfitServiceInterface {
 	return &ProfitService{profitRepository: profitRepository}
 }
 
