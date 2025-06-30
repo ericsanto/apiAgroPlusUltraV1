@@ -4,14 +4,18 @@ import (
 	"fmt"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
-type ProfitRepository struct {
-	db *gorm.DB
+type ProfitRepositoryInterface interface {
+	FindProfit(plantingID, userID uint) (*responses.ProfitResponse, error)
 }
 
-func NewProfitRepository(db *gorm.DB) *ProfitRepository {
+type ProfitRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewProfitRepository(db interfaces.GORMRepositoryInterface) ProfitRepositoryInterface {
 	return &ProfitRepository{db: db}
 }
 
