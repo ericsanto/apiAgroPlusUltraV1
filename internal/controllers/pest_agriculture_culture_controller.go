@@ -7,18 +7,27 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type PestAgricultureCultureController struct {
-	pestAgricultureCultureService *services.PestAgricultureCultureService
+type PestAgricultureCultureControllerInterface interface {
+	GetAllAgricultureCultureController(c *gin.Context)
+	GetFindByIdAgricultureCultureController(c *gin.Context)
+	PostPestAgricultureCultureController(c *gin.Context)
+	PutPestAgricultureCulture(c *gin.Context)
+	DeletePestAgricultureCultureController(c *gin.Context)
 }
 
-func NewPestAgricultureCultureController(pestAgricultureCultureService *services.PestAgricultureCultureService) *PestAgricultureCultureController {
+type PestAgricultureCultureController struct {
+	pestAgricultureCultureService services.PestAgricultureCultureServiceInterface
+}
+
+func NewPestAgricultureCultureController(pestAgricultureCultureService services.PestAgricultureCultureServiceInterface) PestAgricultureCultureControllerInterface {
 	return &PestAgricultureCultureController{pestAgricultureCultureService: pestAgricultureCultureService}
 }
 
