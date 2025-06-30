@@ -5,18 +5,27 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type ProductionCostController struct {
-	productionCostService *services.ProductionCostService
+type ProductionCostControllerInterface interface {
+	GetAllProductionCost(c *gin.Context)
+	PostProductionCost(c *gin.Context)
+	GetProductionCostByID(c *gin.Context)
+	PutProductionCost(c *gin.Context)
+	DeleteProductionCost(c *gin.Context)
 }
 
-func NewProductionCostController(productionCostService *services.ProductionCostService) *ProductionCostController {
+type ProductionCostController struct {
+	productionCostService services.ProductionCostServiceInterface
+}
+
+func NewProductionCostController(productionCostService services.ProductionCostServiceInterface) ProductionCostControllerInterface {
 	return &ProductionCostController{productionCostService: productionCostService}
 }
 
