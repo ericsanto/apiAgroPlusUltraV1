@@ -5,15 +5,25 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"gorm.io/gorm"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
-type ProductionCostRepository struct {
-	db *gorm.DB
+type ProductionCostRepositoryInterface interface {
+	FindAllProductinCostRepository() ([]entities.ProductionCostEntity, error)
+	CreateProductionCost(entityProductionCost entities.ProductionCostEntity) error
+	FindProductionCostByID(id uint) (*entities.ProductionCostEntity, error)
+	UpdateProductionCost(id uint, entityProductCost entities.ProductionCostEntity) error
+	DeleteProductionCost(id uint) error
 }
 
-func NewProductionCostRepository(db *gorm.DB) *ProductionCostRepository {
+type ProductionCostRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewProductionCostRepository(db interfaces.GORMRepositoryInterface) ProductionCostRepositoryInterface {
 	return &ProductionCostRepository{db: db}
 }
 
