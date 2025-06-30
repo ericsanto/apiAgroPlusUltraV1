@@ -1,18 +1,15 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
 )
 
 func SetupBatchRouter(r *gin.Engine) {
-	respositoryBatch := repositories.NewBatchRepository(config.DB)
-	serviceBatch := services.NewBatchService(respositoryBatch)
-	controllerBatch := controllers.NewBatchController(serviceBatch)
+
+	controllerBatch := di.NewBatchBuilder().Builder()
 
 	batchRouter := r.Group("/v1/batchs")
 	batchRouter.POST("/", controllerBatch.PostBatch)
