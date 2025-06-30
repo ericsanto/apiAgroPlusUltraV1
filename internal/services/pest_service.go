@@ -11,17 +11,17 @@ import (
 
 type PestServiceInterface interface {
 	GetAllPest() ([]responses.PestResponse, error)
-	GetFindByIdPest(id uint) (responses.PestResponse, error)
+	GetFindByIdPest(id uint) (*responses.PestResponse, error)
 	PostPest(requestPest requests.PestRequest) error
 	PutPest(id uint, requestPest requests.PestRequest) error
 	DeletePest(id uint) error
 }
 
 type PestService struct {
-	pestRepository *repositories.PestRepository
+	pestRepository repositories.PestRepositoryInterface
 }
 
-func NewPestService(pestRepository *repositories.PestRepository) *PestService {
+func NewPestService(pestRepository repositories.PestRepositoryInterface) PestServiceInterface {
 	return &PestService{pestRepository: pestRepository}
 }
 
@@ -47,13 +47,13 @@ func (p *PestService) GetAllPest() ([]responses.PestResponse, error) {
 	return responsesPests, nil
 }
 
-func (p *PestService) GetFindByIdPest(id uint) (responses.PestResponse, error) {
+func (p *PestService) GetFindByIdPest(id uint) (*responses.PestResponse, error) {
 
 	var responsePest responses.PestResponse
 
 	result, err := p.pestRepository.FindByIdPest(id)
 	if err != nil {
-		return responsePest, fmt.Errorf("erro: %w", err)
+		return &responsePest, fmt.Errorf("erro: %w", err)
 	}
 
 	responsePest = responses.PestResponse{
@@ -62,7 +62,7 @@ func (p *PestService) GetFindByIdPest(id uint) (responses.PestResponse, error) {
 		TypePestId: result.TypePestId,
 	}
 
-	return responsePest, nil
+	return &responsePest, nil
 }
 
 func (p *PestService) PostPest(requestPest requests.PestRequest) error {
