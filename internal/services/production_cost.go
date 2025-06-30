@@ -9,11 +9,19 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type ProductionCostService struct {
-	productionCostRepository *repositories.ProductionCostRepository
+type ProductionCostServiceInterface interface {
+	GetAllProductionCost() ([]responses.ProductionCostResponse, error)
+	PostProductionCost(requestProductionCost requests.ProductionCostRequest) error
+	GetAllProductionCostByID(id uint) (*responses.ProductionCostResponse, error)
+	PutProductionCost(id uint, requestProduction requests.ProductionCostRequest) error
+	DeleteProductionCost(id uint) error
 }
 
-func NewProductionCostService(productionCostRepository *repositories.ProductionCostRepository) *ProductionCostService {
+type ProductionCostService struct {
+	productionCostRepository repositories.ProductionCostRepositoryInterface
+}
+
+func NewProductionCostService(productionCostRepository repositories.ProductionCostRepositoryInterface) ProductionCostServiceInterface {
 	return &ProductionCostService{productionCostRepository: productionCostRepository}
 }
 
