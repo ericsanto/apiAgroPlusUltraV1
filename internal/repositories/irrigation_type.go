@@ -7,13 +7,22 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
-type IrrigationTypeRepository struct {
-	db *gorm.DB
+type IrrigationTypeRepositoryInterface interface {
+	FindAllIrrigationType() ([]entities.IrrigationTypeEntity, error)
+	CreateIrrigationType(entityIrrigationType entities.IrrigationTypeEntity) error
+	FindIrrigationTypetByID(id uint) (*entities.IrrigationTypeEntity, error)
+	UpdateIrrigationType(id uint, entityIrrigationType entities.IrrigationTypeEntity) error
+	DeleteIrrigationType(id uint) error
 }
 
-func NewIrrigationTypeRepository(db *gorm.DB) *IrrigationTypeRepository {
+type IrrigationTypeRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewIrrigationTypeRepository(db interfaces.GORMRepositoryInterface) IrrigationTypeRepositoryInterface {
 
 	return &IrrigationTypeRepository{db: db}
 }
