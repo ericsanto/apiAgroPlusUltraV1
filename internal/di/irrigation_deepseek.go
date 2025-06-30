@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
+	"github.com/ericsanto/apiAgroPlusUltraV1/config/db"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
@@ -40,7 +40,7 @@ func (idsb *IrrigationDeepseekServiceBuilder) Builder() (controllers.IrrigationR
 
 	deepseekClient := deepseek.NewDeepSeek(deepseekApiKey)
 
-	plantingRepository := repositories.NewPlantingRepository(config.DB)
+	plantingRepository := repositories.NewPlantingRepository(db.DB)
 	irrigationDeepseekService := services.NewIrrigationRecomendedDeepseekService(plantingRepository, openWeather, mosquittoClient, deepseekClient)
 	irrigationDeeepeekControler := controllers.NewIrrigationRecommendedDeepseekController(irrigationDeepseekService)
 
