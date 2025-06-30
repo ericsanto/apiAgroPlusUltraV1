@@ -4,18 +4,23 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-type ProfitController struct {
-	profitService *services.ProfitService
+type ProfitControllerInterface interface {
+	GetProfit(c *gin.Context)
 }
 
-func NewProfitController(profitService *services.ProfitService) *ProfitController {
+type ProfitController struct {
+	profitService services.ProfitServiceInterface
+}
+
+func NewProfitController(profitService services.ProfitServiceInterface) ProfitControllerInterface {
 	return &ProfitController{profitService: profitService}
 }
 
