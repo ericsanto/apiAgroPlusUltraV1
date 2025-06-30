@@ -15,11 +15,19 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
 )
 
-type IrrigationTypeController struct {
-	irrigationTypeService *services.IrrigationTypeService
+type IrrigationTypeControllerInterface interface {
+	GetAllIrrigationType(c *gin.Context)
+	PostIrrigationType(c *gin.Context)
+	GetIrrigationTypeByID(c *gin.Context)
+	PutIrrigationType(c *gin.Context)
+	DeleteIrrigationType(c *gin.Context)
 }
 
-func NewIrrigationTypeController(irrigationTypeService *services.IrrigationTypeService) *IrrigationTypeController {
+type IrrigationTypeController struct {
+	irrigationTypeService services.IrrigationTypeServiceInterface
+}
+
+func NewIrrigationTypeController(irrigationTypeService services.IrrigationTypeServiceInterface) IrrigationTypeControllerInterface {
 	return &IrrigationTypeController{irrigationTypeService: irrigationTypeService}
 }
 
