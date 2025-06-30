@@ -9,11 +9,19 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type SalePlantingService struct {
-	salePlantingRepository *repositories.SalePlantingRepository
+type SalePlantingServiceInterface interface {
+	PostSalePlanting(requestSalePlanting requests.SalePlantingRequest) error
+	GetAllSalePlanting() ([]responses.SalePlantingResponse, error)
+	GetSalePlantingByID(id uint) (*responses.SalePlantingResponse, error)
+	PutSalePlanting(id uint, requestSalePlanting requests.SalePlantingRequest) error
+	DeleteSalePlanting(id uint) error
 }
 
-func NewSalePlantingService(salePlantingRepository *repositories.SalePlantingRepository) *SalePlantingService {
+type SalePlantingService struct {
+	salePlantingRepository repositories.SalePlantingRepositoryInterface
+}
+
+func NewSalePlantingService(salePlantingRepository repositories.SalePlantingRepositoryInterface) SalePlantingServiceInterface {
 	return &SalePlantingService{salePlantingRepository: salePlantingRepository}
 }
 
