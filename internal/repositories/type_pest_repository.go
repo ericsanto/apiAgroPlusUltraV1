@@ -59,12 +59,12 @@ func (t *TypePestRepository) CreateTypePest(typePestEntity entities.TypePestEnti
 
 func (t *TypePestRepository) UpdateTypePest(id uint, entityTypePest entities.TypePestEntity) error {
 
-	typePestExists, err := t.FindByIdTypePest(id)
+	_, err := t.FindByIdTypePest(id)
 	if err != nil {
 		return fmt.Errorf("erro no repositório: %w", err)
 	}
 
-	result := t.db.Model(&entities.TypePestEntity{}).Where("id = ?", typePestExists.Id).Updates(entityTypePest)
+	result := t.db.Model(&entities.TypePestEntity{}).Where("id = ?", id).Updates(&entityTypePest)
 	if result.Error != nil {
 		return fmt.Errorf("erro ao atualizar: %w", err)
 	}
@@ -79,7 +79,7 @@ func (t *TypePestRepository) DeleteTypePest(id uint) error {
 		return fmt.Errorf("erro ao buscar praga: %w", err)
 	}
 
-	result := t.db.Where("id = ?", typePestExists.Id).Delete(typePestExists)
+	result := t.db.Where("id = ?", id).Delete(&typePestExists)
 	if result.Error != nil {
 		return fmt.Errorf("erro ao deletar praga")
 	}
