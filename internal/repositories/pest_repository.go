@@ -61,12 +61,12 @@ func (p *PestRepository) CreatePest(entityPest entities.PestEntity) error {
 
 func (p *PestRepository) UpdatePest(id uint, entityPest entities.PestEntity) error {
 
-	existsPestEntity, err := p.FindByIdPest(id)
+	_, err := p.FindByIdPest(id)
 	if err != nil {
 		return fmt.Errorf("erro ao atualizar praga. Id não existe")
 	}
 
-	if err := p.db.Model(&entities.PestEntity{}).Where("id = ?", existsPestEntity.Id).Updates(entityPest); err.Error != nil {
+	if err := p.db.Model(&entities.PestEntity{}).Where("id = ?", id).Updates(&entityPest); err.Error != nil {
 		return fmt.Errorf("praga encontrada no banco de dados. Porém, não foi possível atualizá-la %v", err)
 	}
 
