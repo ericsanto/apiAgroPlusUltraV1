@@ -65,12 +65,12 @@ func (a *AgricultureCultureRepository) CreateAgricultureCulture(agriculutreCultu
 
 func (r *AgricultureCultureRepository) UpdateAgricultureCulture(id uint, agricultureCultureEntity entities.AgricultureCultureEntity) error {
 
-	agricultureCulture, err := r.FindByIdAgricultureCulture(id)
+	_, err := r.FindByIdAgricultureCulture(id)
 	if err != nil {
 		return fmt.Errorf("erro ao buscar cultura agricola: %v", err)
 	}
 
-	if err := r.db.Model(&entities.AgricultureCultureEntity{}).Where("id = ?", agricultureCulture.Id).Updates(agricultureCultureEntity).Error; err != nil {
+	if err := r.db.Model(&entities.AgricultureCultureEntity{}).Where("id = ?", id).Updates(&agricultureCultureEntity).Error; err != nil {
 		return fmt.Errorf("erro ao atualizar cultura agrícola: %v", err)
 	}
 
@@ -84,7 +84,7 @@ func (r *AgricultureCultureRepository) DeleteAgricultureCulture(id uint) error {
 		return fmt.Errorf("erro ao buscar cultura agricola: %v", err)
 	}
 
-	if err := r.db.Where("id = ?", agricultureCulture.Id).Delete(&entities.AgricultureCultureEntity{}).Error; err != nil {
+	if err := r.db.Where("id = ?", id).Delete(&agricultureCulture).Error; err != nil {
 		return fmt.Errorf("erro ao deletar cultura agricola: %v", err)
 	}
 
