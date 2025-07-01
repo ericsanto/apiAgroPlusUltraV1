@@ -65,12 +65,12 @@ func (s *SustainablePestControlRepository) FindByIdSustainablePestControl(id uin
 
 func (s *SustainablePestControlRepository) UpdateSustainablePestControl(id uint, newEntitySustainablePestControl entities.SustainablePestControlEntity) error {
 
-	entitySustainablePestControl, err := s.FindByIdSustainablePestControl(id)
+	_, err := s.FindByIdSustainablePestControl(id)
 	if err != nil {
 		return fmt.Errorf("erro: %v", err)
 	}
 
-	if err := s.db.Model(&entities.SustainablePestControlEntity{}).Where("id = ?", entitySustainablePestControl.Id).
+	if err := s.db.Model(&entities.SustainablePestControlEntity{}).Where("id = ?", id).
 		Updates(&newEntitySustainablePestControl).Error; err != nil {
 		return fmt.Errorf("erro ao atualizar objeto: %v", err)
 	}
