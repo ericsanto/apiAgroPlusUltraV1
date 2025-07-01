@@ -106,7 +106,7 @@ func (a *AgricultureCultureIrrigationRepository) DeleteAgricultureCulturueIrriga
 	}
 
 	if err := a.db.Where("agriculture_culture_irrigations.agriculture_culture_id = ? AND agriculture_culture_irrigations.irrigation_recomended_id = ?",
-		entityAgricultureCultureIrrigation.AgricultureCultureId, entityAgricultureCultureIrrigation.IrrigationRecomendedId).Delete(entities.AgricultureCultureIrrigation{}).Error; err != nil {
+		entityAgricultureCultureIrrigation.AgricultureCultureId, entityAgricultureCultureIrrigation.IrrigationRecomendedId).Delete(&entityAgricultureCultureIrrigation).Error; err != nil {
 		return fmt.Errorf("erro ao deletar objeto: %v", err)
 	}
 
