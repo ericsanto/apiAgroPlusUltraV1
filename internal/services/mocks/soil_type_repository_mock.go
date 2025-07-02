@@ -46,5 +46,7 @@ func (strm *SoilTypeRepositoryMock) UpdateSoilType(id uint, soilTypeModel entiti
 
 func (strm *SoilTypeRepositoryMock) DeleteSoilType(id uint) error {
 
-	return nil
+	args := strm.Called(id)
+
+	return args.Error(0)
 }
