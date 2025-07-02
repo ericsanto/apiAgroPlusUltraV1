@@ -196,3 +196,54 @@ func TestFindAllSoilType_Success(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 }
+
+func TestFindAllSoilType(t *testing.T) {
+
+	mockRepo := new(mocks.SoilTypeRepositoryMock)
+
+	service := SoilTypeService{soilTypeRepository: mockRepo}
+
+	mockRepo.On("FindAllSoilType").Return([]entities.SoilTypeEntity{}, fmt.Errorf("não foi possível buscar todos os tipos de solo"))
+
+	_, err := service.GetAllSoilType()
+
+	assert.Contains(t, err.Error(), "não foi possível buscar todos os tipos de solo")
+	assert.Error(t, err)
+}
+
+func TestDeleteSoilTyp_Success(t *testing.T) {
+
+	mockRepo := new(mocks.SoilTypeRepositoryMock)
+
+	service := SoilTypeService{mockRepo}
+
+	id := uint(0)
+
+	mockRepo.On("DeleteSoilType", id).Return(nil)
+
+	err := service.DeleteTypeSoil(id)
+
+	assert.NoError(t, err)
+	assert.Nil(t, err)
+
+	mockRepo.AssertExpectations(t)
+
+}
+
+func TestDeleteSoilTyp_Error(t *testing.T) {
+
+	mockRepo := new(mocks.SoilTypeRepositoryMock)
+
+	service := SoilTypeService{soilTypeRepository: mockRepo}
+
+	id := uint(1)
+
+	mockRepo.On("DeleteSoilType", id).Return(fmt.Errorf("não foi possível deletar tipo de solo"))
+
+	err := service.DeleteTypeSoil(id)
+
+	assert.Contains(t, err.Error(), "não foi possível deletar tipo de solo")
+	assert.NotNil(t, err)
+
+	mockRepo.AssertExpectations(t)
+}
