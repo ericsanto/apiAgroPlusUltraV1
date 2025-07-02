@@ -14,30 +14,35 @@ import (
 )
 
 type DiseaseDetectServiceInterface interface {
-	ServiceDiseaseDetect(formFile upload.UploadFileInterface, formKey string) (map[string]string, error)
+	ServiceDiseaseDetect(formFile upload.UploadFileInterface) (map[string]string, error)
 }
 
 type DiseaseDetectService struct {
 	bucketClient  bucket.BucketClientInterface
 	imageValidate bucket.ImageValidateInterface
 	kafkaClient   kafka.Messaging
+	jsonUtils     jsonutil.JsonUtilsInterface
+	uploadFile    upload.UploadFileSInterface
 }
 
-func NewDiseaseDetect(bucketClient bucket.BucketClientInterface, imageValidate bucket.ImageValidateInterface, kafkaClient kafka.Messaging) DiseaseDetectServiceInterface {
+func NewDiseaseDetect(bucketClient bucket.BucketClientInterface, imageValidate bucket.ImageValidateInterface,
+	kafkaClient kafka.Messaging, jsonUtils jsonutil.JsonUtilsInterface, uploadFile upload.UploadFileSInterface) DiseaseDetectServiceInterface {
 	return &DiseaseDetectService{
 		bucketClient:  bucketClient,
 		imageValidate: imageValidate,
 		kafkaClient:   kafkaClient,
+		jsonUtils:     jsonUtils,
+		uploadFile:    uploadFile,
 	}
 }
 
-func (dds *DiseaseDetectService) ServiceDiseaseDetect(formFile upload.UploadFileInterface, formKey string) (map[string]string, error) {
+func (dds *DiseaseDetectService) ServiceDiseaseDetect(formFile upload.UploadFileInterface) (map[string]string, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	defer cancel()
 
-	file, header, err := upload.UploadFile(formFile, formKey)
+	file, header, err := dds.uploadFile.UploadFile(formFile)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +76,7 @@ func (dds *DiseaseDetectService) ServiceDiseaseDetect(formFile upload.UploadFile
 
 	var responseApiPython map[string]string
 
-	err = jsonutil.ConvertStringToJson(message, &responseApiPython)
+	err = dds.jsonUtils.ConvertStringToJson(message, &responseApiPython)
 	log.Println(err)
 
 	if err != nil {
