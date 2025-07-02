@@ -29,9 +29,7 @@ func (dpc *DetectPestImageController) DetectPestImage(c *gin.Context) {
 
 	ctx := context.Background()
 
-	formKey := "image"
-
-	responseApiPython, err := dpc.DetectPestImageService.DetectPestImage(c.Request, formKey)
+	responseApiPython, err := dpc.DetectPestImageService.DetectPestImage(c.Request)
 
 	if err != nil {
 		switch {
