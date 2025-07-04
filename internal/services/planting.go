@@ -44,8 +44,9 @@ func (p *PlantingService) GetByParam(batchID uint) (responses.PlantingResponse, 
 		IsPlanting:           planting.IsPlanting,
 		StartDatePlanting:    planting.StartDatePlanting,
 		SpaceBetweenPlants:   planting.SpaceBetweenPlants,
-		SpaceBetweenRows:     planting.SpaceBetweenPlants,
+		SpaceBetweenRows:     planting.SpaceBetweenRows,
 		IrrigationTypeID:     planting.IrrigationTypeID,
+		ExpectedProduction:   planting.ExpectedProduction,
 	}
 
 	return plantingResponse, nil
@@ -68,6 +69,7 @@ func (p *PlantingService) PostPlanting(requestPlanting requests.PlantingRequest)
 		SpaceBetweenPlants:   requestPlanting.SpaceBetweenPlants,
 		SpaceBetweenRows:     requestPlanting.SpaceBetweenRows,
 		IrrigationTypeID:     requestPlanting.IrrigationTypeID,
+		ExpectedProduction:   requestPlanting.ExpectedProduction,
 	}
 
 	if err := p.plantingRepository.CreatePlanting(entityPlanting); err != nil {
@@ -96,6 +98,7 @@ func (p *PlantingService) GetAllPlanting() ([]responses.PlantingResponse, error)
 			SpaceBetweenPlants:   v.SpaceBetweenPlants,
 			SpaceBetweenRows:     v.SpaceBetweenRows,
 			IrrigationTypeID:     v.IrrigationTypeID,
+			ExpectedProduction:   v.ExpectedProduction,
 		}
 
 		responseListPlanting = append(responseListPlanting, planting)
@@ -108,7 +111,7 @@ func (p *PlantingService) GetByParamBatchNameOrIsActivePlanting(batchName string
 
 	plantingBatchResponse, err := p.plantingRepository.FindByParamBatchNameOrIsActivePlanting(batchName, active)
 	if err != nil {
-		return plantingBatchResponse, fmt.Errorf("erro: %w", err)
+		return nil, fmt.Errorf("erro: %w", err)
 	}
 
 	return plantingBatchResponse, nil
@@ -123,6 +126,7 @@ func (p *PlantingService) PutPlanting(id uint, requestPlanting requests.Planting
 		SpaceBetweenPlants:   requestPlanting.SpaceBetweenPlants,
 		SpaceBetweenRows:     requestPlanting.SpaceBetweenRows,
 		IrrigationTypeID:     requestPlanting.IrrigationTypeID,
+		ExpectedProduction:   requestPlanting.ExpectedProduction,
 	}
 
 	if err := p.plantingRepository.UpdatePlanting(id, entityPlanting); err != nil {
