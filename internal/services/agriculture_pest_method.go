@@ -5,16 +5,21 @@ import (
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
-
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type AgricultureCulturePestMethodService struct {
-	agricultureCulturePestMethdRepository *repositories.AgricultureCulturePestMethodRepository
+type AgricultureCulturePestMethodServiceInterface interface {
+	PostAgricultureCulturePestMethod(requestAgricultureCulturePestMethod requests.AgricultureCulturePestMethodRequest) error
+	GetAllAgricultureCulturePestMethod() ([]responses.AgricultureCulturePestMethodResponse, error)
+	GetAllAgricultureCulturePestMethodByParam(cultureName, pestName, methodName interface{}) ([]responses.AgricultureCulturePestMethodResponse, error)
 }
 
-func NewAgricultureCulturePestMethodService(agricultureCulturePestMethdRepository *repositories.AgricultureCulturePestMethodRepository) *AgricultureCulturePestMethodService {
+type AgricultureCulturePestMethodService struct {
+	agricultureCulturePestMethdRepository repositories.AgricultureCulturePestMethodRepositoryInterface
+}
+
+func NewAgricultureCulturePestMethodService(agricultureCulturePestMethdRepository repositories.AgricultureCulturePestMethodRepositoryInterface) AgricultureCulturePestMethodServiceInterface {
 	return &AgricultureCulturePestMethodService{agricultureCulturePestMethdRepository: agricultureCulturePestMethdRepository}
 }
 

@@ -8,14 +8,25 @@ import (
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-type PlantingRepository struct {
-	db *gorm.DB
+type PlantingRepositoryInterface interface {
+	FindByParamPlanting(batchID uint) (entities.PlantingEntity, error)
+	CreatePlanting(entityPlanting entities.PlantingEntity) error
+	FindByParamBatchNameOrIsActivePlanting(batchName string, active bool) ([]responses.BatchPlantiesResponse, error)
+	FindPlantingByID(id uint) (entities.PlantingEntity, error)
+	UpdatePlanting(id uint, entityPlanting entities.PlantingEntity) error
+	DeletePlanting(id uint) error
+	FindAllPlanting() ([]entities.PlantingEntity, error)
 }
 
-func NewPlantingRepository(db *gorm.DB) *PlantingRepository {
+type PlantingRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewPlantingRepository(db interfaces.GORMRepositoryInterface) PlantingRepositoryInterface {
 	return &PlantingRepository{db: db}
 }
 

@@ -1,19 +1,15 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
 )
 
 func SetupProductionCostRouter(r *gin.Engine) {
 
-	productionCostRepository := repositories.NewProductionCostRepository(config.DB)
-	productionCostService := services.NewProductionCostService(productionCostRepository)
-	productionCostController := controllers.NewProductionCostController(productionCostService)
+	productionCostController := di.NewProductionCostBuilder().Builder()
 
 	productionCostRouter := r.Group("/v1/custos-plantacoes")
 	productionCostRouter.GET("/", productionCostController.GetAllProductionCost)

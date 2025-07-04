@@ -4,16 +4,26 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
-	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"gorm.io/gorm"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-type SalePlantingRepository struct {
-	db *gorm.DB
+type SalePlantingRepositoryInterface interface {
+	CreateSalePlantingRepository(entitySalePlanting entities.SalePlantingEntity) error
+	FindAllSalePlanting() ([]entities.SalePlantingEntity, error)
+	FindSalePlantingByID(id uint) (*entities.SalePlantingEntity, error)
+	UpdateSalePlanting(id uint, entitySalePlanting entities.SalePlantingEntity) error
+	DeleteSalePlanting(id uint) error
 }
 
-func NewSalePlantingRepository(db *gorm.DB) *SalePlantingRepository {
+type SalePlantingRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewSalePlantingRepository(db interfaces.GORMRepositoryInterface) SalePlantingRepositoryInterface {
 	return &SalePlantingRepository{db: db}
 }
 

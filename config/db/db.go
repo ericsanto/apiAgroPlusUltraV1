@@ -1,6 +1,8 @@
-package config
+package db
 
 import (
+	"fmt"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -9,22 +11,45 @@ import (
 
 var DB *gorm.DB
 
-func Conect() error {
+type Database interface {
+	Connect() (*gorm.DB, error)
+	Migrate(db *gorm.DB)
+}
 
-	dsn := "host=db user=go password=go dbname=go port=5432 sslmode=disable"
+type GORM struct {
+	DBName     string
+	DBUser     string
+	DBPassword string
+	DBHost     string
+	DBPort     string
+	SSLMode    string
+}
+
+func NewDatabase(dbName, dbUser, dbPassword, dbHost, dbPort, sslMode string) Database {
+
+	return &GORM{DBName: dbName, DBUser: dbUser, DBPassword: dbPassword, DBHost: dbHost, DBPort: dbPort, SSLMode: sslMode}
+}
+
+func (g *GORM) Connect() (*gorm.DB, error) {
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", g.DBHost, g.DBUser, g.DBPassword, g.DBName,
+		g.DBPort, g.SSLMode)
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("Falha ao conectar ao banco de dados")
+		return nil, fmt.Errorf("erro ao conectar com banco de dados %w", err)
 	}
 
+	DB = db
+
+	return db, nil
+}
+
+func (g *GORM) Migrate(db *gorm.DB) {
 	// Migrar (criar tabelas automaticamente)
 	db.AutoMigrate(&entities.SoilTypeEntity{}, &entities.AgricultureCultureEntity{}, &entities.TypePestEntity{},
 		&entities.PestEntity{}, &entities.PestAgricultureCulture{}, &entities.IrrigationRecomendedEntity{},
 		&entities.AgricultureCultureIrrigation{}, &entities.SustainablePestControlEntity{}, &entities.AgricultureCulturePestMethodEntity{},
 		&entities.FarmEntity{}, &entities.BatchEntity{},
 		&entities.IrrigationTypeEntity{}, &entities.PlantingEntity{}, &entities.ProductionCostEntity{}, &entities.SalePlantingEntity{}, &entities.PerformancePlantingEntity{})
-
-	DB = db
-
-	return nil
 }

@@ -5,18 +5,27 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type SustainablePestControlController struct {
-	sustainablePestControlService *services.SustainablePestControlService
+type SustainablePestControlControllerInterface interface {
+	GetAllSustainablePestControl(c *gin.Context)
+	PostSustainablePestControl(c *gin.Context)
+	GetFindByIdSustainablePestControl(c *gin.Context)
+	PutSustainablePestControl(c *gin.Context)
+	DeleteSustainablePestControl(c *gin.Context)
 }
 
-func NewSustainablePestControlController(sustainablePestControlService *services.SustainablePestControlService) *SustainablePestControlController {
+type SustainablePestControlController struct {
+	sustainablePestControlService services.SustainablePestControlServiceInterface
+}
+
+func NewSustainablePestControlController(sustainablePestControlService services.SustainablePestControlServiceInterface) SustainablePestControlControllerInterface {
 	return &SustainablePestControlController{sustainablePestControlService: sustainablePestControlService}
 }
 

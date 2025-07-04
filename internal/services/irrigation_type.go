@@ -11,11 +11,19 @@ import (
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-type IrrigationTypeService struct {
-	irrigationTypeRepository *repositories.IrrigationTypeRepository
+type IrrigationTypeServiceInterface interface {
+	GetAllIrrigationType() ([]responses.IrrigationTypeResponse, error)
+	PostirrigationType(requestIrrigationType requests.IrrigationTypeRequest) error
+	GetIrrigationTypeByID(id uint) (*responses.IrrigationTypeResponse, error)
+	PutIrrigationType(id uint, requestIrrigationType requests.IrrigationTypeRequest) error
+	DeleteIrrigationType(id uint) error
 }
 
-func NewIrrigationTypeService(irrigationTypeRepository *repositories.IrrigationTypeRepository) *IrrigationTypeService {
+type IrrigationTypeService struct {
+	irrigationTypeRepository repositories.IrrigationTypeRepositoryInterface
+}
+
+func NewIrrigationTypeService(irrigationTypeRepository repositories.IrrigationTypeRepositoryInterface) IrrigationTypeServiceInterface {
 	return &IrrigationTypeService{irrigationTypeRepository: irrigationTypeRepository}
 }
 

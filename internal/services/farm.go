@@ -8,11 +8,15 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type FarmService struct {
-	farmRepository *repositories.FarmRepository
+type FarmServiceInterface interface {
+	Create(farmRequest requests.FarmRequest) error
 }
 
-func NewFarmService(farmRepository *repositories.FarmRepository) *FarmService {
+type FarmService struct {
+	farmRepository repositories.FarmRepositoryInterface
+}
+
+func NewFarmService(farmRepository repositories.FarmRepositoryInterface) FarmServiceInterface {
 	return &FarmService{farmRepository: farmRepository}
 }
 

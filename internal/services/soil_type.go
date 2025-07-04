@@ -12,16 +12,17 @@ import (
 
 type SoilTypeServiceInterface interface {
 	GetAllSoilType() ([]responses.SoilTypeResponse, error)
-	GetFindByIdSoilType(id uint) (responses.SoilTypeResponse, error)
-	PostSoilType(soilTypeRequest requests.SoilTypeRequest) error
-	PutSoilType(soilTypeRequest requests.SoilTypeRequest) error
+	GetSoilTypeFindById(id uint) (*responses.SoilTypeResponse, error)
+	PostSoilType(requestSoilType requests.SoilTypeRequest) error
+	PutSoilType(id uint, requestSoilType requests.SoilTypeRequest) error
+	DeleteTypeSoil(id uint) error
 }
 
 type SoilTypeService struct {
-	soilTypeRepository *repositories.SoilTypeRepository
+	soilTypeRepository repositories.SoilTypeInterface
 }
 
-func NewSoilTypeService(soilTypeRepository *repositories.SoilTypeRepository) *SoilTypeService {
+func NewSoilTypeService(soilTypeRepository repositories.SoilTypeInterface) SoilTypeServiceInterface {
 
 	return &SoilTypeService{soilTypeRepository: soilTypeRepository}
 }
@@ -51,13 +52,13 @@ func (s *SoilTypeService) GetAllSoilType() ([]responses.SoilTypeResponse, error)
 
 }
 
-func (s *SoilTypeService) GetSoilTypeFindById(id uint) (responses.SoilTypeResponse, error) {
+func (s *SoilTypeService) GetSoilTypeFindById(id uint) (*responses.SoilTypeResponse, error) {
 	var soilTypeResponse responses.SoilTypeResponse
 
 	soilTypes, err := s.soilTypeRepository.FindByIdSoilType(id)
 	if err != nil {
 		log.Printf("erro ao buscar tipo de solo: %v", err)
-		return soilTypeResponse, fmt.Errorf("não foi possível buscar todos os tipos de solo: %w", err)
+		return &soilTypeResponse, fmt.Errorf("não foi possível buscar todos os tipos de solo: %w", err)
 	}
 
 	soilTypeResponse = responses.SoilTypeResponse{
@@ -66,17 +67,17 @@ func (s *SoilTypeService) GetSoilTypeFindById(id uint) (responses.SoilTypeRespon
 		Description: soilTypes.Description,
 	}
 
-	return soilTypeResponse, nil
+	return &soilTypeResponse, nil
 }
 
-func (s *SoilTypeService) CreateSoilType(requestSoilType requests.SoilTypeRequest) error {
+func (s *SoilTypeService) PostSoilType(requestSoilType requests.SoilTypeRequest) error {
 
 	soilTypeModel := entities.SoilTypeEntity{
 		Name:        requestSoilType.Name,
 		Description: requestSoilType.Description,
 	}
 
-	if err := s.soilTypeRepository.CreateSoilType(&soilTypeModel); err != nil {
+	if err := s.soilTypeRepository.CreateSoilType(soilTypeModel); err != nil {
 		return fmt.Errorf("erro ao criar tipo de solo: %w", err)
 	}
 

@@ -20,28 +20,29 @@ type ResponseApiPython struct {
 	HitPercentageFormated string  `json:"hit_percentage_formated"`
 }
 
-var (
-	ENDPOINT         = os.Getenv("ENDPOINT")
-	SECRET_KEY_MINIO = os.Getenv("SECRET_KEY_MINIO")
-	ACCESS_KEY_MINIO = os.Getenv("ACCESS_KEY_ID_MINIO")
-	bucketName       = os.Getenv("BUCKET_NAME")
-	region           = ""
-	objectLookin     = false
-	typeDetect       = "pest"
-)
+type DetectPestImageServiceInterface interface {
+	DetectPestImage(formFile upload.UploadFileInterface, formKey string) (map[string][]ResponseApiPython, error)
+}
 
-func DetectPestImage(formFile upload.UploadFileInterface, formKey string) (map[string][]ResponseApiPython, error) {
+type DetectPestImageService struct {
+	BucketClient  bucket.BucketClientInterface
+	ImageValidate bucket.ImageValidateInterface
+	KafkaClient   kafka.Messaging
+}
+
+func NewDetectPestImageService(bucketClient bucket.BucketClientInterface, imageValidate bucket.ImageValidateInterface, kafkaClient kafka.Messaging) DetectPestImageServiceInterface {
+	return &DetectPestImageService{
+		BucketClient:  bucketClient,
+		ImageValidate: imageValidate,
+		KafkaClient:   kafkaClient,
+	}
+}
+
+func (dp *DetectPestImageService) DetectPestImage(formFile upload.UploadFileInterface, formKey string) (map[string][]ResponseApiPython, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	defer cancel()
-
-	minioClient, err := bucket.CreateMinioClient(ENDPOINT, ACCESS_KEY_MINIO, SECRET_KEY_MINIO, "", false)
-
-	if err != nil {
-		log.Println(err.Error())
-		return nil, fmt.Errorf("erro ao se conectar com minio")
-	}
 
 	file, header, err := upload.UploadFile(formFile, formKey)
 	if err != nil {
@@ -50,17 +51,27 @@ func DetectPestImage(formFile upload.UploadFileInterface, formKey string) (map[s
 
 	defer file.Close()
 
-	if err := bucket.ValidateImageSizeAndType(header); err != nil {
+	if err := dp.ImageValidate.ValidateImageSizeAndType(header); err != nil {
 		return nil, err
 	}
 
-	if err := bucket.UploadImageToBucket(ctx, minioClient, bucketName, file, header, region, objectLookin); err != nil {
+	configsBucket := bucket.BucketConfig{
+		Name:          os.Getenv("BUCKET_NAME"),
+		ObjectLocking: false,
+		Region:        "",
+	}
+
+	endpoint := os.Getenv("ENDPOINT")
+
+	if err := dp.BucketClient.PutObject(ctx, configsBucket, header, file); err != nil {
 		return nil, err
 	}
 
-	urlImage := fmt.Sprintf("http://%s/%s/%s", ENDPOINT, bucketName, header.Filename)
+	urlImage := fmt.Sprintf("http://%s/%s/%s", endpoint, configsBucket.Name, header.Filename)
 
-	message, err := kafka.SendAndReceiverKafkaService(ctx, urlImage, typeDetect)
+	typeDetect := "pest"
+
+	message, err := dp.KafkaClient.SendAndReceiverService(ctx, urlImage, typeDetect)
 	if err != nil {
 		return nil, err
 	}

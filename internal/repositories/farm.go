@@ -5,15 +5,20 @@ import (
 	"log"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
-	"gorm.io/gorm"
 )
 
-type FarmRepository struct {
-	db *gorm.DB
+type FarmRepositoryInterface interface {
+	FindByID(id float64) (*entities.FarmEntity, error)
+	Create(farmEntity entities.FarmEntity) error
 }
 
-func NewFarmRepository(db *gorm.DB) *FarmRepository {
+type FarmRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewFarmRepository(db interfaces.GORMRepositoryInterface) FarmRepositoryInterface {
 	return &FarmRepository{db: db}
 }
 

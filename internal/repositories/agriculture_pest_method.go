@@ -5,14 +5,20 @@ import (
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
-type AgricultureCulturePestMethodRepository struct {
-	db *gorm.DB
+type AgricultureCulturePestMethodRepositoryInterface interface {
+	CreateAgricultureCulturePestMethod(entityAgricultureCulturePestMethod entities.AgricultureCulturePestMethodEntity) error
+	FindAllAgricultureCulturePestMethod() ([]responses.AgricultureCulturePestMethodResponse, error)
+	FindByQueryParamAgricultureCulturePestMethod(cultureName, pestName, methodName interface{}) ([]responses.AgricultureCulturePestMethodResponse, error)
 }
 
-func NewAgricultureCulturePestMethodRepository(db *gorm.DB) *AgricultureCulturePestMethodRepository {
+type AgricultureCulturePestMethodRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewAgricultureCulturePestMethodRepository(db interfaces.GORMRepositoryInterface) AgricultureCulturePestMethodRepositoryInterface {
 	return &AgricultureCulturePestMethodRepository{db: db}
 }
 

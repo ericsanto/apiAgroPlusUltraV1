@@ -9,19 +9,19 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type TypePestInterface interface {
+type TypePestServiceInterface interface {
 	GetAllTypePest() ([]responses.TypePestResponse, error)
 	GetTypePestFindById(id uint) (responses.TypePestResponse, error)
 	PostTypePest(requestTypePest requests.TypePestRequest) error
-	PutTypePest(id uint, requestTypePest requests.SoilTypeRequest) error
-	DeleteTypePest(id uint)
+	PutTypePest(id uint, requestTypePest requests.TypePestRequest) error
+	DeleteTypePest(id uint) error
 }
 
 type TypePestService struct {
-	typePestRepository *repositories.TypePestRepository
+	typePestRepository repositories.TypePestRepositoryInterface
 }
 
-func NewTypePestService(typePestRepository *repositories.TypePestRepository) *TypePestService {
+func NewTypePestService(typePestRepository repositories.TypePestRepositoryInterface) TypePestServiceInterface {
 
 	return &TypePestService{typePestRepository: typePestRepository}
 }
@@ -70,7 +70,7 @@ func (s *TypePestService) PostTypePest(requestTypePest requests.TypePestRequest)
 		Name: requestTypePest.Name,
 	}
 
-	err := s.typePestRepository.CreateTypePest(&typePestEntity)
+	err := s.typePestRepository.CreateTypePest(typePestEntity)
 	if err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}

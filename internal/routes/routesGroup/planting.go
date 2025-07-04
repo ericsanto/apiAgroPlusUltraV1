@@ -1,19 +1,15 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
 )
 
 func SetupRouterPlanting(r *gin.Engine) {
 
-	plantingRepository := repositories.NewPlantingRepository(config.DB)
-	plantingService := services.NewPlantingService(plantingRepository)
-	plantingController := controllers.NewPlantingController(plantingService)
+	plantingController := di.NewPlantingRepository().Builder()
 
 	plantingRouter := r.Group("/v1/plantacoes")
 	plantingRouter.POST("/", plantingController.PostPlanting)

@@ -5,14 +5,22 @@ import (
 	"strings"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
-type SustainablePestControlRepository struct {
-	db *gorm.DB
+type SustainablePestControlRepositoryInterface interface {
+	FindAllSustainablePestControl() ([]entities.SustainablePestControlEntity, error)
+	CreateSustainablePestControl(entitySustainablePestControl entities.SustainablePestControlEntity) error
+	FindByIdSustainablePestControl(id uint) (entities.SustainablePestControlEntity, error)
+	UpdateSustainablePestControl(id uint, newEntitySustainablePestControl entities.SustainablePestControlEntity) error
+	DeleteSustainablePestControl(id uint) error
 }
 
-func NewSustainablePestControlRepository(db *gorm.DB) *SustainablePestControlRepository {
+type SustainablePestControlRepository struct {
+	db interfaces.GORMRepositoryInterface
+}
+
+func NewSustainablePestControlRepository(db interfaces.GORMRepositoryInterface) SustainablePestControlRepositoryInterface {
 	return &SustainablePestControlRepository{db: db}
 }
 
@@ -57,12 +65,12 @@ func (s *SustainablePestControlRepository) FindByIdSustainablePestControl(id uin
 
 func (s *SustainablePestControlRepository) UpdateSustainablePestControl(id uint, newEntitySustainablePestControl entities.SustainablePestControlEntity) error {
 
-	entitySustainablePestControl, err := s.FindByIdSustainablePestControl(id)
+	_, err := s.FindByIdSustainablePestControl(id)
 	if err != nil {
 		return fmt.Errorf("erro: %v", err)
 	}
 
-	if err := s.db.Model(&entities.SustainablePestControlEntity{}).Where("id = ?", entitySustainablePestControl.Id).
+	if err := s.db.Model(&entities.SustainablePestControlEntity{}).Where("id = ?", id).
 		Updates(&newEntitySustainablePestControl).Error; err != nil {
 		return fmt.Errorf("erro ao atualizar objeto: %v", err)
 	}

@@ -3,18 +3,24 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type AgricultureCulturePestMethodController struct {
-	serviceAgricultureCulturePestMethod *services.AgricultureCulturePestMethodService
+type AgricultureCulturePestMethodControllerInterface interface {
+	PostAgricultureCulturePestMethod(c *gin.Context)
+	GetAllAgricultureCulturePestMethod(c *gin.Context)
 }
 
-func NewAgricultureCulturePestMethodController(serviceAgricultureCulturePestMethod *services.AgricultureCulturePestMethodService) *AgricultureCulturePestMethodController {
+type AgricultureCulturePestMethodController struct {
+	serviceAgricultureCulturePestMethod services.AgricultureCulturePestMethodServiceInterface
+}
+
+func NewAgricultureCulturePestMethodController(serviceAgricultureCulturePestMethod services.AgricultureCulturePestMethodServiceInterface) AgricultureCulturePestMethodControllerInterface {
 	return &AgricultureCulturePestMethodController{serviceAgricultureCulturePestMethod: serviceAgricultureCulturePestMethod}
 }
 

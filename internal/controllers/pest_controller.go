@@ -5,18 +5,27 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type PestController struct {
-	pestService *services.PestService
+type PestControllerInterface interface {
+	GetAllPestController(c *gin.Context)
+	GetFindByIdPestController(c *gin.Context)
+	PostPestController(c *gin.Context)
+	PutPestController(c *gin.Context)
+	DeletePestController(c *gin.Context)
 }
 
-func NewPestController(pestService *services.PestService) *PestController {
+type PestController struct {
+	pestService services.PestServiceInterface
+}
+
+func NewPestController(pestService services.PestServiceInterface) PestControllerInterface {
 	return &PestController{pestService: pestService}
 }
 

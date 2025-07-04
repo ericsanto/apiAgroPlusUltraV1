@@ -11,17 +11,17 @@ import (
 
 type PestAgricultureCultureServiceInterface interface {
 	GetAllPestAgricultureCulture() ([]responses.PestAgricultureCultureResponse, error)
-	GetFindByIdPestAgricultureCulture(pestId, cultureId uint) (responses.PestAgricultureCultureResponse, error)
+	GetFindByIdPestAgricultureCulture(pestId, cultureId uint) (*responses.PestAgricultureCultureResponse, error)
 	PostPestAgricultureCulture(requestPestAgricultureCulture requests.PestAgricultureCultureRequest) error
 	PutPestAgricultureCulture(pestId, cultureId uint, requestAgricultureCulture requests.PestAgricultureCultureRequest) error
-	DeletePestAgricultureCulture(pestId, cultureId uint)
+	DeletePestAgricultureCulture(pestId, cultureId uint) error
 }
 
 type PestAgricultureCultureService struct {
-	pestAgricultureCultureRepository *repositories.PestAgricultureCultureRepository
+	pestAgricultureCultureRepository repositories.PestAgricultureCultureRepositoryInterface
 }
 
-func NewPestAgricultureCultureService(pestAgricultureCultureRepository *repositories.PestAgricultureCultureRepository) *PestAgricultureCultureService {
+func NewPestAgricultureCultureService(pestAgricultureCultureRepository repositories.PestAgricultureCultureRepositoryInterface) PestAgricultureCultureServiceInterface {
 	return &PestAgricultureCultureService{pestAgricultureCultureRepository: pestAgricultureCultureRepository}
 }
 
@@ -35,7 +35,7 @@ func (p *PestAgricultureCultureService) GetAllPestAgricultureCulture() ([]respon
 	return result, nil
 }
 
-func (p *PestAgricultureCultureService) GetFindByIdPestAgricultureCulture(pestId, cultureId uint) (responses.PestAgricultureCultureResponse, error) {
+func (p *PestAgricultureCultureService) GetFindByIdPestAgricultureCulture(pestId, cultureId uint) (*responses.PestAgricultureCultureResponse, error) {
 
 	result, err := p.pestAgricultureCultureRepository.FindByIdPestAgricultureCulture(pestId, cultureId)
 	if err != nil {

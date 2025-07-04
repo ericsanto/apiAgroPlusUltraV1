@@ -4,8 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"gorm.io/gorm"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 )
 
 type IrrigationRecomendedRepositoryInterface interface {
@@ -60,13 +61,13 @@ func (i *IrrigationRecomendedRepository) FindByIdIrrigationRecomended(id uint) (
 
 func (i *IrrigationRecomendedRepository) UpdateIrrigationRecomended(id uint, entityIrrigationRecomended entities.IrrigationRecomendedEntity) error {
 
-	irrigationRecomended, err := i.FindByIdIrrigationRecomended(id)
+	_, err := i.FindByIdIrrigationRecomended(id)
 	if err != nil {
 		return fmt.Errorf("erro: %v", err)
 	}
 
-	if err := i.db.Model(&entities.IrrigationRecomendedEntity{}).Where("id = ?", irrigationRecomended.Id).
-		Updates(entityIrrigationRecomended).Error; err != nil {
+	if err := i.db.Model(&entities.IrrigationRecomendedEntity{}).Where("id = ?", id).
+		Updates(&entityIrrigationRecomended).Error; err != nil {
 		return fmt.Errorf("não foi possível atualizar objeto: %v", err)
 	}
 

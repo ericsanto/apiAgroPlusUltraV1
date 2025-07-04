@@ -1,19 +1,15 @@
 package routesgroup
 
 import (
-	"github.com/ericsanto/apiAgroPlusUltraV1/config"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/gin-gonic/gin"
+
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/di"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/middlewares"
 )
 
 func SetupPerformancePlantingRouter(r *gin.Engine) {
 
-	repositoryPerformanceCulture := repositories.NewPerformanceCultureRepository(config.DB)
-	servicePerformanceCulture := services.NewPerformancePlantingService(repositoryPerformanceCulture)
-	controllerPerformanceCulture := controllers.NewPerformancePlantingController(servicePerformanceCulture)
+	controllerPerformanceCulture := di.NewPerfomancePlantingBuilder().Builder()
 
 	perfomanceCultureRouter := r.Group("/v1/perfomances-das-plantacoes")
 

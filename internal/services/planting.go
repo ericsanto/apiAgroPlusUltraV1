@@ -10,11 +10,20 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type PlantingService struct {
-	plantingRepository *repositories.PlantingRepository
+type PlantingServiceInterface interface {
+	GetByParam(batchID uint) (responses.PlantingResponse, error)
+	PostPlanting(requestPlanting requests.PlantingRequest) error
+	GetByParamBatchNameOrIsActivePlanting(batchName string, active bool) ([]responses.BatchPlantiesResponse, error)
+	GetAllPlanting() ([]responses.PlantingResponse, error)
+	PutPlanting(id uint, requestPlanting requests.PlantingRequest) error
+	DeletePlanting(id uint) error
 }
 
-func NewPlantingService(plantingRepository *repositories.PlantingRepository) *PlantingService {
+type PlantingService struct {
+	plantingRepository repositories.PlantingRepositoryInterface
+}
+
+func NewPlantingService(plantingRepository repositories.PlantingRepositoryInterface) PlantingServiceInterface {
 	return &PlantingService{plantingRepository: plantingRepository}
 }
 

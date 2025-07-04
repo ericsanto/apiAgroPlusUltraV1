@@ -5,24 +5,24 @@ import (
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
 var queryVerifyIdExist string = `SELECT EXISTS(SELECT 1 FROM pest_agriculture_cultures WHERE pest_agriculture_cultures.pest_id = ? AND pest_agriculture_cultures.agriculture_culture_id = ?)`
 
 type PestAgricultureCultureRepositoryInterface interface {
 	FindAllPestAgricultureCulture() ([]responses.PestAgricultureCultureResponse, error)
-	FindByIdPestAgricultureCulture(id uint) (responses.PestAgricultureCultureResponse, error)
+	FindByIdPestAgricultureCulture(pestId, cultureId uint) (*responses.PestAgricultureCultureResponse, error)
 	CreatePestAgricultureCulture(entityPestAgricultureCulture entities.PestAgricultureCulture) error
-	UpdatePestAgricultureCulture(entityPestAgricultureCulture entities.PestAgricultureCulture) error
-	DeletePestAgricultureCulture(entityPestAgricultureCulture entities.PestAgricultureCulture) error
+	UpdatePestAgricultureCulture(pestId, cultureId uint, entityPestAgricultureCulture entities.PestAgricultureCulture) error
+	DeletePestAgricultureCulture(pestId, cultureId uint) error
 }
 
 type PestAgricultureCultureRepository struct {
-	db *gorm.DB
+	db interfaces.GORMRepositoryInterface
 }
 
-func NewPestAgricultureCultureRepository(db *gorm.DB) *PestAgricultureCultureRepository {
+func NewPestAgricultureCultureRepository(db interfaces.GORMRepositoryInterface) PestAgricultureCultureRepositoryInterface {
 	return &PestAgricultureCultureRepository{db: db}
 }
 
@@ -48,7 +48,7 @@ func (p *PestAgricultureCultureRepository) FindAllPestAgricultureCulture() ([]re
 	return responsePestAgricultureCulutre, nil
 }
 
-func (p *PestAgricultureCultureRepository) FindByIdPestAgricultureCulture(pestId, cultureId uint) (responses.PestAgricultureCultureResponse, error) {
+func (p *PestAgricultureCultureRepository) FindByIdPestAgricultureCulture(pestId, cultureId uint) (*responses.PestAgricultureCultureResponse, error) {
 	var response responses.PestAgricultureCultureResponse
 
 	query := `SELECT 
@@ -65,14 +65,14 @@ func (p *PestAgricultureCultureRepository) FindByIdPestAgricultureCulture(pestId
 
 	if err := p.db.Raw(query, pestId, cultureId).Scan(&response).Error; err != nil {
 
-		return response, fmt.Errorf("erro ao buscar relação: %v", err)
+		return &response, fmt.Errorf("erro ao buscar relação: %v", err)
 	}
 
 	if response == (responses.PestAgricultureCultureResponse{}) {
-		return response, fmt.Errorf("relação não encontrada")
+		return &response, fmt.Errorf("relação não encontrada")
 	}
 
-	return response, nil
+	return &response, nil
 }
 
 func (p *PestAgricultureCultureRepository) CreatePestAgricultureCulture(entityPestAgricultureCulture entities.PestAgricultureCulture) error {

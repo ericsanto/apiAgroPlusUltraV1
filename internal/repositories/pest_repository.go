@@ -5,23 +5,22 @@ import (
 	"log"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
-	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
 type PestRepositoryInterface interface {
-	FindAllPestService() ([]entities.PestEntity, error)
-	FindByIdPestService(id uint) (entities.TypePestEntity, error)
-	CreatePestService(requestPest requests.PestRequest) error
-	UpdatePestService(id uint, requesPest requests.PestRequest) error
-	DeletePestService(id uint) error
+	FindAllPest() ([]entities.PestEntity, error)
+	FindByIdPest(id uint) (*entities.PestEntity, error)
+	CreatePest(entityPest entities.PestEntity) error
+	UpdatePest(id uint, entityPest entities.PestEntity) error
+	DeletePest(id uint) error
 }
 
 type PestRepository struct {
-	db *gorm.DB
+	db interfaces.GORMRepositoryInterface
 }
 
-func NewPestRepository(db *gorm.DB) *PestRepository {
+func NewPestRepository(db interfaces.GORMRepositoryInterface) PestRepositoryInterface {
 	return &PestRepository{db: db}
 }
 
@@ -37,16 +36,16 @@ func (p *PestRepository) FindAllPest() ([]entities.PestEntity, error) {
 	return entitiesPest, nil
 }
 
-func (p *PestRepository) FindByIdPest(id uint) (entities.PestEntity, error) {
+func (p *PestRepository) FindByIdPest(id uint) (*entities.PestEntity, error) {
 
 	var pestEntity entities.PestEntity
 
 	if err := p.db.First(&pestEntity, id); err.Error != nil {
 		fmt.Println(err)
-		return pestEntity, fmt.Errorf("erro ao buscar praga com o id fornecido")
+		return &pestEntity, fmt.Errorf("erro ao buscar praga com o id fornecido")
 	}
 
-	return pestEntity, nil
+	return &pestEntity, nil
 
 }
 
@@ -62,12 +61,12 @@ func (p *PestRepository) CreatePest(entityPest entities.PestEntity) error {
 
 func (p *PestRepository) UpdatePest(id uint, entityPest entities.PestEntity) error {
 
-	existsPestEntity, err := p.FindByIdPest(id)
+	_, err := p.FindByIdPest(id)
 	if err != nil {
 		return fmt.Errorf("erro ao atualizar praga. Id não existe")
 	}
 
-	if err := p.db.Model(&entities.PestEntity{}).Where("id = ?", existsPestEntity.Id).Updates(entityPest); err.Error != nil {
+	if err := p.db.Model(&entities.PestEntity{}).Where("id = ?", id).Updates(&entityPest); err.Error != nil {
 		return fmt.Errorf("praga encontrada no banco de dados. Porém, não foi possível atualizá-la %v", err)
 	}
 

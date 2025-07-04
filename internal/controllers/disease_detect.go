@@ -3,22 +3,37 @@ package controllers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/IBM/sarama"
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
-	"github.com/gin-gonic/gin"
 )
 
-func DiseaseDetectController(c *gin.Context) {
+type DiseaseDetectControllerInterface interface {
+	DiseaseDetect(c *gin.Context)
+}
+
+type DiseaseDetectController struct {
+	diseaseDetectService services.DiseaseDetectServiceInterface
+}
+
+func NewDiseaseDetectController(diseaseDetectService services.DiseaseDetectServiceInterface) DiseaseDetectControllerInterface {
+	return &DiseaseDetectController{diseaseDetectService: diseaseDetectService}
+}
+
+func (ddc *DiseaseDetectController) DiseaseDetect(c *gin.Context) {
 
 	ctx := context.Background()
 
 	formKey := "image"
 
-	responseApiPython, err := services.DiseaseDetect(c.Request, formKey)
+	responseApiPython, err := ddc.diseaseDetectService.ServiceDiseaseDetect(c.Request, formKey)
+	fmt.Println(responseApiPython)
 
 	if err != nil {
 		switch {

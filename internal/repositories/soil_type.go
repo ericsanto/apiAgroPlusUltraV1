@@ -4,22 +4,22 @@ import (
 	"fmt"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
 type SoilTypeInterface interface {
 	FindAllSoilType() ([]entities.SoilTypeEntity, error)
-	FindByIdSoilType(id uint) (entities.SoilTypeEntity, error)
-	CreateSoilType(soilTypeModel *entities.SoilTypeEntity) error
+	FindByIdSoilType(id uint) (*entities.SoilTypeEntity, error)
+	CreateSoilType(soilTypeModel entities.SoilTypeEntity) error
 	UpdateSoilType(id uint, soilTypeModel entities.SoilTypeEntity) error
-	DeleteSoilType(id uint)
+	DeleteSoilType(id uint) error
 }
 
 type SoilTypeRepository struct {
-	db *gorm.DB
+	db interfaces.GORMRepositoryInterface
 }
 
-func NewSoilRepository(db *gorm.DB) *SoilTypeRepository {
+func NewSoilRepository(db interfaces.GORMRepositoryInterface) SoilTypeInterface {
 	return &SoilTypeRepository{db: db}
 }
 
@@ -32,18 +32,18 @@ func (r *SoilTypeRepository) FindAllSoilType() ([]entities.SoilTypeEntity, error
 	return soilTypes, err
 }
 
-func (r *SoilTypeRepository) FindByIdSoilType(id uint) (entities.SoilTypeEntity, error) {
+func (r *SoilTypeRepository) FindByIdSoilType(id uint) (*entities.SoilTypeEntity, error) {
 
 	var soilType entities.SoilTypeEntity
 
 	err := r.db.First(&soilType, id).Error
 
-	return soilType, err
+	return &soilType, err
 }
 
-func (r *SoilTypeRepository) CreateSoilType(soilTypeModel *entities.SoilTypeEntity) error {
+func (r *SoilTypeRepository) CreateSoilType(soilTypeModel entities.SoilTypeEntity) error {
 
-	result := r.db.Create(soilTypeModel)
+	result := r.db.Create(&soilTypeModel)
 
 	if result.Error != nil {
 		return fmt.Errorf("erro ao criar no banco de dados %w", result.Error)
@@ -58,12 +58,12 @@ func (r *SoilTypeRepository) CreateSoilType(soilTypeModel *entities.SoilTypeEnti
 
 func (r *SoilTypeRepository) UpdateSoilType(id uint, soilTypeModel entities.SoilTypeEntity) error {
 
-	soilTypeModelExist, err := r.FindByIdSoilType(id)
+	_, err := r.FindByIdSoilType(id)
 	if err != nil {
-		return fmt.Errorf("erro: %W", err)
+		return fmt.Errorf("erro: %w", err)
 	}
 
-	result := r.db.Model(&entities.SoilTypeEntity{}).Where("id = ?", soilTypeModelExist.Id).Updates(soilTypeModel)
+	result := r.db.Model(&entities.SoilTypeEntity{}).Where("id = ?", id).Updates(&soilTypeModel)
 
 	if result.Error != nil {
 		return fmt.Errorf("erro ao atualizaer dados %w", result.Error)
@@ -79,7 +79,7 @@ func (r *SoilTypeRepository) DeleteSoilType(id uint) error {
 		return fmt.Errorf("erro ao deletar tipo de solo. Id não existe")
 	}
 
-	result := r.db.Where("id = ?", soilTypeModelExist.Id).Delete(&entities.SoilTypeEntity{})
+	result := r.db.Where("id = ?", id).Delete(&soilTypeModelExist)
 
 	if result.Error != nil {
 		return fmt.Errorf("não foi possível deletar tipo de solo %w", err)

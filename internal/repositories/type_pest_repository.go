@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
-	"gorm.io/gorm"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 )
 
 type TypePestRepositoryInterface interface {
@@ -16,10 +16,10 @@ type TypePestRepositoryInterface interface {
 }
 
 type TypePestRepository struct {
-	db *gorm.DB
+	db interfaces.GORMRepositoryInterface
 }
 
-func NewTypePestRepository(db *gorm.DB) *TypePestRepository {
+func NewTypePestRepository(db interfaces.GORMRepositoryInterface) TypePestRepositoryInterface {
 	return &TypePestRepository{db: db}
 }
 
@@ -35,19 +35,19 @@ func (t *TypePestRepository) FindAllTypePest() ([]entities.TypePestEntity, error
 	return typesPests, nil
 }
 
-func (t *TypePestRepository) FindByIdTypePest(id uint) (entities.TypePestEntity, error) {
+func (t *TypePestRepository) FindByIdTypePest(id uint) (*entities.TypePestEntity, error) {
 
 	var typePest entities.TypePestEntity
 
 	err := t.db.First(&typePest, id)
 	if err.Error != nil {
-		return typePest, fmt.Errorf("não existe praga com esse id")
+		return &typePest, fmt.Errorf("não existe praga com esse id")
 	}
 
-	return typePest, nil
+	return &typePest, nil
 }
 
-func (t *TypePestRepository) CreateTypePest(typePestEntity *entities.TypePestEntity) error {
+func (t *TypePestRepository) CreateTypePest(typePestEntity entities.TypePestEntity) error {
 
 	err := t.db.Create(&typePestEntity)
 	if err.Error != nil {
@@ -59,12 +59,12 @@ func (t *TypePestRepository) CreateTypePest(typePestEntity *entities.TypePestEnt
 
 func (t *TypePestRepository) UpdateTypePest(id uint, entityTypePest entities.TypePestEntity) error {
 
-	typePestExists, err := t.FindByIdTypePest(id)
+	_, err := t.FindByIdTypePest(id)
 	if err != nil {
 		return fmt.Errorf("erro no repositório: %w", err)
 	}
 
-	result := t.db.Model(&entities.TypePestEntity{}).Where("id = ?", typePestExists.Id).Updates(entityTypePest)
+	result := t.db.Model(&entities.TypePestEntity{}).Where("id = ?", id).Updates(&entityTypePest)
 	if result.Error != nil {
 		return fmt.Errorf("erro ao atualizar: %w", err)
 	}
@@ -79,7 +79,7 @@ func (t *TypePestRepository) DeleteTypePest(id uint) error {
 		return fmt.Errorf("erro ao buscar praga: %w", err)
 	}
 
-	result := t.db.Where("id = ?", typePestExists.Id).Delete(typePestExists)
+	result := t.db.Where("id = ?", id).Delete(&typePestExists)
 	if result.Error != nil {
 		return fmt.Errorf("erro ao deletar praga")
 	}

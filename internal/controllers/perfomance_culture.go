@@ -5,18 +5,27 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
-type PerformancePlantingController struct {
-	servvicePerformancePlanting *services.PerformancePlantingService
+type PerformancePlantingControllerInterface interface {
+	PostPerformanceCulture(c *gin.Context)
+	GetAllPerformancePlanting(c *gin.Context)
+	PutPerformancePlanting(c *gin.Context)
+	GetPerformancePlantingByID(c *gin.Context)
+	DeletePerformancePlanting(c *gin.Context)
 }
 
-func NewPerformancePlantingController(servvicePerformancePlanting *services.PerformancePlantingService) *PerformancePlantingController {
+type PerformancePlantingController struct {
+	servvicePerformancePlanting services.PerformancePlantingServiceInterface
+}
+
+func NewPerformancePlantingController(servvicePerformancePlanting services.PerformancePlantingServiceInterface) PerformancePlantingControllerInterface {
 	return &PerformancePlantingController{servvicePerformancePlanting: servvicePerformancePlanting}
 }
 

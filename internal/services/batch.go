@@ -9,11 +9,19 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 )
 
-type BatchService struct {
-	batchRepository *repositories.BatchRepository
+type BatchServiceInterface interface {
+	PostBatchService(requestBatchService requests.BatchRequest) error
+	GetAllBatch() ([]responses.BatchResponse, error)
+	GetBatchFindById(id uint) (*responses.BatchResponse, error)
+	PutBatch(id uint, requestBatch requests.BatchRequest) error
+	DeleteBatch(id uint) error
 }
 
-func NewBatchService(batchRepository *repositories.BatchRepository) *BatchService {
+type BatchService struct {
+	batchRepository repositories.BatchRepositoryInterface
+}
+
+func NewBatchService(batchRepository repositories.BatchRepositoryInterface) BatchServiceInterface {
 	return &BatchService{batchRepository: batchRepository}
 }
 

@@ -8,11 +8,27 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
-	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/google/uuid"
+
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
-func SendMessageKafka(urlImage string, typeDetect string) (string, error) {
+type Messaging interface {
+	SendMessage(urlImage string, typeDetect string) (string, error)
+	ChannelMessage(ctx context.Context, url string, typeDetect string) (bool, string, error)
+	ConsumerMessage(messageKey string) (string, error)
+	SendAndReceiver(ctx context.Context, urlImage, typeDetect string) (string, error)
+	SendAndReceiverService(ctx context.Context, urlImage, typeDetect string) (string, error)
+}
+
+type Kafka struct {
+}
+
+func NewKafka() Messaging {
+	return &Kafka{}
+}
+
+func (k *Kafka) SendMessage(urlImage string, typeDetect string) (string, error) {
 
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
@@ -22,14 +38,14 @@ func SendMessageKafka(urlImage string, typeDetect string) (string, error) {
 	producer, err := sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		log.Println(err)
-		return "", fmt.Errorf("erro ao criar produtor")
+		return "", fmt.Errorf("erro ao criar produtor %w", err)
 	}
 
 	defer producer.Close()
 
 	requestID, err := uuid.NewRandom()
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("erro ao gerar id da request %w", err)
 	}
 
 	message := &sarama.ProducerMessage{
@@ -43,7 +59,7 @@ func SendMessageKafka(urlImage string, typeDetect string) (string, error) {
 
 	partiton, offset, err := producer.SendMessage(message)
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("erro ao enviar mensagem %w", err)
 	}
 
 	fmt.Println(partiton, offset)
@@ -51,7 +67,7 @@ func SendMessageKafka(urlImage string, typeDetect string) (string, error) {
 	return requestID.String(), nil
 }
 
-func KafkaChannelMessage(ctx context.Context, url string, typeDetect string) (bool, string, error) {
+func (k *Kafka) ChannelMessage(ctx context.Context, url string, typeDetect string) (bool, string, error) {
 
 	type KafkaSendMessage struct {
 		MessageKey string
@@ -63,7 +79,7 @@ func KafkaChannelMessage(ctx context.Context, url string, typeDetect string) (bo
 
 	go func() {
 
-		messageKey, err := SendMessageKafka(url, typeDetect)
+		messageKey, err := k.SendMessage(url, typeDetect)
 		resultSendedMessage <- KafkaSendMessage{Success: err == nil, Err: err, MessageKey: messageKey}
 
 	}()
@@ -78,7 +94,7 @@ func KafkaChannelMessage(ctx context.Context, url string, typeDetect string) (bo
 	}
 }
 
-func ConsumerMessageKafka(messageKey string) (string, error) {
+func (k *Kafka) ConsumerMessage(messageKey string) (string, error) {
 
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
@@ -115,9 +131,9 @@ func ConsumerMessageKafka(messageKey string) (string, error) {
 	}
 }
 
-func SendAndReceiver(ctx context.Context, urlImage, typeDetect string) (string, error) {
+func (k *Kafka) SendAndReceiver(ctx context.Context, urlImage, typeDetect string) (string, error) {
 
-	successSendedChannelMessage, messageKey, err := KafkaChannelMessage(ctx, urlImage, typeDetect)
+	successSendedChannelMessage, messageKey, err := k.ChannelMessage(ctx, urlImage, typeDetect)
 
 	if !successSendedChannelMessage {
 		log.Println(err)
@@ -129,7 +145,7 @@ func SendAndReceiver(ctx context.Context, urlImage, typeDetect string) (string, 
 		return "", fmt.Errorf("%s", err.Error())
 	}
 
-	message, err := ConsumerMessageKafka(messageKey)
+	message, err := k.ConsumerMessage(messageKey)
 	if err != nil {
 
 		switch errTyped := err.(type) {
@@ -145,9 +161,9 @@ func SendAndReceiver(ctx context.Context, urlImage, typeDetect string) (string, 
 	return message, nil
 }
 
-func SendAndReceiverKafkaService(ctx context.Context, urlImage, typeDetect string) (string, error) {
+func (k *Kafka) SendAndReceiverService(ctx context.Context, urlImage, typeDetect string) (string, error) {
 
-	message, err := SendAndReceiver(ctx, urlImage, typeDetect)
+	message, err := k.SendAndReceiver(ctx, urlImage, typeDetect)
 
 	if err != nil {
 
