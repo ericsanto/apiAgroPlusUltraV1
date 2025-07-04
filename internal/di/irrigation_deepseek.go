@@ -9,6 +9,7 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/deepseek"
+	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/jsonutil"
 	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/mosquitto"
 	openweather "github.com/ericsanto/apiAgroPlusUltraV1/pkg/open_weather"
 )
@@ -30,7 +31,9 @@ func (idsb *IrrigationDeepseekServiceBuilder) Builder() (controllers.IrrigationR
 		CleanSession:       false,
 		ClientID:           "golang-api",
 	}
-	mosquittoClient, err := mosquitto.NewMosquittoBroker(opts)
+
+	jsonUtils := jsonutil.NewJsonUtils()
+	mosquittoClient, err := mosquitto.NewMosquittoBroker(opts, jsonUtils)
 
 	if err != nil {
 		return nil, fmt.Errorf("erro ao criar build do IrrigationDeepseek %w", err)
