@@ -39,9 +39,10 @@ type OPTSMosquitto struct {
 
 type Mosquitto struct {
 	clientMosquitto mqtt.Client
+	jsonUtils       jsonutil.JsonUtilsInterface
 }
 
-func NewMosquittoBroker(opts OPTSMosquitto) (MosquittoInterface, error) {
+func NewMosquittoBroker(opts OPTSMosquitto, jsonUtils jsonutil.JsonUtilsInterface) (MosquittoInterface, error) {
 	opt := mqtt.NewClientOptions()
 	opt.AddBroker(opts.UrlBrokerMosquitto)
 	opt.Username = opts.Username
@@ -55,7 +56,7 @@ func NewMosquittoBroker(opts OPTSMosquitto) (MosquittoInterface, error) {
 		return nil, fmt.Errorf("%w: %v", myerror.ErrCreateClientMosquitto, token.Error())
 	}
 
-	return &Mosquitto{clientMosquitto: client}, nil
+	return &Mosquitto{clientMosquitto: client, jsonUtils: jsonUtils}, nil
 
 }
 
@@ -71,7 +72,7 @@ func (m *Mosquitto) FormatResponseDeepSeekInJSONForMqttBrokerPublisher(content, 
 		return json, fmt.Errorf("%w", err)
 	}
 
-	err = jsonutil.ConvertStringToJson(messageForMqtt, &json)
+	err = m.jsonUtils.ConvertStringToJson(messageForMqtt, &json)
 
 	if err != nil {
 		return json, err

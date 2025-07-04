@@ -6,7 +6,9 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/bucket"
+	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/jsonutil"
 	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/kafka"
+	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/upload"
 )
 
 type DiseaseDetectBuilder struct{}
@@ -19,6 +21,8 @@ func (ddb *DiseaseDetectBuilder) Builder() (controllers.DiseaseDetectControllerI
 
 	imageValidade := bucket.NewValidateImage()
 	kafkaClient := kafka.NewKafka()
+	jsonUtils := jsonutil.NewJsonUtils()
+	uploadFile := upload.NewUploadFileS("image")
 
 	configs := bucket.MinioConfig{
 		AccessKey: os.Getenv("ACCESS_KEY_ID_MINIO"),
@@ -34,7 +38,7 @@ func (ddb *DiseaseDetectBuilder) Builder() (controllers.DiseaseDetectControllerI
 		return nil, err
 	}
 
-	diseaseDetectService := services.NewDiseaseDetect(bucketClient, imageValidade, kafkaClient)
+	diseaseDetectService := services.NewDiseaseDetect(bucketClient, imageValidade, kafkaClient, jsonUtils, uploadFile)
 
 	diseaseDetectController := controllers.NewDiseaseDetectController(diseaseDetectService)
 

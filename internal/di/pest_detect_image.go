@@ -7,7 +7,9 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/controllers"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/bucket"
+	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/jsonutil"
 	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/kafka"
+	"github.com/ericsanto/apiAgroPlusUltraV1/pkg/upload"
 )
 
 type PestDetectImageBuilder struct {
@@ -32,11 +34,15 @@ func (p *PestDetectImageBuilder) Builder() (controllers.DetectPestImageControlle
 		return nil, fmt.Errorf("erro ao criar cliente bucket %w", err)
 	}
 
+	jsonUtils := jsonutil.NewJsonUtils()
+
 	imageValidate := bucket.NewValidateImage()
 
 	messagingService := kafka.NewKafka()
 
-	serviceDetectPestImage := services.NewDetectPestImageService(bucketClient, imageValidate, messagingService)
+	uploadFile := upload.NewUploadFileS("image")
+
+	serviceDetectPestImage := services.NewDetectPestImageService(bucketClient, imageValidate, messagingService, jsonUtils, uploadFile)
 	controllerDetectPestImage := controllers.NewDetectPestImageController(serviceDetectPestImage)
 
 	return controllerDetectPestImage, nil

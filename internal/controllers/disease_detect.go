@@ -30,9 +30,7 @@ func (ddc *DiseaseDetectController) DiseaseDetect(c *gin.Context) {
 
 	ctx := context.Background()
 
-	formKey := "image"
-
-	responseApiPython, err := ddc.diseaseDetectService.ServiceDiseaseDetect(c.Request, formKey)
+	responseApiPython, err := ddc.diseaseDetectService.ServiceDiseaseDetect(c.Request)
 	fmt.Println(responseApiPython)
 
 	if err != nil {
