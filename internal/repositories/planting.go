@@ -64,6 +64,7 @@ func (p *PlantingRepository) FindByParamBatchNameOrIsActivePlanting(batchName st
 		planting_entities.start_date_planting,
 		planting_entities.space_between_plants AS space_between_plants,
 		planting_entities.space_between_rows AS space_between_rows,
+		planting_entities.expected_production AS expected_production,
 		irrigation_type_entities.name AS irrigation_type
 	FROM planting_entities 
 	INNER JOIN batch_entities ON batch_entities.id = planting_entities.batch_id 
