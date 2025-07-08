@@ -106,7 +106,7 @@ func (p *PerformancePlantingController) PutPerformancePlanting(c *gin.Context) {
 		return
 	}
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := p.servvicePerformancePlanting.PutPerformancePlanting(id, requestPerformancePlanting); err != nil {
 		switch {
@@ -130,7 +130,7 @@ func (p *PerformancePlantingController) PutPerformancePlanting(c *gin.Context) {
 
 func (p *PerformancePlantingController) GetPerformancePlantingByID(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	responsePerformancePlanting, err := p.servvicePerformancePlanting.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id)
 	if err != nil {
@@ -151,7 +151,7 @@ func (p *PerformancePlantingController) GetPerformancePlantingByID(c *gin.Contex
 
 func (p *PerformancePlantingController) DeletePerformancePlanting(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := p.servvicePerformancePlanting.DeletePerformancePlanting(id); err != nil {
 		switch {

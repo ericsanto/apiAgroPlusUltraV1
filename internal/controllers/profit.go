@@ -26,7 +26,7 @@ func NewProfitController(profitService services.ProfitServiceInterface) ProfitCo
 
 func (p *ProfitController) GetProfit(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	val, exists := c.Get("userID")
 

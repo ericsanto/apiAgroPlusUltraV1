@@ -99,7 +99,7 @@ func (s *SoilTypeController) PutSoilType(c *gin.Context) {
 
 	var soilType requests.SoilTypeRequest
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}
@@ -130,7 +130,7 @@ func (s *SoilTypeController) PutSoilType(c *gin.Context) {
 
 func (s *SoilTypeController) DeleteSoilType(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 
 	if !exists {
 		return

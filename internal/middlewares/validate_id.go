@@ -5,15 +5,16 @@ import (
 	"strconv"
 	"time"
 
-	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/gin-gonic/gin"
+
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
 func ValidateIdParam(id string) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		idStr := c.Param("id")
+		idStr := c.Param(id)
 
 		idUint, err := strconv.ParseUint(idStr, 10, 32)
 		if err != nil {
@@ -25,7 +26,7 @@ func ValidateIdParam(id string) gin.HandlerFunc {
 			return
 		}
 
-		c.Set("validatedID", uint(idUint))
+		c.Set(id, uint(idUint))
 		c.Next()
 	}
 }

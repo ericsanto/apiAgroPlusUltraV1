@@ -75,7 +75,7 @@ func (s *SalePlantingController) GetAllSalePlanting(c *gin.Context) {
 
 func (s *SalePlantingController) GetSalePlantingByID(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	responseSalePlanting, err := s.salePlantingService.GetSalePlantingByID(id)
 	if err != nil {
@@ -111,7 +111,7 @@ func (s *SalePlantingController) PutSalePlanting(c *gin.Context) {
 		return
 	}
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := s.salePlantingService.PutSalePlanting(id, requestSalePlanting); err != nil {
 
@@ -139,7 +139,7 @@ func (s *SalePlantingController) PutSalePlanting(c *gin.Context) {
 
 func (s *SalePlantingController) DeleteSalePlanting(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := s.salePlantingService.DeleteSalePlanting(id); err != nil {
 		switch {

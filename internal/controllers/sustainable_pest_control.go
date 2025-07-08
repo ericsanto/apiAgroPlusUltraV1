@@ -76,7 +76,7 @@ func (s *SustainablePestControlController) PostSustainablePestControl(c *gin.Con
 
 func (s *SustainablePestControlController) GetFindByIdSustainablePestControl(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	responseSustainablesPestControl, err := s.sustainablePestControlService.GetFindByIdSustainablePestControl(id)
 	if err != nil {
@@ -94,7 +94,7 @@ func (s *SustainablePestControlController) GetFindByIdSustainablePestControl(c *
 
 func (s *SustainablePestControlController) PutSustainablePestControl(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	var requestSustainablePestControl requests.SustainablePestControlRequest
 
@@ -130,7 +130,7 @@ func (s *SustainablePestControlController) PutSustainablePestControl(c *gin.Cont
 
 func (s *SustainablePestControlController) DeleteSustainablePestControl(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := s.sustainablePestControlService.DeleteSustainablePestControl(id); err != nil {
 		if strings.Contains(err.Error(), fmt.Sprintf("obejto com id %d não existe", id)) {

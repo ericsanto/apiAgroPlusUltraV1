@@ -75,7 +75,7 @@ func (p *ProductionCostController) PostProductionCost(c *gin.Context) {
 
 func (p *ProductionCostController) GetProductionCostByID(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	productionCost, err := p.productionCostService.GetAllProductionCostByID(id)
 	if err != nil {
@@ -95,7 +95,7 @@ func (p *ProductionCostController) PutProductionCost(c *gin.Context) {
 
 	var requesProductionCost requests.ProductionCostRequest
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := c.ShouldBindJSON(&requesProductionCost); err != nil {
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
@@ -129,7 +129,7 @@ func (p *ProductionCostController) PutProductionCost(c *gin.Context) {
 
 func (p *ProductionCostController) DeleteProductionCost(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := p.productionCostService.DeleteProductionCost(id); err != nil {
 		if strings.Contains(err.Error(), "não existe custo com o id") {

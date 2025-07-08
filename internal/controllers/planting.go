@@ -109,7 +109,7 @@ func (p *PlantingController) PutPlanting(c *gin.Context) {
 
 	var requestPlanting requests.PlantingRequest
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := c.ShouldBindJSON(&requestPlanting); err != nil {
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
@@ -143,7 +143,7 @@ func (p *PlantingController) PutPlanting(c *gin.Context) {
 
 func (p *PlantingController) DeletePlanting(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := p.plantingService.DeletePlanting(id); err != nil {
 		if strings.Contains(err.Error(), "não existe plantação com o id") {
