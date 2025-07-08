@@ -21,6 +21,8 @@ var ErrSearchCurrentByCoordinatesOpenWeather = errors.New("erro ao buscar dados 
 var ErrGetUVSolarRadiationOpenWeather = errors.New("erro ao buscar radiacao solar")
 var ErrConectDeepSeek = errors.New("erro ao tentar se conectar com api deepseek")
 var ErrPublishMosquitto = errors.New("erro ao publicar mensagem no broker")
+var ErrFarmNotFound = errors.New("nao existe fazenda com o id")
+var ErrBatchAlreadyExists = errors.New("ja existe lote cadastrado com esse nome")
 
 type ErrorApp struct {
 	Message   interface{} `json:"message"`
