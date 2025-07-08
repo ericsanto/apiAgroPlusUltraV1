@@ -15,7 +15,8 @@ func NewBatchBuilder() *BatchBuilder {
 
 func (bb *BatchBuilder) Builder() controllers.BatchControllerInterface {
 
-	respositoryBatch := repositories.NewBatchRepository(db.DB)
+	repositoryFarm := repositories.NewFarmRepository(db.DB)
+	respositoryBatch := repositories.NewBatchRepository(db.DB, repositoryFarm)
 	serviceBatch := services.NewBatchService(respositoryBatch)
 	controllerBatch := controllers.NewBatchController(serviceBatch)
 
