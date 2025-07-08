@@ -14,6 +14,8 @@ import (
 
 type FarmControllerInterface interface {
 	PostFarm(c *gin.Context)
+	GetFarmByID(c *gin.Context)
+	GetAllFarm(c *gin.Context)
 }
 
 type FarmController struct {
@@ -69,4 +71,51 @@ func (fc *FarmController) PostFarm(c *gin.Context) {
 
 	c.Status(http.StatusCreated)
 
+}
+
+func (fc *FarmController) GetFarmByID(c *gin.Context) {
+
+	val, exist := c.Get("userID")
+	if !exist {
+		return
+	}
+
+	userID := val.(uint)
+
+	validateID := validators.GetAndValidateIdMidlware(c, "id")
+
+	responseFarm, err := fc.serviceFarm.GetFarmByID(userID, validateID)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, myerror.ErrFarmNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+		default:
+			myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, responseFarm)
+}
+
+func (fc *FarmController) GetAllFarm(c *gin.Context) {
+
+	val, exists := c.Get("userID")
+
+	if !exists {
+		return
+	}
+
+	userID := val.(uint)
+
+	listFarmResponse, err := fc.serviceFarm.GetAllFarm(userID)
+
+	if err != nil {
+		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
+		return
+	}
+
+	c.JSON(http.StatusOK, listFarmResponse)
 }

@@ -13,5 +13,7 @@ func SetupRouterFarm(r *gin.Engine) {
 
 	farmRouterGroup := r.Group("/v1/fazenda")
 	farmRouterGroup.POST("/", middlewares.ValidateJWT(), farmController.PostFarm)
+	farmRouterGroup.GET("/:farmID", middlewares.ValidateJWT(), middlewares.ValidateIdParam("farmID"), farmController.GetFarmByID)
+	farmRouterGroup.GET("/", middlewares.ValidateJWT(), farmController.GetAllFarm)
 
 }

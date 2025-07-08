@@ -5,12 +5,14 @@ import (
 	"log"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
+	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
 type FarmRepositoryInterface interface {
-	FindByID(id float64) (*entities.FarmEntity, error)
+	FindByID(userID, id uint) (*responses.FarmResponse, error)
+	FindAll(userID uint) ([]responses.FarmResponse, error)
 	Create(farmEntity entities.FarmEntity) error
 }
 
@@ -22,15 +24,44 @@ func NewFarmRepository(db interfaces.GORMRepositoryInterface) FarmRepositoryInte
 	return &FarmRepository{db: db}
 }
 
-func (fr *FarmRepository) FindByID(id float64) (*entities.FarmEntity, error) {
+func (fr *FarmRepository) FindByID(userID, id uint) (*responses.FarmResponse, error) {
 
-	var entityFarm entities.FarmEntity
+	var entityFarm responses.FarmResponse
 
-	if err := fr.db.First(&entityFarm, id).Error; err != nil {
-		return nil, fmt.Errorf("fazenda com id %f %w", id, myerror.ErrNotFound)
+	query := `SELECT farm_entities.id AS id,
+	farm_entities.name AS name
+	FROM farm_entities
+	INNER JOIN user_models ON user_models.id = farm_entities.user_id
+	WHERE farm_entities.id = ? AND farm_entities.user_id = ?`
+
+	err := fr.db.Raw(query, id, userID).Scan(&entityFarm)
+
+	if err.RowsAffected == 0 {
+		return nil, fmt.Errorf("%w %d", myerror.ErrFarmNotFound, id)
+	}
+
+	if err.Error != nil {
+		return nil, fmt.Errorf("erro ao buscar fazenda")
 	}
 
 	return &entityFarm, nil
+}
+
+func (fr *FarmRepository) FindAll(userID uint) ([]responses.FarmResponse, error) {
+
+	var listFarmResponse []responses.FarmResponse
+
+	query := `SELECT farm_entities.id AS id,
+	farm_entities.name AS name
+	FROM farm_entities
+	INNER JOIN user_models ON user_models.id = farm_entities.user_id
+	WHERE farm_entities.user_id = ?`
+
+	if err := fr.db.Raw(query, userID).Scan(&listFarmResponse).Error; err != nil {
+		return nil, fmt.Errorf("erro ao buscar todas as fazendas")
+	}
+
+	return listFarmResponse, nil
 }
 
 func (fr *FarmRepository) Create(farmEntity entities.FarmEntity) error {
