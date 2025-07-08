@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -34,6 +33,16 @@ func NewBatchController(batchService services.BatchServiceInterface) BatchContro
 func (b *BatchController) PostBatch(c *gin.Context) {
 	var requestBatch requests.BatchRequest
 
+	val, exitsts := c.Get("userID")
+
+	if !exitsts {
+		return
+	}
+
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+
+	userID := val.(uint)
+
 	if err := c.ShouldBindJSON(&requestBatch); err != nil {
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
 		return
@@ -50,9 +59,9 @@ func (b *BatchController) PostBatch(c *gin.Context) {
 		return
 	}
 
-	if err := b.batchService.PostBatchService(requestBatch); err != nil {
-		if strings.Contains(err.Error(), "já existe lote cadastrado com esse nome") {
-			myerror.HttpErrors(http.StatusConflict, "já existe lote cadastrado com esse nome", c)
+	if err := b.batchService.PostBatchService(userID, farmID, requestBatch); err != nil {
+		if errors.Is(err, myerror.ErrBatchAlreadyExists) {
+			myerror.HttpErrors(http.StatusConflict, myerror.ErrBatchAlreadyExists.Error(), c)
 			return
 		}
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
@@ -65,7 +74,17 @@ func (b *BatchController) PostBatch(c *gin.Context) {
 
 func (b *BatchController) GetAllBatch(c *gin.Context) {
 
-	batchs, err := b.batchService.GetAllBatch()
+	val, exitsts := c.Get("userID")
+
+	if !exitsts {
+		return
+	}
+
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+
+	userID := val.(uint)
+
+	batchs, err := b.batchService.GetAllBatch(userID, farmID)
 	if err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 		return
@@ -76,15 +95,31 @@ func (b *BatchController) GetAllBatch(c *gin.Context) {
 
 func (b *BatchController) GetBatchFindById(c *gin.Context) {
 
-	validateID := validators.GetAndValidateIdMidlware(c, "validatedID")
+	val, exist := c.Get("userID")
 
-	batch, err := b.batchService.GetBatchFindById(validateID)
+	if !exist {
+		return
+	}
+
+	userID := val.(uint)
+
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+
+	fmt.Printf("aqui e o id da fazenda %d", farmID)
+	fmt.Printf("aqui e o id do lote %d", batchID)
+
+	batch, err := b.batchService.GetBatchFindById(userID, farmID, batchID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe lote com o ID %d", validateID), c)
+		if errors.Is(err, myerror.ErrFarmNotFound) {
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe fazenda com o ID %d", farmID), c)
 			return
 		}
 
+		if errors.Is(err, myerror.ErrNotFound) {
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe lote com o ID %d", batchID), c)
+			return
+		}
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 		return
 	}
@@ -112,11 +147,18 @@ func (b *BatchController) PutBatch(c *gin.Context) {
 		return
 	}
 
-	validatedID := validators.GetAndValidateIdMidlware(c, "validatedID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
 
-	if err := b.batchService.PutBatch(validatedID, requestBatch); err != nil {
-		if strings.Contains(err.Error(), "já existe lote cadastrado com esse nome") {
-			myerror.HttpErrors(http.StatusConflict, "já existe lote cadastrado com esse nome", c)
+	if err := b.batchService.PutBatch(userID, farmID, batchID, requestBatch); err != nil {
+		if errors.Is(err, myerror.ErrBatchAlreadyExists) {
+			myerror.HttpErrors(http.StatusConflict, myerror.ErrBatchAlreadyExists.Error(), c)
+			return
+		}
+
+		if errors.Is(err, myerror.ErrFarmNotFound) {
+			myerror.HttpErrors(http.StatusNotFound, myerror.ErrFarmNotFound.Error(), c)
 			return
 		}
 
@@ -129,11 +171,18 @@ func (b *BatchController) PutBatch(c *gin.Context) {
 
 func (b *BatchController) DeleteBatch(c *gin.Context) {
 
-	validatedId := validators.GetAndValidateIdMidlware(c, "validatedID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
 
-	if err := b.batchService.DeleteBatch(validatedId); err != nil {
+	if err := b.batchService.DeleteBatch(userID, farmID, batchID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe lote com o ID %d", validatedId), c)
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe lote com o ID %d", batchID), c)
+			return
+		}
+
+		if errors.Is(err, myerror.ErrFarmNotFound) {
+			myerror.HttpErrors(http.StatusNotFound, myerror.ErrFarmNotFound.Error(), c)
 			return
 		}
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
