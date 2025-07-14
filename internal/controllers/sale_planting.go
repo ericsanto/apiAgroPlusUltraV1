@@ -48,9 +48,24 @@ func (s *SalePlantingController) PostSalePlanting(c *gin.Context) {
 		return
 	}
 
-	if err := s.salePlantingService.PostSalePlanting(requestSalePlanting); err != nil {
-		if errors.Is(err, myerror.ErrDuplicateSale) {
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+
+	if err := s.salePlantingService.PostSalePlanting(batchID, farmID, userID, plantingID, requestSalePlanting); err != nil {
+
+		switch {
+		case errors.Is(err, myerror.ErrDuplicateSale):
 			myerror.HttpErrors(http.StatusConflict, err.Error(), c)
+			return
+
+		case errors.Is(err, myerror.ErrNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		case errors.Is(err, myerror.ErrFarmNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
 			return
 		}
 
@@ -64,7 +79,11 @@ func (s *SalePlantingController) PostSalePlanting(c *gin.Context) {
 
 func (s *SalePlantingController) GetAllSalePlanting(c *gin.Context) {
 
-	responsesSalePlanting, err := s.salePlantingService.GetAllSalePlanting()
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+
+	responsesSalePlanting, err := s.salePlantingService.GetAllSalePlanting(batchID, farmID, userID)
 	if err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 		return
@@ -75,11 +94,24 @@ func (s *SalePlantingController) GetAllSalePlanting(c *gin.Context) {
 
 func (s *SalePlantingController) GetSalePlantingByID(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "id")
+	salePlantingID := validators.GetAndValidateIdMidlware(c, "salePlantingID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
 
-	responseSalePlanting, err := s.salePlantingService.GetSalePlantingByID(id)
+	responseSalePlanting, err := s.salePlantingService.GetSalePlantingByID(batchID, farmID, userID, salePlantingID)
 	if err != nil {
 		if errors.Is(err, myerror.ErrNotFoundSale) {
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+		}
+
+		if errors.Is(err, myerror.ErrNotFound) {
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+		}
+
+		if errors.Is(err, myerror.ErrFarmNotFound) {
 			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
 			return
 		}
@@ -111,9 +143,12 @@ func (s *SalePlantingController) PutSalePlanting(c *gin.Context) {
 		return
 	}
 
-	id := validators.GetAndValidateIdMidlware(c, "id")
+	salePlantingID := validators.GetAndValidateIdMidlware(c, "salePlantingID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
 
-	if err := s.salePlantingService.PutSalePlanting(id, requestSalePlanting); err != nil {
+	if err := s.salePlantingService.PutSalePlanting(batchID, farmID, userID, salePlantingID, requestSalePlanting); err != nil {
 
 		switch {
 		case errors.Is(err, myerror.ErrDuplicateSale):
@@ -127,6 +162,15 @@ func (s *SalePlantingController) PutSalePlanting(c *gin.Context) {
 		case errors.Is(err, myerror.ErrViolatedForeingKey):
 			myerror.HttpErrors(http.StatusConflict, err.Error(), c)
 			return
+
+		case errors.Is(err, myerror.ErrNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		case errors.Is(err, myerror.ErrFarmNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
 		default:
 			myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 			return
@@ -139,11 +183,22 @@ func (s *SalePlantingController) PutSalePlanting(c *gin.Context) {
 
 func (s *SalePlantingController) DeleteSalePlanting(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "id")
+	salePlantingID := validators.GetAndValidateIdMidlware(c, "salePlantingID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
 
-	if err := s.salePlantingService.DeleteSalePlanting(id); err != nil {
+	if err := s.salePlantingService.DeleteSalePlanting(batchID, farmID, userID, salePlantingID); err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrNotFoundSale):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		case errors.Is(err, myerror.ErrNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		case errors.Is(err, myerror.ErrFarmNotFound):
 			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
 			return
 
