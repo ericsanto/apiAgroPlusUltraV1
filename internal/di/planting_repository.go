@@ -15,7 +15,9 @@ func NewPlantingRepository() *PlantingBuilder {
 
 func (prb *PlantingBuilder) Builder() controllers.PlantingControllerInterface {
 
-	plantingRepository := repositories.NewPlantingRepository(db.DB)
+	farmRepository := repositories.NewFarmRepository(db.DB)
+
+	plantingRepository := repositories.NewPlantingRepository(db.DB, farmRepository)
 	plantingService := services.NewPlantingService(plantingRepository)
 	plantingController := controllers.NewPlantingController(plantingService)
 
