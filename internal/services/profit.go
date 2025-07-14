@@ -8,7 +8,7 @@ import (
 )
 
 type ProfitServiceInterface interface {
-	GetProfit(plantingID, userID uint) (*responses.ProfitResponse, error)
+	GetProfit(batchID, farmID, userID, plantingID uint) (*responses.ProfitResponse, error)
 }
 
 type ProfitService struct {
@@ -19,9 +19,9 @@ func NewProfitService(profitRepository repositories.ProfitRepositoryInterface) P
 	return &ProfitService{profitRepository: profitRepository}
 }
 
-func (p *ProfitService) GetProfit(plantingID, userID uint) (*responses.ProfitResponse, error) {
+func (p *ProfitService) GetProfit(batchID, farmID, userID, plantingID uint) (*responses.ProfitResponse, error) {
 
-	profitResponse, err := p.profitRepository.FindProfit(plantingID, userID)
+	profitResponse, err := p.profitRepository.FindProfit(batchID, farmID, userID, plantingID)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}

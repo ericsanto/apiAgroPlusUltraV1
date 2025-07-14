@@ -15,7 +15,10 @@ func NewProfitBuilder() *ProfitBuilder {
 
 func (pb *ProfitBuilder) Builder() controllers.ProfitControllerInterface {
 
-	repository := repositories.NewProfitRepository(db.DB)
+	farmRepository := repositories.NewFarmRepository(db.DB)
+	plantingRepository := repositories.NewPlantingRepository(db.DB, farmRepository)
+
+	repository := repositories.NewProfitRepository(db.DB, plantingRepository)
 	service := services.NewProfitService(repository)
 	controller := controllers.NewProfitController(service)
 
