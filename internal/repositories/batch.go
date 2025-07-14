@@ -88,7 +88,7 @@ func (b *BatchRepository) BatchFindById(userID, farmID, batchID uint) (*entities
 	tx := b.db.Raw(query, batchID, farmID, userID).Scan(&entityBatch)
 
 	if tx.RowsAffected == 0 {
-		return nil, fmt.Errorf("nao existe lote com esse id %w", myerror.ErrNotFound)
+		return nil, fmt.Errorf("%w lote com id %d", myerror.ErrNotFound, batchID)
 	}
 
 	if tx.Error != nil {

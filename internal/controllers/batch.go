@@ -106,9 +106,6 @@ func (b *BatchController) GetBatchFindById(c *gin.Context) {
 	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
 	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
 
-	fmt.Printf("aqui e o id da fazenda %d", farmID)
-	fmt.Printf("aqui e o id do lote %d", batchID)
-
 	batch, err := b.batchService.GetBatchFindById(userID, farmID, batchID)
 	if err != nil {
 		if errors.Is(err, myerror.ErrFarmNotFound) {
