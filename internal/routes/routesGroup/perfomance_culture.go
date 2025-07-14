@@ -11,11 +11,43 @@ func SetupPerformancePlantingRouter(r *gin.Engine) {
 
 	controllerPerformanceCulture := di.NewPerfomancePlantingBuilder().Builder()
 
-	perfomanceCultureRouter := r.Group("/v1/perfomances-das-plantacoes")
+	perfomanceCultureRouter := r.Group("/v1/fazenda")
 
-	perfomanceCultureRouter.POST("/", controllerPerformanceCulture.PostPerformanceCulture)
-	perfomanceCultureRouter.GET("/", controllerPerformanceCulture.GetAllPerformancePlanting)
-	perfomanceCultureRouter.PUT("/:id", middlewares.ValidateIdParam("id"), controllerPerformanceCulture.PutPerformancePlanting)
-	perfomanceCultureRouter.GET("/:id", middlewares.ValidateIdParam("id"), controllerPerformanceCulture.GetPerformancePlantingByID)
-	perfomanceCultureRouter.DELETE("/:id", middlewares.ValidateIdParam("id"), controllerPerformanceCulture.DeletePerformancePlanting)
+	perfomanceCultureRouter.POST("/:farmID/lote/:batchID/plantacoes/:plantingID/performances",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		controllerPerformanceCulture.PostPerformanceCulture)
+
+	perfomanceCultureRouter.GET("/:farmID/lote/:batchID/plantacoes/performances",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		controllerPerformanceCulture.GetAllPerformancePlanting)
+
+	perfomanceCultureRouter.PUT("/:farmID/lote/:batchID/plantacoes/:plantingID/performances/:performanceID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		middlewares.ValidateIdParam("performanceID"),
+		controllerPerformanceCulture.PutPerformancePlanting)
+
+	perfomanceCultureRouter.GET("/:farmID/lote/:batchID/plantacoes/:plantingID/performances/:performanceID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		middlewares.ValidateIdParam("performanceID"),
+		controllerPerformanceCulture.GetPerformancePlantingByID)
+
+	perfomanceCultureRouter.DELETE("/:farmID/lote/:batchID/plantacoes/:plantingID/performances/:performanceID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		middlewares.ValidateIdParam("performanceID"),
+		controllerPerformanceCulture.DeletePerformancePlanting)
+
 }
