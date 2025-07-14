@@ -14,8 +14,11 @@ func NewPerfomancePlantingBuilder() *PerformancePlantingBuilder {
 }
 
 func (ppb *PerformancePlantingBuilder) Builder() controllers.PerformancePlantingControllerInterface {
+
+	farmRepository := repositories.NewFarmRepository(db.DB)
+	repositoryPlanting := repositories.NewPlantingRepository(db.DB, farmRepository)
 	repositoryPerformanceCulture := repositories.NewPerformanceCultureRepository(db.DB)
-	servicePerformanceCulture := services.NewPerformancePlantingService(repositoryPerformanceCulture)
+	servicePerformanceCulture := services.NewPerformancePlantingService(repositoryPerformanceCulture, repositoryPlanting)
 	controllerPerformanceCulture := controllers.NewPerformancePlantingController(servicePerformanceCulture)
 
 	return controllerPerformanceCulture
