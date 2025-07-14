@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -31,7 +32,12 @@ func NewProductionCostController(productionCostService services.ProductionCostSe
 
 func (p *ProductionCostController) GetAllProductionCost(c *gin.Context) {
 
-	productionCost, err := p.productionCostService.GetAllProductionCost()
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+
+	productionCost, err := p.productionCostService.GetAllProductionCost(batchID, farmID, userID, plantingID)
 	if err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 		return
@@ -60,14 +66,30 @@ func (p *ProductionCostController) PostProductionCost(c *gin.Context) {
 		return
 	}
 
-	if err := p.productionCostService.PostProductionCost(requesProductionCost); err != nil {
-		if strings.Contains(err.Error(), "plantio com o ID fornecido não existe") {
-			myerror.HttpErrors(http.StatusUnprocessableEntity, fmt.Sprintf("plantio com o ID %d não existe", requesProductionCost.PlantingID), c)
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+
+	if err := p.productionCostService.PostProductionCost(batchID, farmID, userID, plantingID, requesProductionCost); err != nil {
+
+		switch {
+		case strings.Contains(err.Error(), "plantio com o ID fornecido não existe"):
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("plantio com o ID %d não existe", plantingID), c)
+			return
+
+		case errors.Is(err, myerror.ErrFarmNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		case errors.Is(err, myerror.ErrNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		default:
+			myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 			return
 		}
-
-		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
-		return
 	}
 
 	c.Status(http.StatusCreated)
@@ -75,12 +97,16 @@ func (p *ProductionCostController) PostProductionCost(c *gin.Context) {
 
 func (p *ProductionCostController) GetProductionCostByID(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "id")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+	costID := validators.GetAndValidateIdMidlware(c, "costID")
 
-	productionCost, err := p.productionCostService.GetAllProductionCostByID(id)
+	productionCost, err := p.productionCostService.GetAllProductionCostByID(batchID, farmID, userID, plantingID, costID)
 	if err != nil {
 		if strings.Contains(err.Error(), "não existe custo com o id") {
-			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe custo com o id %d", id), c)
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe custo com o id %d", costID), c)
 			return
 		}
 
@@ -94,8 +120,6 @@ func (p *ProductionCostController) GetProductionCostByID(c *gin.Context) {
 func (p *ProductionCostController) PutProductionCost(c *gin.Context) {
 
 	var requesProductionCost requests.ProductionCostRequest
-
-	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := c.ShouldBindJSON(&requesProductionCost); err != nil {
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
@@ -113,14 +137,37 @@ func (p *ProductionCostController) PutProductionCost(c *gin.Context) {
 		return
 	}
 
-	if err := p.productionCostService.PutProductionCost(id, requesProductionCost); err != nil {
-		if strings.Contains(err.Error(), "plantio com o ID fornecido não existe") {
-			myerror.HttpErrors(http.StatusUnprocessableEntity, fmt.Sprintf("plantio com o ID %d não existe", requesProductionCost.PlantingID), c)
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+	costID := validators.GetAndValidateIdMidlware(c, "costID")
+
+	if err := p.productionCostService.PutProductionCost(batchID, farmID, userID, plantingID, costID, requesProductionCost); err != nil {
+
+		switch {
+
+		case strings.Contains(err.Error(), "não existe custo com o id"):
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe custo com o id %d", costID), c)
+			return
+
+		case strings.Contains(err.Error(), "plantio com o ID fornecido não existe"):
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("plantio com o ID %d não existe", plantingID), c)
+			return
+
+		case errors.Is(err, myerror.ErrFarmNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		case errors.Is(err, myerror.ErrNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		default:
+			myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 			return
 		}
 
-		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
-		return
 	}
 
 	c.Status(http.StatusOK)
@@ -129,16 +176,37 @@ func (p *ProductionCostController) PutProductionCost(c *gin.Context) {
 
 func (p *ProductionCostController) DeleteProductionCost(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "id")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+	costID := validators.GetAndValidateIdMidlware(c, "costID")
 
-	if err := p.productionCostService.DeleteProductionCost(id); err != nil {
-		if strings.Contains(err.Error(), "não existe custo com o id") {
-			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe custo com o id %d", id), c)
+	if err := p.productionCostService.DeleteProductionCost(batchID, farmID, userID, plantingID, costID); err != nil {
+
+		switch {
+
+		case strings.Contains(err.Error(), "não existe custo com o id"):
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe custo com o id %d", costID), c)
+			return
+
+		case strings.Contains(err.Error(), "plantio com o ID fornecido não existe"):
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("plantio com o ID %d não existe", plantingID), c)
+			return
+
+		case errors.Is(err, myerror.ErrFarmNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		case errors.Is(err, myerror.ErrNotFound):
+			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
+			return
+
+		default:
+			myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 			return
 		}
 
-		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
-		return
 	}
 
 	c.Status(http.StatusNoContent)

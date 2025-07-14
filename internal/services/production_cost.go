@@ -10,24 +10,33 @@ import (
 )
 
 type ProductionCostServiceInterface interface {
-	GetAllProductionCost() ([]responses.ProductionCostResponse, error)
-	PostProductionCost(requestProductionCost requests.ProductionCostRequest) error
-	GetAllProductionCostByID(id uint) (*responses.ProductionCostResponse, error)
-	PutProductionCost(id uint, requestProduction requests.ProductionCostRequest) error
-	DeleteProductionCost(id uint) error
+	GetAllProductionCost(batchID, farmID, userID, plantingID uint) ([]responses.ProductionCostResponse, error)
+	PostProductionCost(batchID, farmID, userID, plantingID uint, requestProductionCost requests.ProductionCostRequest) error
+	GetAllProductionCostByID(batchID, farmID, userID, plantingID, productionCostID uint) (*responses.ProductionCostResponse, error)
+	PutProductionCost(batchID, farmID, userID, plantingID, productionCostID uint, requestProduction requests.ProductionCostRequest) error
+	DeleteProductionCost(batchID, farmID, userID, plantingID, productionCostID uint) error
 }
 
 type ProductionCostService struct {
 	productionCostRepository repositories.ProductionCostRepositoryInterface
+	plantingService          PlantingServiceInterface
+	batchService             BatchServiceInterface
+	farmService              FarmServiceInterface
 }
 
-func NewProductionCostService(productionCostRepository repositories.ProductionCostRepositoryInterface) ProductionCostServiceInterface {
-	return &ProductionCostService{productionCostRepository: productionCostRepository}
+func NewProductionCostService(productionCostRepository repositories.ProductionCostRepositoryInterface,
+	plantingService PlantingServiceInterface,
+	batchService BatchServiceInterface,
+	farmService FarmServiceInterface) ProductionCostServiceInterface {
+	return &ProductionCostService{productionCostRepository: productionCostRepository,
+		plantingService: plantingService,
+		batchService:    batchService,
+		farmService:     farmService}
 }
 
-func (p *ProductionCostService) GetAllProductionCost() ([]responses.ProductionCostResponse, error) {
+func (p *ProductionCostService) GetAllProductionCost(batchID, farmID, userID, plantingID uint) ([]responses.ProductionCostResponse, error) {
 
-	productionCostEntity, err := p.productionCostRepository.FindAllProductinCostRepository()
+	productionCostEntity, err := p.productionCostRepository.FindAllProductinCostRepository(batchID, farmID, userID, plantingID)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
@@ -51,10 +60,22 @@ func (p *ProductionCostService) GetAllProductionCost() ([]responses.ProductionCo
 	return productionCostResponseList, nil
 }
 
-func (p *ProductionCostService) PostProductionCost(requestProductionCost requests.ProductionCostRequest) error {
+func (p *ProductionCostService) PostProductionCost(batchID, farmID, userID, plantingID uint, requestProductionCost requests.ProductionCostRequest) error {
+
+	if _, err := p.farmService.GetFarmByID(userID, farmID); err != nil {
+		return err
+	}
+
+	if _, err := p.batchService.GetBatchFindById(userID, farmID, batchID); err != nil {
+		return err
+	}
+
+	if _, err := p.plantingService.GetByParam(userID, farmID, batchID); err != nil {
+		return err
+	}
 
 	entityProductionCost := entities.ProductionCostEntity{
-		PlantingID:  requestProductionCost.PlantingID,
+		PlantingID:  plantingID,
 		Item:        requestProductionCost.Item,
 		Unit:        requestProductionCost.Unit,
 		Quantity:    requestProductionCost.Quantity,
@@ -69,9 +90,9 @@ func (p *ProductionCostService) PostProductionCost(requestProductionCost request
 	return nil
 }
 
-func (p *ProductionCostService) GetAllProductionCostByID(id uint) (*responses.ProductionCostResponse, error) {
+func (p *ProductionCostService) GetAllProductionCostByID(batchID, farmID, userID, plantingID, productionCost uint) (*responses.ProductionCostResponse, error) {
 
-	productionCostEntity, err := p.productionCostRepository.FindProductionCostByID(id)
+	productionCostEntity, err := p.productionCostRepository.FindProductionCostByID(batchID, farmID, userID, plantingID, productionCost)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
@@ -89,10 +110,22 @@ func (p *ProductionCostService) GetAllProductionCostByID(id uint) (*responses.Pr
 	return &productionCostResponse, nil
 }
 
-func (p *ProductionCostService) PutProductionCost(id uint, requestProduction requests.ProductionCostRequest) error {
+func (p *ProductionCostService) PutProductionCost(batchID, farmID, userID, plantingID, productionCostID uint, requestProduction requests.ProductionCostRequest) error {
+
+	if _, err := p.farmService.GetFarmByID(userID, farmID); err != nil {
+		return err
+	}
+
+	if _, err := p.batchService.GetBatchFindById(userID, farmID, batchID); err != nil {
+		return err
+	}
+
+	if _, err := p.plantingService.GetByParam(userID, farmID, batchID); err != nil {
+		return err
+	}
 
 	entityProductionCost := entities.ProductionCostEntity{
-		PlantingID:  requestProduction.PlantingID,
+		PlantingID:  plantingID,
 		Item:        requestProduction.Item,
 		Unit:        requestProduction.Unit,
 		Quantity:    requestProduction.Quantity,
@@ -100,16 +133,16 @@ func (p *ProductionCostService) PutProductionCost(id uint, requestProduction req
 		CostDate:    requestProduction.CostDate,
 	}
 
-	if err := p.productionCostRepository.UpdateProductionCost(id, entityProductionCost); err != nil {
+	if err := p.productionCostRepository.UpdateProductionCost(batchID, farmID, userID, plantingID, productionCostID, entityProductionCost); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
 }
 
-func (p *ProductionCostService) DeleteProductionCost(id uint) error {
+func (p *ProductionCostService) DeleteProductionCost(batchID, farmID, userID, plantingID, productionCostID uint) error {
 
-	if err := p.productionCostRepository.DeleteProductionCost(id); err != nil {
+	if err := p.productionCostRepository.DeleteProductionCost(batchID, farmID, userID, plantingID, productionCostID); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 

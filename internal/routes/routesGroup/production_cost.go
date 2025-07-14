@@ -11,11 +11,44 @@ func SetupProductionCostRouter(r *gin.Engine) {
 
 	productionCostController := di.NewProductionCostBuilder().Builder()
 
-	productionCostRouter := r.Group("/v1/custos-plantacoes")
-	productionCostRouter.GET("/", productionCostController.GetAllProductionCost)
-	productionCostRouter.POST("/", productionCostController.PostProductionCost)
-	productionCostRouter.GET("/:id", middlewares.ValidateIdParam("id"), productionCostController.GetProductionCostByID)
-	productionCostRouter.PUT("/:id", middlewares.ValidateIdParam("id"), productionCostController.PutProductionCost)
-	productionCostRouter.DELETE("/:id", middlewares.ValidateIdParam("id"), productionCostController.DeleteProductionCost)
+	productionCostRouter := r.Group("/v1/fazenda")
+
+	productionCostRouter.GET("/:farmID/lote/:batchID/plantacoes/:plantingID/custos",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		productionCostController.GetAllProductionCost)
+
+	productionCostRouter.POST("/:farmID/lote/:batchID/plantacoes/:plantingID/custos",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		productionCostController.PostProductionCost)
+
+	productionCostRouter.GET("/:farmID/lote/:batchID/plantacoes/:plantingID/custos/:costID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		middlewares.ValidateIdParam("costID"),
+		productionCostController.GetProductionCostByID)
+
+	productionCostRouter.PUT("/:farmID/lote/:batchID/plantacoes/:plantingID/custos/:costID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		middlewares.ValidateIdParam("costID"),
+		productionCostController.PutProductionCost)
+
+	productionCostRouter.DELETE("/:farmID/lote/:batchID/plantacoes/:plantingID/custos/:costID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		middlewares.ValidateIdParam("costID"),
+		productionCostController.DeleteProductionCost)
 
 }
