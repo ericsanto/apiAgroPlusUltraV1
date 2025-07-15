@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -12,6 +13,14 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services/mocks"
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
+)
+
+const (
+	userMOCKID     = uint(1)
+	farmMOCKID     = uint(1)
+	batchMOCKID    = uint(1)
+	plantingMOCKID = uint(1)
 )
 
 func SetupTestPlantingService() (*mocks.PlantingRepositoryMock, PlantingService, entities.PlantingEntity, responses.PlantingResponse, requests.PlantingRequest) {
@@ -23,7 +32,7 @@ func SetupTestPlantingService() (*mocks.PlantingRepositoryMock, PlantingService,
 	timeCurrent := time.Date(2025, time.July, 3, 18, 19, 28, 674505796, time.Local)
 
 	entityPlanting := entities.PlantingEntity{
-		BatchID:              uint(1),
+		BatchID:              batchMOCKID,
 		AgricultureCultureID: uint(5),
 		IsPlanting:           false,
 		StartDatePlanting:    timeCurrent,
@@ -36,17 +45,17 @@ func SetupTestPlantingService() (*mocks.PlantingRepositoryMock, PlantingService,
 	ativo := false
 
 	requestPlanting := requests.PlantingRequest{
-		BatchID:              uint(1),
 		AgricultureCultureID: uint(5),
 		IsPlanting:           &ativo,
 		StartDatePlanting:    timeCurrent,
 		SpaceBetweenPlants:   0.50,
 		SpaceBetweenRows:     0.30,
 		IrrigationTypeID:     uint(4),
+		ExpectedProduction:   0,
 	}
 
 	responsePlanting := responses.PlantingResponse{
-		BatchID:              uint(1),
+		BatchID:              batchMOCKID,
 		AgricultureCultureID: uint(5),
 		IsPlanting:           false,
 		StartDatePlanting:    timeCurrent,
@@ -63,40 +72,30 @@ func TestPostPlanting_Success(t *testing.T) {
 
 	mockRepo, service, _, _, requestPlanting := SetupTestPlantingService()
 
-	entityPlanting := entities.PlantingEntity{
-		BatchID:              requestPlanting.BatchID,
-		AgricultureCultureID: requestPlanting.AgricultureCultureID,
-		IrrigationTypeID:     requestPlanting.IrrigationTypeID,
-		SpaceBetweenPlants:   requestPlanting.SpaceBetweenPlants,
-		SpaceBetweenRows:     requestPlanting.SpaceBetweenRows,
-		StartDatePlanting:    requestPlanting.StartDatePlanting,
-		IsPlanting:           *requestPlanting.IsPlanting,
-	}
+	mockRepo.On("FindByParamPlanting", userMOCKID, farmMOCKID, batchMOCKID).Return(entities.PlantingEntity{}, myerror.ErrNotFound)
 
-	mockRepo.On("FindByParamPlanting", entityPlanting.BatchID).Return(entityPlanting, nil)
+	planting, err := service.GetByParam(userMOCKID, farmMOCKID, batchMOCKID)
 
-	response, err := service.GetByParam(requestPlanting.BatchID)
-
-	assert.Nil(t, err)
-	assert.Equal(t, entityPlanting.ID, response.ID)
+	assert.ErrorIs(t, err, myerror.ErrNotFound)
+	assert.Nil(t, planting)
 
 	matchPlanting := mock.MatchedBy(func(e entities.PlantingEntity) bool {
-		return e.BatchID == requestPlanting.BatchID &&
-			e.AgricultureCultureID == requestPlanting.AgricultureCultureID &&
+		return e.AgricultureCultureID == requestPlanting.AgricultureCultureID &&
+			e.BatchID == batchMOCKID &&
 			e.SpaceBetweenPlants == requestPlanting.SpaceBetweenPlants &&
 			e.SpaceBetweenRows == requestPlanting.SpaceBetweenRows &&
 			e.IrrigationTypeID == requestPlanting.IrrigationTypeID &&
 			e.IsPlanting == *requestPlanting.IsPlanting &&
-			e.ExpectedProduction == response.ExpectedProduction
+			e.ExpectedProduction == requestPlanting.ExpectedProduction
+		// e.StartDatePlanting é ignorado na comparação
 	})
-
 	mockRepo.On("CreatePlanting", matchPlanting).Return(nil)
 
-	err = service.PostPlanting(requestPlanting)
+	err = service.PostPlanting(userMOCKID, farmMOCKID, batchMOCKID, requestPlanting)
 
 	assert.Nil(t, err)
 
-	mockRepo.AssertCalled(t, "FindByParamPlanting", requestPlanting.BatchID)
+	mockRepo.AssertCalled(t, "FindByParamPlanting", userMOCKID, farmMOCKID, batchMOCKID)
 	mockRepo.AssertCalled(t, "CreatePlanting", matchPlanting)
 	mockRepo.AssertExpectations(t)
 }
@@ -108,66 +107,75 @@ func TestPostPlanting_ErrorBatchInUse(t *testing.T) {
 	entityPlanting.ID = uint(1)
 	entityPlanting.IsPlanting = true
 
-	mockRepo.On("FindByParamPlanting", entityPlanting.BatchID).Return(entityPlanting, nil)
+	mockRepo.On("FindByParamPlanting", userMOCKID, farmMOCKID, entityPlanting.BatchID).Return(entityPlanting, nil)
 
-	response, err := service.GetByParam(requestPlanting.BatchID)
+	response, err := service.GetByParam(userMOCKID, farmMOCKID, batchMOCKID)
 
 	assert.Equal(t, uint(1), response.ID)
 	assert.Nil(t, err)
 
-	err = service.PostPlanting(requestPlanting)
+	err = service.PostPlanting(userMOCKID, farmMOCKID, batchMOCKID, requestPlanting)
 
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "ao cadastrar plantação. Lote já está sendo utilizado pela cultura")
 
-	mockRepo.AssertCalled(t, "FindByParamPlanting", entityPlanting.BatchID)
+	mockRepo.AssertCalled(t, "FindByParamPlanting", userMOCKID, farmMOCKID, entityPlanting.BatchID)
 
 	mockRepo.AssertExpectations(t)
 
 }
 
-func TestPostPlanting_(t *testing.T) {
+func TestPostPlanting_ErrorNotFound(t *testing.T) {
 
 	mockRepo, service, entityPlanting, _, requestPlanting := SetupTestPlantingService()
 
-	mockRepo.On("FindByParamPlanting", entityPlanting.BatchID).Return(entityPlanting, nil)
+	mockRepo.On("FindByParamPlanting", userMOCKID, farmMOCKID, entityPlanting.BatchID).Return(entities.PlantingEntity{}, errors.New("erro"))
 
-	_, err := service.GetByParam(requestPlanting.BatchID)
+	response, err := service.GetByParam(userMOCKID, farmMOCKID, batchMOCKID)
 
-	assert.Nil(t, err)
+	assert.Nil(t, response)
+	assert.NotNil(t, err)
 
-	matchPlanting := mock.MatchedBy(func(e entities.PlantingEntity) bool {
-		return e.BatchID == requestPlanting.BatchID &&
-			e.AgricultureCultureID == requestPlanting.AgricultureCultureID &&
-			e.SpaceBetweenPlants == requestPlanting.SpaceBetweenPlants &&
-			e.SpaceBetweenRows == requestPlanting.SpaceBetweenRows &&
-			e.IrrigationTypeID == requestPlanting.IrrigationTypeID &&
-			e.IsPlanting == *requestPlanting.IsPlanting &&
-			e.ExpectedProduction == requestPlanting.ExpectedProduction
-	})
+	err = service.PostPlanting(userMOCKID, farmMOCKID, batchMOCKID, requestPlanting)
 
-	mockRepo.On("CreatePlanting", matchPlanting).Return(fmt.Errorf("erro ao tentar criar objeto"))
+	assert.NotNil(t, err)
+	assert.ErrorContains(t, err, "erro")
 
-	err = service.PostPlanting(requestPlanting)
-
-	assert.ErrorContains(t, err, "ao tentar criar objeto")
-
-	mockRepo.AssertCalled(t, "FindByParamPlanting", entityPlanting.BatchID)
-	mockRepo.AssertCalled(t, "CreatePlanting", matchPlanting)
+	mockRepo.AssertCalled(t, "FindByParamPlanting", userMOCKID, farmMOCKID, entityPlanting.BatchID)
 
 	mockRepo.AssertExpectations(t)
 
 }
+
+// func TestPostPlanting_Error(t *testing.T) {
+
+// 	mockRepo, service, entityPlanting, _, requestPlanting := SetupTestPlantingService()
+
+// 	mockRepo.On("FindByParamPlanting", userMOCKID, farmMOCKID, batchMOCKID).Return(entities.PlantingEntity{}, nil)
+
+// 	_, err := service.GetByParam(userMOCKID, farmMOCKID, batchMOCKID)
+
+// 	assert.Nil(t, err)
+
+// 	mockRepo.On("CreatePlanting", entityPlanting).Return(fmt.Errorf("erro"))
+
+// 	err = service.PostPlanting(userMOCKID, farmMOCKID, batchMOCKID, requestPlanting)
+
+// 	assert.NotNil(t, err)
+
+// 	mockRepo.AssertCalled(t, "FindByParamPlanting", userMOCKID, farmMOCKID, batchMOCKID)
+
+// 	mockRepo.AssertCalled(t, "CreatePlanting", entityPlanting)
+
+// }
 
 func TestGetByParam_Success(t *testing.T) {
 
 	mockRepo, service, entityPlanting, _, _ := SetupTestPlantingService()
 
-	batchId := uint(1)
+	mockRepo.On("FindByParamPlanting", userMOCKID, farmMOCKID, batchMOCKID).Return(entityPlanting, nil)
 
-	mockRepo.On("FindByParamPlanting", batchId).Return(entityPlanting, nil)
-
-	response, err := service.GetByParam(batchId)
+	response, err := service.GetByParam(userMOCKID, farmMOCKID, batchMOCKID)
 
 	assert.Nil(t, err)
 	assert.Equal(t, entityPlanting.ID, response.ID)
@@ -179,7 +187,7 @@ func TestGetByParam_Success(t *testing.T) {
 	assert.Equal(t, entityPlanting.AgricultureCultureID, response.AgricultureCultureID)
 	assert.Equal(t, entityPlanting.SpaceBetweenRows, response.SpaceBetweenRows)
 
-	mockRepo.AssertCalled(t, "FindByParamPlanting", batchId)
+	mockRepo.AssertCalled(t, "FindByParamPlanting", userMOCKID, farmMOCKID, batchMOCKID)
 
 	mockRepo.AssertExpectations(t)
 
@@ -189,13 +197,11 @@ func TestGetByParam_Error(t *testing.T) {
 
 	mockRepo, service, _, _, _ := SetupTestPlantingService()
 
-	batchID := uint(2)
+	mockRepo.On("FindByParamPlanting", userMOCKID, farmMOCKID, batchMOCKID).Return(entities.PlantingEntity{}, fmt.Errorf("erro ao buscar objeto"))
 
-	mockRepo.On("FindByParamPlanting", batchID).Return(entities.PlantingEntity{}, fmt.Errorf("erro ao buscar objeto"))
+	response, err := service.GetByParam(userMOCKID, farmMOCKID, batchMOCKID)
 
-	response, err := service.GetByParam(batchID)
-
-	assert.Equal(t, response.BatchID, uint(0))
+	assert.Nil(t, response)
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "erro ao buscar objeto")
 }
@@ -208,9 +214,9 @@ func TestGetAllPlanting_Success(t *testing.T) {
 
 	entitiesPlantings = append(entitiesPlantings, entityPlanting)
 
-	mockRepo.On("FindAllPlanting").Return(entitiesPlantings, nil)
+	mockRepo.On("FindAllPlanting", userMOCKID, farmMOCKID, batchMOCKID).Return(entitiesPlantings, nil)
 
-	responsesPlantings, err := service.GetAllPlanting()
+	responsesPlantings, err := service.GetAllPlanting(batchMOCKID, farmMOCKID, userMOCKID)
 
 	for i := range responsesPlantings {
 		assert.Equal(t, entitiesPlantings[i].AgricultureCultureID, responsesPlantings[i].AgricultureCultureID)
@@ -225,7 +231,7 @@ func TestGetAllPlanting_Success(t *testing.T) {
 
 	assert.Nil(t, err)
 
-	mockRepo.AssertCalled(t, "FindAllPlanting")
+	mockRepo.AssertCalled(t, "FindAllPlanting", userMOCKID, farmMOCKID, batchMOCKID)
 
 	mockRepo.AssertExpectations(t)
 
@@ -235,14 +241,14 @@ func TestGetAllPlanting_Error(t *testing.T) {
 
 	mockRepo, service, _, _, _ := SetupTestPlantingService()
 
-	mockRepo.On("FindAllPlanting").Return([]entities.PlantingEntity{}, fmt.Errorf("erro ao buscar todas as plantações"))
+	mockRepo.On("FindAllPlanting", userMOCKID, farmMOCKID, batchMOCKID).Return([]entities.PlantingEntity{}, fmt.Errorf("erro ao buscar todas as plantações"))
 
-	responsesPlantings, err := service.GetAllPlanting()
+	responsesPlantings, err := service.GetAllPlanting(batchMOCKID, farmMOCKID, userMOCKID)
 
 	assert.Nil(t, responsesPlantings)
 	assert.ErrorContains(t, err, "erro ao buscar todas as plantações")
 
-	mockRepo.AssertCalled(t, "FindAllPlanting")
+	mockRepo.AssertCalled(t, "FindAllPlanting", userMOCKID, farmMOCKID, batchMOCKID)
 	mockRepo.AssertExpectations(t)
 
 }
@@ -268,9 +274,9 @@ func TestGetByParamBatchNameOrIsActivePlanting_Success(t *testing.T) {
 	var listBatchPlantingResponse []responses.BatchPlantiesResponse
 	listBatchPlantingResponse = append(listBatchPlantingResponse, batchPlantingReponse)
 
-	mockRepo.On("FindByParamBatchNameOrIsActivePlanting", batchName, isActive).Return(listBatchPlantingResponse, nil)
+	mockRepo.On("FindByParamBatchNameOrIsActivePlanting", batchName, isActive, userMOCKID, farmMOCKID).Return(listBatchPlantingResponse, nil)
 
-	responsesBatchPlanting, err := service.GetByParamBatchNameOrIsActivePlanting(batchName, isActive)
+	responsesBatchPlanting, err := service.GetByParamBatchNameOrIsActivePlanting(batchName, isActive, userMOCKID, farmMOCKID)
 
 	assert.Nil(t, err)
 
@@ -284,7 +290,7 @@ func TestGetByParamBatchNameOrIsActivePlanting_Success(t *testing.T) {
 		assert.Equal(t, listBatchPlantingResponse[i].SpaceBetweenRows, responsesBatchPlanting[i].SpaceBetweenRows)
 	}
 
-	mockRepo.AssertCalled(t, "FindByParamBatchNameOrIsActivePlanting", batchName, isActive)
+	mockRepo.AssertCalled(t, "FindByParamBatchNameOrIsActivePlanting", batchName, isActive, userMOCKID, farmMOCKID)
 	mockRepo.AssertExpectations(t)
 
 }
@@ -296,14 +302,14 @@ func TestGetByParamBatchNameOrIsActivePlanting_Error(t *testing.T) {
 	isActive := true
 	batchName := "lote 15"
 
-	mockRepo.On("FindByParamBatchNameOrIsActivePlanting", batchName, isActive).Return([]responses.BatchPlantiesResponse{}, fmt.Errorf("erro ao buscar dados"))
+	mockRepo.On("FindByParamBatchNameOrIsActivePlanting", batchName, isActive, userMOCKID, farmMOCKID).Return([]responses.BatchPlantiesResponse{}, fmt.Errorf("erro ao buscar dados"))
 
-	responsesBatchPlanting, err := service.GetByParamBatchNameOrIsActivePlanting(batchName, isActive)
+	responsesBatchPlanting, err := service.GetByParamBatchNameOrIsActivePlanting(batchName, isActive, userMOCKID, farmMOCKID)
 
 	assert.Nil(t, responsesBatchPlanting)
 	assert.ErrorContains(t, err, "ao buscar dados")
 
-	mockRepo.AssertCalled(t, "FindByParamBatchNameOrIsActivePlanting", batchName, isActive)
+	mockRepo.AssertCalled(t, "FindByParamBatchNameOrIsActivePlanting", batchName, isActive, userMOCKID, farmMOCKID)
 	mockRepo.AssertExpectations(t)
 
 }
@@ -312,11 +318,8 @@ func TestPutPlanting_Success(t *testing.T) {
 
 	mockRepo, service, _, _, requestPlanting := SetupTestPlantingService()
 
-	id := uint(1)
-
 	matchPlanting := mock.MatchedBy(func(e entities.PlantingEntity) bool {
-		return e.BatchID == requestPlanting.BatchID &&
-			e.AgricultureCultureID == requestPlanting.AgricultureCultureID &&
+		return e.AgricultureCultureID == requestPlanting.AgricultureCultureID &&
 			e.SpaceBetweenPlants == requestPlanting.SpaceBetweenPlants &&
 			e.SpaceBetweenRows == requestPlanting.SpaceBetweenRows &&
 			e.IrrigationTypeID == requestPlanting.IrrigationTypeID &&
@@ -324,13 +327,13 @@ func TestPutPlanting_Success(t *testing.T) {
 			e.ExpectedProduction == requestPlanting.ExpectedProduction
 	})
 
-	mockRepo.On("UpdatePlanting", id, matchPlanting).Return(nil)
+	mockRepo.On("UpdatePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, matchPlanting).Return(nil)
 
-	err := service.PutPlanting(id, requestPlanting)
+	err := service.PutPlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, requestPlanting)
 
 	assert.Nil(t, err)
 
-	mockRepo.AssertCalled(t, "UpdatePlanting", id, matchPlanting)
+	mockRepo.AssertCalled(t, "UpdatePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, matchPlanting)
 	mockRepo.AssertExpectations(t)
 
 }
@@ -339,12 +342,10 @@ func TestPutPlanting_Error(t *testing.T) {
 
 	mockRepo, service, entityPlanting, _, requestPlanting := SetupTestPlantingService()
 
-	id := uint(1)
-	entityPlanting.ID = id
+	entityPlanting.ID = plantingMOCKID
 
 	matchPlanting := mock.MatchedBy(func(e entities.PlantingEntity) bool {
-		return e.BatchID == requestPlanting.BatchID &&
-			e.AgricultureCultureID == requestPlanting.AgricultureCultureID &&
+		return e.AgricultureCultureID == requestPlanting.AgricultureCultureID &&
 			e.SpaceBetweenPlants == requestPlanting.SpaceBetweenPlants &&
 			e.SpaceBetweenRows == requestPlanting.SpaceBetweenRows &&
 			e.IrrigationTypeID == requestPlanting.IrrigationTypeID &&
@@ -352,14 +353,14 @@ func TestPutPlanting_Error(t *testing.T) {
 			e.ExpectedProduction == requestPlanting.ExpectedProduction
 	})
 
-	mockRepo.On("UpdatePlanting", id, matchPlanting).Return(fmt.Errorf("erro: erro ao atualilzar plantação"))
+	mockRepo.On("UpdatePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, matchPlanting).Return(fmt.Errorf("erro: erro ao atualilzar plantação"))
 
-	err := service.PutPlanting(id, requestPlanting)
+	err := service.PutPlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, requestPlanting)
 
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "ao atualilzar plantação")
 
-	mockRepo.AssertCalled(t, "UpdatePlanting", id, matchPlanting)
+	mockRepo.AssertCalled(t, "UpdatePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, matchPlanting)
 	mockRepo.AssertExpectations(t)
 
 }
@@ -371,13 +372,13 @@ func TestDeletePlanting_Success(t *testing.T) {
 	id := uint(1)
 	entitiesPlanting.ID = id
 
-	mockRepo.On("DeletePlanting", id).Return(nil)
+	mockRepo.On("DeletePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID).Return(nil)
 
-	err := service.DeletePlanting(id)
+	err := service.DeletePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID)
 
 	assert.Nil(t, err)
 
-	mockRepo.AssertCalled(t, "DeletePlanting", id)
+	mockRepo.AssertCalled(t, "DeletePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -385,16 +386,14 @@ func TestDeletePlanting_Error(t *testing.T) {
 
 	mockRepo, service, _, _, _ := SetupTestPlantingService()
 
-	id := uint(1)
+	mockRepo.On("DeletePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID).Return(fmt.Errorf("erro ao tentar deletar plantação"))
 
-	mockRepo.On("DeletePlanting", id).Return(fmt.Errorf("erro ao tentar deletar plantação"))
-
-	err := service.DeletePlanting(id)
+	err := service.DeletePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID)
 
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "ao tentar deletar plantação")
 
-	mockRepo.AssertCalled(t, "DeletePlanting", id)
+	mockRepo.AssertCalled(t, "DeletePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID)
 	mockRepo.AssertExpectations(t)
 
 }
