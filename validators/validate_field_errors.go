@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
 func ValidateFieldErrors422UnprocessableEntity(entity interface{}) (map[string]string, error) {
@@ -66,9 +67,9 @@ func ValidateShouldBindJson(structRequest interface{}, c *gin.Context) interface
 // 		return
 // 	}
 
-// 	validatedID := validators.GetAndValidateIdMidlware(c, "validatedID")
+// 	id := validators.GetAndValidateIdMidlware(c, "id")
 
-// 	if err := b.batchService.PutBatch(validatedID, requestBatch); err != nil {
+// 	if err := b.batchService.PutBatch(id, requestBatch); err != nil {
 // 		if strings.Contains(err.Error(), "já existe lote cadastrado com esse nome") {
 // 			myerror.HttpErrors(http.StatusConflict, "já existe lote cadastrado com esse nome", c)
 // 			return
