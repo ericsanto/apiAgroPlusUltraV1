@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
 type PlantingServiceInterface interface {
@@ -37,6 +39,7 @@ func (p *PlantingService) GetByParam(userID, farmID, batchID uint) (*responses.P
 
 	plantingResponse := responses.PlantingResponse{
 		ID:                   planting.ID,
+		BatchID:              batchID,
 		AgricultureCultureID: planting.AgricultureCultureID,
 		IsPlanting:           planting.IsPlanting,
 		StartDatePlanting:    planting.StartDatePlanting,
@@ -54,7 +57,7 @@ func (p *PlantingService) PostPlanting(userID, farmID, batchID uint, requestPlan
 
 	planting, err := p.GetByParam(userID, farmID, batchID)
 
-	if err != nil {
+	if err != nil && !errors.Is(err, myerror.ErrNotFound) {
 		return err
 	}
 
