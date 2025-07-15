@@ -10,7 +10,7 @@ import (
 )
 
 type IrrigationRecommendedDeepSeekServiceInterface interface {
-	IrrigationRecommendedDeepSeek(latitude, longitude float64) error
+	IrrigationRecommendedDeepSeek(latitude, longitude float64, userID, farmID uint) error
 }
 
 type IrrigationRecommendedDeepSeekService struct {
@@ -28,7 +28,7 @@ func NewIrrigationRecomendedDeepseekService(plantingRepository repositories.Plan
 		deepseekClient:  deepseekClient}
 }
 
-func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(latitude, longitude float64) error {
+func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(latitude, longitude float64, userID, farmID uint) error {
 
 	responseOpenWeather, err := p.openWeather.CurrentOpenWeather(latitude, longitude)
 
@@ -39,7 +39,7 @@ func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(lat
 
 	isPlanting := true
 
-	plantingIsTrue, err := p.plantingRepository.FindByParamBatchNameOrIsActivePlanting("", isPlanting)
+	plantingIsTrue, err := p.plantingRepository.FindByParamBatchNameOrIsActivePlanting("", isPlanting, userID, farmID)
 
 	if err != nil {
 		return err
