@@ -15,15 +15,21 @@ import (
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
+const (
+	perfomanceMockID = uint(1)
+)
+
 func SetupTestPerformancePlanting() (*mocks.PerformancePlantingRepository, PerformancePlantingService, entities.PerformancePlantingEntity,
-	responses.DbResultPerformancePlanting, requests.PerformancePlantingRequest) {
+	responses.DbResultPerformancePlanting, requests.PerformancePlantingRequest, *mocks.PlantingRepositoryMock) {
 
 	mockRepo := new(mocks.PerformancePlantingRepository)
 
-	service := PerformancePlantingService{performanceCultureRepository: mockRepo}
+	mockRepoPlanting := new(mocks.PlantingRepositoryMock)
+
+	service := PerformancePlantingService{performanceCultureRepository: mockRepo, plantingRepository: mockRepoPlanting}
 
 	entityPerformancePlanting := entities.PerformancePlantingEntity{
-		PlantingID:             uint(1),
+		PlantingID:             plantingMOCKID,
 		ProductionObtained:     500000,
 		UnitProductionObtained: "kg",
 		HarvestedArea:          300,
@@ -32,7 +38,6 @@ func SetupTestPerformancePlanting() (*mocks.PerformancePlantingRepository, Perfo
 	}
 
 	dbResultPlanting := responses.DbResultPerformancePlanting{
-		PlantingID:                 uint(1),
 		BatchName:                  "lote14",
 		AgricultureCultureName:     "milho",
 		StartDatePlanting:          time.Now().AddDate(2025, 4, 3),
@@ -45,7 +50,6 @@ func SetupTestPerformancePlanting() (*mocks.PerformancePlantingRepository, Perfo
 	}
 
 	requestPerfomancePlanting := requests.PerformancePlantingRequest{
-		PlantingID:             uint(1),
 		ProductionObtained:     500000,
 		UnitProductionObtained: "kg",
 		HarvestedArea:          300,
@@ -53,31 +57,46 @@ func SetupTestPerformancePlanting() (*mocks.PerformancePlantingRepository, Perfo
 		UnitHarvestedArea:      "ha",
 	}
 
-	return mockRepo, service, entityPerformancePlanting, dbResultPlanting, requestPerfomancePlanting
+	return mockRepo, service, entityPerformancePlanting, dbResultPlanting, requestPerfomancePlanting, mockRepoPlanting
 }
 
 func TestPostPerformancePlanting_Success(t *testing.T) {
 
-	mockRepo, service, perfomoancePlantingEntity, _, perfomancePlantingRequest := SetupTestPerformancePlanting()
+	mockRepo, service, perfomoancePlantingEntity, _, perfomancePlantingRequest, mockeRepoPlanting := SetupTestPerformancePlanting()
 
-	mockRepo.On("CreatePerformancePlanting", perfomoancePlantingEntity).Return(nil)
+	mockeRepoPlanting.On("FindPlantingByID", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID).Return(entities.PlantingEntity{}, nil)
 
-	err := service.PostPerformancePlanting(perfomancePlantingRequest)
+	mockRepo.On("CreatePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomoancePlantingEntity).Return(nil)
+
+	err := service.PostPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomancePlantingRequest)
 
 	assert.Nil(t, err)
 
-	mockRepo.AssertCalled(t, "CreatePerformancePlanting", perfomoancePlantingEntity)
+	mockRepo.AssertCalled(t, "CreatePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomoancePlantingEntity)
+	mockRepo.AssertExpectations(t)
+
+}
+
+func TestPostPerformancePlanting_PlantingNotFound(t *testing.T) {
+
+	mockRepo, service, _, _, perfomancePlantingRequest, mockeRepoPlanting := SetupTestPerformancePlanting()
+
+	mockeRepoPlanting.On("FindPlantingByID", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID).Return(entities.PlantingEntity{}, errors.New("erro"))
+
+	err := service.PostPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomancePlantingRequest)
+
+	assert.NotNil(t, err)
 	mockRepo.AssertExpectations(t)
 
 }
 
 func TestPostPerformanceCulture_ValidateUnitProductionObtainedEnumError(t *testing.T) {
 
-	_, service, _, _, perfomancePlantingRequest := SetupTestPerformancePlanting()
+	_, service, _, _, perfomancePlantingRequest, _ := SetupTestPerformancePlanting()
 
 	perfomancePlantingRequest.UnitProductionObtained = "teste"
 
-	err := service.PostPerformancePlanting(perfomancePlantingRequest)
+	err := service.PostPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomancePlantingRequest)
 
 	assert.NotNil(t, err)
 	assert.ErrorIs(t, err, myerror.ErrEnumInvalid)
@@ -86,11 +105,11 @@ func TestPostPerformanceCulture_ValidateUnitProductionObtainedEnumError(t *testi
 
 func TestPostPerformanceCulture_ValidateUnitHarvestedAreaEnumError(t *testing.T) {
 
-	_, service, _, _, perfomancePlantingRequest := SetupTestPerformancePlanting()
+	_, service, _, _, perfomancePlantingRequest, _ := SetupTestPerformancePlanting()
 
 	perfomancePlantingRequest.UnitHarvestedArea = "teste"
 
-	err := service.PostPerformancePlanting(perfomancePlantingRequest)
+	err := service.PostPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomancePlantingRequest)
 
 	assert.NotNil(t, err)
 	assert.ErrorIs(t, err, myerror.ErrEnumInvalid)
@@ -99,29 +118,33 @@ func TestPostPerformanceCulture_ValidateUnitHarvestedAreaEnumError(t *testing.T)
 
 func TestPostPerfomanceCulture_Error(t *testing.T) {
 
-	mockRepo, service, entityPerformancePlanting, _, perfomancePlantingRequest := SetupTestPerformancePlanting()
+	mockRepo, service, entityPerformancePlanting, _, perfomancePlantingRequest, mockeRepoPlanting := SetupTestPerformancePlanting()
 
-	mockRepo.On("CreatePerformancePlanting", entityPerformancePlanting).Return(fmt.Errorf("erro ao cadastrar performance da cultura"))
+	mockeRepoPlanting.On("FindPlantingByID", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID).Return(entities.PlantingEntity{}, nil)
 
-	err := service.PostPerformancePlanting(perfomancePlantingRequest)
+	mockRepo.On("CreatePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, entityPerformancePlanting).Return(fmt.Errorf("erro ao cadastrar performance da cultura"))
+
+	err := service.PostPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomancePlantingRequest)
 
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "erro ao cadastrar performance da cultura")
 
-	mockRepo.AssertCalled(t, "CreatePerformancePlanting", entityPerformancePlanting)
+	mockRepo.AssertCalled(t, "CreatePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, entityPerformancePlanting)
 	mockRepo.AssertExpectations(t)
 }
 
 func TestGetAllPerformancePlanting_Success(t *testing.T) {
 
-	mockRepo, service, _, dbResultPlanting, _ := SetupTestPerformancePlanting()
+	mockRepo, service, _, dbResultPlanting, _, mockeRepoPlanting := SetupTestPerformancePlanting()
 
 	var listDbResultPlanting []responses.DbResultPerformancePlanting
 	listDbResultPlanting = append(listDbResultPlanting, dbResultPlanting)
 
-	mockRepo.On("FindAll").Return(listDbResultPlanting, nil)
+	mockeRepoPlanting.On("FindPlantingByID", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID).Return(entities.PlantingEntity{}, nil)
 
-	result, err := service.GetAllPerformancePlanting()
+	mockRepo.On("FindAll", batchMOCKID, farmMOCKID, userMOCKID).Return(listDbResultPlanting, nil)
+
+	result, err := service.GetAllPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID)
 
 	assert.Nil(t, err)
 
@@ -137,35 +160,33 @@ func TestGetAllPerformancePlanting_Success(t *testing.T) {
 		assert.Equal(t, listDbResultPlanting[i].ProductionObtainedFormated, result[i].ProductionObtainedFormated)
 	}
 
-	mockRepo.AssertCalled(t, "FindAll")
+	mockRepo.AssertCalled(t, "FindAll", batchMOCKID, farmMOCKID, userMOCKID)
 	mockRepo.AssertExpectations(t)
 }
 
 func TestGetAllPerformancePlanting_Error(t *testing.T) {
 
-	mockRepo, service, _, _, _ := SetupTestPerformancePlanting()
+	mockRepo, service, _, _, _, _ := SetupTestPerformancePlanting()
 
-	mockRepo.On("FindAll").Return([]responses.DbResultPerformancePlanting(nil), fmt.Errorf("erro ao buscar performance de plantação"))
+	mockRepo.On("FindAll", batchMOCKID, farmMOCKID, userMOCKID).Return([]responses.DbResultPerformancePlanting(nil), fmt.Errorf("erro ao buscar performance de plantação"))
 
-	result, err := service.GetAllPerformancePlanting()
+	result, err := service.GetAllPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID)
 
 	assert.Nil(t, result)
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "erro ao buscar performance de plantação")
 
-	mockRepo.AssertCalled(t, "FindAll")
+	mockRepo.AssertCalled(t, "FindAll", batchMOCKID, farmMOCKID, userMOCKID)
 	mockRepo.AssertExpectations(t)
 }
 
 func TestGetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID_Success(t *testing.T) {
 
-	mockRepo, service, _, dbResultPlanting, _ := SetupTestPerformancePlanting()
+	mockRepo, service, _, dbResultPlanting, _, _ := SetupTestPerformancePlanting()
 
-	id := uint(1)
+	mockRepo.On("FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID).Return(&dbResultPlanting, nil)
 
-	mockRepo.On("FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID", id).Return(&dbResultPlanting, nil)
-
-	response, err := service.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id)
+	response, err := service.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID)
 
 	assert.Nil(t, err)
 	assert.Equal(t, dbResultPlanting.BatchName, response.Planting.BatchName)
@@ -179,93 +200,87 @@ func TestGetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID_Suc
 	assert.Equal(t, dbResultPlanting.ProductionObtainedFormated, response.ProductionObtainedFormated)
 	assert.Equal(t, dbResultPlanting.StartDatePlanting, response.Planting.StartDatePlanting)
 
-	mockRepo.AssertCalled(t, "FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID", id)
+	mockRepo.AssertCalled(t, "FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID)
 	mockRepo.AssertExpectations(t)
 }
 
 func TestGetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID_Error(t *testing.T) {
 
-	mockRepo, service, _, _, _ := SetupTestPerformancePlanting()
+	mockRepo, service, _, _, _, _ := SetupTestPerformancePlanting()
 
-	id := uint(1)
+	mockRepo.On("FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID).Return(&responses.DbResultPerformancePlanting{}, errors.New("erro"))
 
-	mockRepo.On("FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID", id).Return(&responses.DbResultPerformancePlanting{}, errors.New("erro"))
-
-	response, err := service.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id)
+	response, err := service.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID)
 
 	assert.NotNil(t, err)
 	assert.Nil(t, response)
 	assert.ErrorContains(t, err, "erro")
 
-	mockRepo.AssertCalled(t, "FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID", id)
+	mockRepo.AssertCalled(t, "FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID)
 	mockRepo.AssertExpectations(t)
 }
 
 func TestPutPerformancePlanting_Success(t *testing.T) {
 
-	mockRepo, service, entityPerformancePlanting, _, requestPerformancePlanting := SetupTestPerformancePlanting()
+	mockRepo, service, entityPerformancePlanting, _, requestPerformancePlanting, _ := SetupTestPerformancePlanting()
+	entityPerformancePlanting.PlantingID = plantingMOCKID
+	entityPerformancePlanting.ID = perfomanceMockID
 
-	id := uint(1)
+	mockRepo.On("UpdatePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID, entityPerformancePlanting).Return(nil)
 
-	mockRepo.On("UpdatePerformancePlanting", id, entityPerformancePlanting).Return(nil)
-
-	err := service.PutPerformancePlanting(id, requestPerformancePlanting)
+	err := service.PutPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID, requestPerformancePlanting)
 
 	assert.Nil(t, err)
 
-	mockRepo.AssertCalled(t, "UpdatePerformancePlanting", id, entityPerformancePlanting)
+	mockRepo.AssertCalled(t, "UpdatePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID, entityPerformancePlanting)
 	mockRepo.AssertExpectations(t)
 }
 
 func TestPutPerformancePlanting_Error(t *testing.T) {
 
-	mockRepo, service, entityPerformancePlanting, _, requestPerformancePlanting := SetupTestPerformancePlanting()
+	mockRepo, service, entityPerformancePlanting, _, requestPerformancePlanting, _ := SetupTestPerformancePlanting()
+	entityPerformancePlanting.ID = perfomanceMockID
+	entityPerformancePlanting.PlantingID = plantingMOCKID
 
-	id := uint(1)
+	mockRepo.On("UpdatePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID, entityPerformancePlanting).Return(errors.New("erro"))
 
-	mockRepo.On("UpdatePerformancePlanting", id, entityPerformancePlanting).Return(errors.New("erro"))
-
-	err := service.PutPerformancePlanting(id, requestPerformancePlanting)
+	err := service.PutPerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID, requestPerformancePlanting)
 
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "erro")
 
-	mockRepo.AssertCalled(t, "UpdatePerformancePlanting", id, entityPerformancePlanting)
+	mockRepo.AssertCalled(t, "UpdatePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID, entityPerformancePlanting)
 	mockRepo.AssertExpectations(t)
 
 }
 
 func TestDeletePerformancePlanting_Success(t *testing.T) {
 
-	mockRepo, service, _, _, _ := SetupTestPerformancePlanting()
+	mockRepo, service, _, _, _, _ := SetupTestPerformancePlanting()
 
-	id := uint(1)
+	mockRepo.On("DeletePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID).Return(nil)
 
-	mockRepo.On("DeletePerformancePlanting", id).Return(nil)
-
-	err := service.DeletePerformancePlanting(id)
+	err := service.DeletePerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID)
 
 	assert.Nil(t, err)
 
-	mockRepo.AssertCalled(t, "DeletePerformancePlanting", id)
+	mockRepo.AssertCalled(t, "DeletePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID)
 	mockRepo.AssertExpectations(t)
 
 }
 
 func TestDeletePerformancePlanting_Error(t *testing.T) {
 
-	mockRepo, service, _, _, _ := SetupTestPerformancePlanting()
+	mockRepo, service, _, _, _, _ := SetupTestPerformancePlanting()
 
-	id := uint(1)
+	mockRepo.On("DeletePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID).Return(errors.New("error"))
 
-	mockRepo.On("DeletePerformancePlanting", id).Return(errors.New("error"))
-
-	err := service.DeletePerformancePlanting(id)
+	err := service.DeletePerformancePlanting(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID)
 
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "error")
 
-	mockRepo.AssertCalled(t, "DeletePerformancePlanting", id)
+	mockRepo.AssertCalled(t, "DeletePerformancePlanting", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID, perfomanceMockID)
 	mockRepo.AssertExpectations(t)
 
 }
