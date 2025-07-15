@@ -96,6 +96,8 @@ func (p *PerformancePlantingService) GetAllPerformancePlanting(batchID, farmID, 
 func (p *PerformancePlantingService) PutPerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint, requestPerformanceEntity requests.PerformancePlantingRequest) error {
 
 	entityPerformancePlanting := entities.PerformancePlantingEntity{
+		ID:                     performanceID,
+		PlantingID:             plantingID,
 		ProductionObtained:     requestPerformanceEntity.ProductionObtained,
 		UnitProductionObtained: requestPerformanceEntity.UnitProductionObtained,
 		HarvestedArea:          requestPerformanceEntity.HarvestedArea,
