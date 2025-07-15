@@ -43,7 +43,9 @@ func (idsb *IrrigationDeepseekServiceBuilder) Builder() (controllers.IrrigationR
 
 	deepseekClient := deepseek.NewDeepSeek(deepseekApiKey)
 
-	plantingRepository := repositories.NewPlantingRepository(db.DB)
+	farmRepository := repositories.NewFarmRepository(db.DB)
+
+	plantingRepository := repositories.NewPlantingRepository(db.DB, farmRepository)
 	irrigationDeepseekService := services.NewIrrigationRecomendedDeepseekService(plantingRepository, openWeather, mosquittoClient, deepseekClient)
 	irrigationDeeepeekControler := controllers.NewIrrigationRecommendedDeepseekController(irrigationDeepseekService)
 
