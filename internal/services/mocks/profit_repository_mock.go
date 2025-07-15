@@ -10,9 +10,9 @@ type ProfitRepositoryMock struct {
 	mock.Mock
 }
 
-func (prm *ProfitRepositoryMock) FindProfit(plantingID, userID uint) (*responses.ProfitResponse, error) {
+func (prm *ProfitRepositoryMock) FindProfit(batchID, farmID, userID, plantingID uint) (*responses.ProfitResponse, error) {
 
-	args := prm.Called(plantingID, userID)
+	args := prm.Called(batchID, farmID, userID, plantingID)
 
 	return args.Get(0).(*responses.ProfitResponse), args.Error(1)
 }
