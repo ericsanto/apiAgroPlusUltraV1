@@ -16,9 +16,6 @@ func TestGetProfit_Success(t *testing.T) {
 
 	service := ProfitService{profitRepository: mockeRepo}
 
-	plantingID := uint(1)
-	userID := uint(1)
-
 	responseProfit := responses.ProfitResponse{
 		ValueSalePlantation: 5000000,
 		TotalCost:           4000,
@@ -26,9 +23,9 @@ func TestGetProfit_Success(t *testing.T) {
 		ProfitMargin:        30,
 	}
 
-	mockeRepo.On("FindProfit", plantingID, userID).Return(&responseProfit, nil)
+	mockeRepo.On("FindProfit", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID).Return(&responseProfit, nil)
 
-	response, err := service.GetProfit(plantingID, userID)
+	response, err := service.GetProfit(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID)
 
 	assert.Nil(t, err)
 	assert.Equal(t, responseProfit.Profit, response.Profit)
@@ -36,7 +33,7 @@ func TestGetProfit_Success(t *testing.T) {
 	assert.Equal(t, responseProfit.TotalCost, response.TotalCost)
 	assert.Equal(t, responseProfit.ProfitMargin, response.ProfitMargin)
 
-	mockeRepo.AssertCalled(t, "FindProfit", plantingID, userID)
+	mockeRepo.AssertCalled(t, "FindProfit", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID)
 	mockeRepo.AssertExpectations(t)
 
 }
@@ -47,18 +44,15 @@ func TestGetProfit_Error(t *testing.T) {
 
 	service := ProfitService{profitRepository: mockeRepo}
 
-	plantingID := uint(1)
-	userID := uint(1)
+	mockeRepo.On("FindProfit", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID).Return(&responses.ProfitResponse{}, errors.New("erro"))
 
-	mockeRepo.On("FindProfit", plantingID, userID).Return(&responses.ProfitResponse{}, errors.New("erro"))
-
-	response, err := service.GetProfit(plantingID, userID)
+	response, err := service.GetProfit(batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID)
 
 	assert.NotNil(t, err)
 	assert.Nil(t, response)
 	assert.ErrorContains(t, err, "erro")
 
-	mockeRepo.AssertCalled(t, "FindProfit", plantingID, userID)
+	mockeRepo.AssertCalled(t, "FindProfit", batchMOCKID, farmMOCKID, userMOCKID, plantingMOCKID)
 	mockeRepo.AssertExpectations(t)
 
 }
