@@ -56,7 +56,7 @@ func (p *PlantingRepository) FindByParamPlanting(userID, farmID, batchID uint) (
 	WHERE batch_entities.id = ? AND planting_entities.is_planting = true AND farm_entities.id = ? AND user_models.id = ?`
 
 	if err := p.db.Raw(query, batchID, farmID, userID).Scan(&responsePlanting).Error; err != nil {
-		return responsePlanting, myerror.NotFound(err)
+		return responsePlanting, myerror.ErrNotFound
 	}
 
 	return responsePlanting, nil
