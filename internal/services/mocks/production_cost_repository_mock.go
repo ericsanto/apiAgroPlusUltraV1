@@ -10,9 +10,9 @@ type ProductionCostRepositoryMock struct {
 	mock.Mock
 }
 
-func (pcrm *ProductionCostRepositoryMock) FindAllProductinCostRepository() ([]entities.ProductionCostEntity, error) {
+func (pcrm *ProductionCostRepositoryMock) FindAllProductinCostRepository(batchID, farmID, userID, plantingID uint) ([]entities.ProductionCostEntity, error) {
 
-	args := pcrm.Called()
+	args := pcrm.Called(batchID, farmID, userID, plantingID)
 
 	return args.Get(0).([]entities.ProductionCostEntity), args.Error(1)
 }
@@ -24,9 +24,9 @@ func (pcrm *ProductionCostRepositoryMock) CreateProductionCost(entityProductionC
 	return args.Error(0)
 }
 
-func (pcrm *ProductionCostRepositoryMock) FindProductionCostByID(id uint) (*entities.ProductionCostEntity, error) {
+func (pcrm *ProductionCostRepositoryMock) FindProductionCostByID(batchID, farmID, userID, plantingID, productionCostID uint) (*entities.ProductionCostEntity, error) {
 
-	args := pcrm.Called(id)
+	args := pcrm.Called(batchID, farmID, userID, plantingID, productionCostID)
 
 	response := args.Get(0).(*entities.ProductionCostEntity)
 
@@ -37,16 +37,16 @@ func (pcrm *ProductionCostRepositoryMock) FindProductionCostByID(id uint) (*enti
 	return response, args.Error(1)
 }
 
-func (pcrm *ProductionCostRepositoryMock) UpdateProductionCost(id uint, entityProductCost entities.ProductionCostEntity) error {
+func (pcrm *ProductionCostRepositoryMock) UpdateProductionCost(batchID, farmID, userID, plantingID, productionCostID uint, entityProductCost entities.ProductionCostEntity) error {
 
-	args := pcrm.Called(id, entityProductCost)
+	args := pcrm.Called(batchID, farmID, userID, plantingID, productionCostID, entityProductCost)
 
 	return args.Error(0)
 }
 
-func (pcrm *ProductionCostRepositoryMock) DeleteProductionCost(id uint) error {
+func (pcrm *ProductionCostRepositoryMock) DeleteProductionCost(batchID, farmID, userID, plantingID, productionCostID uint) error {
 
-	args := pcrm.Called(id)
+	args := pcrm.Called(batchID, farmID, userID, plantingID, productionCostID)
 
 	return args.Error(0)
 }

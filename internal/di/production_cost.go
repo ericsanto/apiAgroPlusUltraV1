@@ -15,8 +15,18 @@ func NewProductionCostBuilder() *ProductionCostBuilder {
 
 func (pcb *ProductionCostBuilder) Builder() controllers.ProductionCostControllerInterface {
 
+	farmRepository := repositories.NewFarmRepository(db.DB)
+	farmService := services.NewFarmService(farmRepository)
+
+	batchRepository := repositories.NewBatchRepository(db.DB, farmRepository)
+	batchService := services.NewBatchService(batchRepository)
+
+	plantingRepository := repositories.NewPlantingRepository(db.DB, farmRepository)
+	plantingService := services.NewPlantingService(plantingRepository)
+
 	productionCostRepository := repositories.NewProductionCostRepository(db.DB)
-	productionCostService := services.NewProductionCostService(productionCostRepository)
+	productionCostService := services.NewProductionCostService(productionCostRepository, plantingService, batchService, farmService)
+
 	productionCostController := controllers.NewProductionCostController(productionCostService)
 
 	return productionCostController

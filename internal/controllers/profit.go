@@ -26,17 +26,12 @@ func NewProfitController(profitService services.ProfitServiceInterface) ProfitCo
 
 func (p *ProfitController) GetProfit(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
 
-	val, exists := c.Get("userID")
-
-	if !exists {
-		return
-	}
-
-	userID := val.(uint)
-
-	responseProfit, err := p.profitService.GetProfit(id, userID)
+	responseProfit, err := p.profitService.GetProfit(batchID, farmID, userID, plantingID)
 	if err != nil {
 
 		switch {

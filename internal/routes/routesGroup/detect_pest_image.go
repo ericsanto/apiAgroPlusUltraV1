@@ -11,6 +11,6 @@ func SetupRouterDetectPestImage(r *gin.Engine) {
 
 	builderController, _ := di.NewPestDetectImageBuilder().Builder()
 
-	detectPestImageRouter := r.Group("/v1/reconhecimento-de-praga")
+	detectPestImageRouter := r.Group("/v1/pragas/reconhecimentos")
 	detectPestImageRouter.POST("/", middlewares.ValidateJWT(), builderController.DetectPestImage)
 }

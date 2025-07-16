@@ -49,7 +49,11 @@ func (p *PlantingController) PostPlanting(c *gin.Context) {
 		return
 	}
 
-	if err := p.plantingService.PostPlanting(requestPlanting); err != nil {
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+
+	if err := p.plantingService.PostPlanting(userID, farmID, batchID, requestPlanting); err != nil {
 		if strings.Contains(err.Error(), "erro ao cadastrar plantação. Lote já está sendo utilizado pela cultura") {
 			myerror.HttpErrors(http.StatusConflict, "erro ao cadastrar objeto. Lote já esta sendo utilizado", c)
 			return
@@ -79,8 +83,12 @@ func (p *PlantingController) GetPlantingQueryParamBatchNameOrActive(c *gin.Conte
 
 	active := val.(string)
 
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+
 	if batchName == "" && active == "" {
-		responsePlanting, err := p.plantingService.GetAllPlanting()
+		responsePlanting, err := p.plantingService.GetAllPlanting(batchID, farmID, userID)
 		if err != nil {
 			myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 			return
@@ -96,7 +104,7 @@ func (p *PlantingController) GetPlantingQueryParamBatchNameOrActive(c *gin.Conte
 		return
 	}
 
-	responsePlanting, err := p.plantingService.GetByParamBatchNameOrIsActivePlanting(batchName.(string), activeBool)
+	responsePlanting, err := p.plantingService.GetByParamBatchNameOrIsActivePlanting(batchName.(string), activeBool, userID, farmID)
 	if err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, "erro no servidor", c)
 		return
@@ -109,7 +117,7 @@ func (p *PlantingController) PutPlanting(c *gin.Context) {
 
 	var requestPlanting requests.PlantingRequest
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := c.ShouldBindJSON(&requestPlanting); err != nil {
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
@@ -127,7 +135,12 @@ func (p *PlantingController) PutPlanting(c *gin.Context) {
 		return
 	}
 
-	if err := p.plantingService.PutPlanting(id, requestPlanting); err != nil {
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+
+	if err := p.plantingService.PutPlanting(batchID, farmID, userID, plantingID, requestPlanting); err != nil {
 		if strings.Contains(err.Error(), "não existe plantação com o id") {
 			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe plantação com o id %d", id), c)
 			return
@@ -143,11 +156,14 @@ func (p *PlantingController) PutPlanting(c *gin.Context) {
 
 func (p *PlantingController) DeletePlanting(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
 
-	if err := p.plantingService.DeletePlanting(id); err != nil {
+	if err := p.plantingService.DeletePlanting(batchID, farmID, userID, plantingID); err != nil {
 		if strings.Contains(err.Error(), "não existe plantação com o id") {
-			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe plantação com o id %d", id), c)
+			myerror.HttpErrors(http.StatusNotFound, fmt.Sprintf("não existe plantação com o id %d", plantingID), c)
 			return
 		}
 

@@ -11,11 +11,12 @@ func SetupBatchRouter(r *gin.Engine) {
 
 	controllerBatch := di.NewBatchBuilder().Builder()
 
-	batchRouter := r.Group("/v1/batchs")
-	batchRouter.POST("/", controllerBatch.PostBatch)
-	batchRouter.GET("/", controllerBatch.GetAllBatch)
-	batchRouter.GET("/:id", middlewares.ValidateIdParam("id"), controllerBatch.GetBatchFindById)
-	batchRouter.PUT("/:id", middlewares.ValidateIdParam("id"), controllerBatch.PutBatch)
-	batchRouter.DELETE("/:id", middlewares.ValidateIdParam("id"), controllerBatch.DeleteBatch)
+	farmRouterGroup := r.Group("/v1/fazenda")
+
+	farmRouterGroup.POST("/:farmID/lote", middlewares.ValidateJWT(), middlewares.ValidateIdParam("farmID"), controllerBatch.PostBatch)
+	farmRouterGroup.GET("/:farmID/lote", middlewares.ValidateJWT(), middlewares.ValidateIdParam("farmID"), controllerBatch.GetAllBatch)
+	farmRouterGroup.GET("/:farmID/lote/:batchID", middlewares.ValidateJWT(), middlewares.ValidateIdParam("farmID"), middlewares.ValidateIdParam("batchID"), controllerBatch.GetBatchFindById)
+	farmRouterGroup.PUT("/:farmID/lote/:batchID", middlewares.ValidateJWT(), middlewares.ValidateIdParam("farmID"), middlewares.ValidateIdParam("batchID"), controllerBatch.PutBatch)
+	farmRouterGroup.DELETE("/:farmID/lote/:batchID", middlewares.ValidateJWT(), middlewares.ValidateIdParam("farmID"), middlewares.ValidateIdParam("batchID"), controllerBatch.DeleteBatch)
 
 }

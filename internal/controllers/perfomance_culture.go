@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +50,12 @@ func (p *PerformancePlantingController) PostPerformanceCulture(c *gin.Context) {
 		return
 	}
 
-	if err := p.servvicePerformancePlanting.PostPerformancePlanting(requestPerformanceCulture); err != nil {
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+
+	if err := p.servvicePerformancePlanting.PostPerformancePlanting(batchID, farmID, userID, plantingID, requestPerformanceCulture); err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrDuplicateKey):
 			myerror.HttpErrors(http.StatusConflict, err.Error(), c)
@@ -76,7 +82,11 @@ func (p *PerformancePlantingController) PostPerformanceCulture(c *gin.Context) {
 
 func (p *PerformancePlantingController) GetAllPerformancePlanting(c *gin.Context) {
 
-	performancePlanting, err := p.servvicePerformancePlanting.GetAllPerformancePlanting()
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+
+	performancePlanting, err := p.servvicePerformancePlanting.GetAllPerformancePlanting(batchID, farmID, userID)
 	if err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
 		return
@@ -90,6 +100,7 @@ func (p *PerformancePlantingController) PutPerformancePlanting(c *gin.Context) {
 	var requestPerformancePlanting requests.PerformancePlantingRequest
 
 	if err := c.ShouldBindJSON(&requestPerformancePlanting); err != nil {
+		log.Println(err.Error())
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
 		return
 	}
@@ -106,9 +117,13 @@ func (p *PerformancePlantingController) PutPerformancePlanting(c *gin.Context) {
 		return
 	}
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+	performanceID := validators.GetAndValidateIdMidlware(c, "performanceID")
 
-	if err := p.servvicePerformancePlanting.PutPerformancePlanting(id, requestPerformancePlanting); err != nil {
+	if err := p.servvicePerformancePlanting.PutPerformancePlanting(batchID, farmID, userID, plantingID, performanceID, requestPerformancePlanting); err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrDuplicateKey):
 			myerror.HttpErrors(http.StatusConflict, err.Error(), c)
@@ -130,9 +145,14 @@ func (p *PerformancePlantingController) PutPerformancePlanting(c *gin.Context) {
 
 func (p *PerformancePlantingController) GetPerformancePlantingByID(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+	performanceID := validators.GetAndValidateIdMidlware(c, "performanceID")
 
-	responsePerformancePlanting, err := p.servvicePerformancePlanting.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id)
+	responsePerformancePlanting, err := p.servvicePerformancePlanting.GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(batchID,
+		farmID, userID, plantingID, performanceID)
 	if err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrNotFound):
@@ -151,9 +171,13 @@ func (p *PerformancePlantingController) GetPerformancePlantingByID(c *gin.Contex
 
 func (p *PerformancePlantingController) DeletePerformancePlanting(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	userID := validators.GetAndValidateIdMidlware(c, "userID")
+	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
+	batchID := validators.GetAndValidateIdMidlware(c, "batchID")
+	plantingID := validators.GetAndValidateIdMidlware(c, "plantingID")
+	performanceID := validators.GetAndValidateIdMidlware(c, "performanceID")
 
-	if err := p.servvicePerformancePlanting.DeletePerformancePlanting(id); err != nil {
+	if err := p.servvicePerformancePlanting.DeletePerformancePlanting(batchID, farmID, userID, plantingID, performanceID); err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrNotFound):
 			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)

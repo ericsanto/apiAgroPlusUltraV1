@@ -15,7 +15,6 @@ type PerformanceCultureResponse struct {
 }
 
 type DbResultPerformancePlanting struct {
-	PlantingID                 uint
 	BatchName                  string
 	AgricultureCultureName     string
 	StartDatePlanting          time.Time

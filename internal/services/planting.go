@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -8,15 +9,16 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
+	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
 type PlantingServiceInterface interface {
-	GetByParam(batchID uint) (responses.PlantingResponse, error)
-	PostPlanting(requestPlanting requests.PlantingRequest) error
-	GetByParamBatchNameOrIsActivePlanting(batchName string, active bool) ([]responses.BatchPlantiesResponse, error)
-	GetAllPlanting() ([]responses.PlantingResponse, error)
-	PutPlanting(id uint, requestPlanting requests.PlantingRequest) error
-	DeletePlanting(id uint) error
+	GetByParam(userID, farmID, batchID uint) (*responses.PlantingResponse, error)
+	PostPlanting(userID, farmID, batchID uint, requestPlanting requests.PlantingRequest) error
+	GetByParamBatchNameOrIsActivePlanting(batchName string, active bool, userID, farmID uint) ([]responses.BatchPlantiesResponse, error)
+	GetAllPlanting(batchID, farmID, userID uint) ([]responses.PlantingResponse, error)
+	PutPlanting(batchID, farmID, userID, plantingID uint, requestPlanting requests.PlantingRequest) error
+	DeletePlanting(batchID, farmID, userID, plantingID uint) error
 }
 
 type PlantingService struct {
@@ -27,19 +29,17 @@ func NewPlantingService(plantingRepository repositories.PlantingRepositoryInterf
 	return &PlantingService{plantingRepository: plantingRepository}
 }
 
-func (p *PlantingService) GetByParam(batchID uint) (responses.PlantingResponse, error) {
+func (p *PlantingService) GetByParam(userID, farmID, batchID uint) (*responses.PlantingResponse, error) {
 
-	var plantingResponses responses.PlantingResponse
-
-	planting, err := p.plantingRepository.FindByParamPlanting(batchID)
+	planting, err := p.plantingRepository.FindByParamPlanting(userID, farmID, batchID)
 
 	if err != nil {
-		return plantingResponses, fmt.Errorf("erro: %w", err)
+		return nil, fmt.Errorf("erro: %w", err)
 	}
 
 	plantingResponse := responses.PlantingResponse{
 		ID:                   planting.ID,
-		BatchID:              planting.BatchID,
+		BatchID:              batchID,
 		AgricultureCultureID: planting.AgricultureCultureID,
 		IsPlanting:           planting.IsPlanting,
 		StartDatePlanting:    planting.StartDatePlanting,
@@ -49,20 +49,24 @@ func (p *PlantingService) GetByParam(batchID uint) (responses.PlantingResponse, 
 		ExpectedProduction:   planting.ExpectedProduction,
 	}
 
-	return plantingResponse, nil
+	return &plantingResponse, nil
 
 }
 
-func (p *PlantingService) PostPlanting(requestPlanting requests.PlantingRequest) error {
+func (p *PlantingService) PostPlanting(userID, farmID, batchID uint, requestPlanting requests.PlantingRequest) error {
 
-	planting, _ := p.GetByParam(requestPlanting.BatchID)
+	planting, err := p.GetByParam(userID, farmID, batchID)
 
-	if planting.ID != 0 && planting.IsPlanting {
+	if err != nil && !errors.Is(err, myerror.ErrNotFound) {
+		return err
+	}
+
+	if planting != nil {
 		return fmt.Errorf("erro ao cadastrar plantação. Lote já está sendo utilizado pela cultura %d", planting.AgricultureCultureID)
 	}
 
 	entityPlanting := entities.PlantingEntity{
-		BatchID:              requestPlanting.BatchID,
+		BatchID:              batchID,
 		AgricultureCultureID: requestPlanting.AgricultureCultureID,
 		StartDatePlanting:    time.Now(),
 		IsPlanting:           *requestPlanting.IsPlanting,
@@ -80,11 +84,11 @@ func (p *PlantingService) PostPlanting(requestPlanting requests.PlantingRequest)
 
 }
 
-func (p *PlantingService) GetAllPlanting() ([]responses.PlantingResponse, error) {
+func (p *PlantingService) GetAllPlanting(batchID, farmID, userID uint) ([]responses.PlantingResponse, error) {
 
 	var responseListPlanting []responses.PlantingResponse
 
-	plantingsEntity, err := p.plantingRepository.FindAllPlanting()
+	plantingsEntity, err := p.plantingRepository.FindAllPlanting(userID, farmID, batchID)
 	if err != nil {
 		return responseListPlanting, fmt.Errorf("erro: %w", err)
 	}
@@ -107,9 +111,9 @@ func (p *PlantingService) GetAllPlanting() ([]responses.PlantingResponse, error)
 	return responseListPlanting, nil
 }
 
-func (p *PlantingService) GetByParamBatchNameOrIsActivePlanting(batchName string, active bool) ([]responses.BatchPlantiesResponse, error) {
+func (p *PlantingService) GetByParamBatchNameOrIsActivePlanting(batchName string, active bool, userID, farmID uint) ([]responses.BatchPlantiesResponse, error) {
 
-	plantingBatchResponse, err := p.plantingRepository.FindByParamBatchNameOrIsActivePlanting(batchName, active)
+	plantingBatchResponse, err := p.plantingRepository.FindByParamBatchNameOrIsActivePlanting(batchName, active, userID, farmID)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
@@ -117,10 +121,9 @@ func (p *PlantingService) GetByParamBatchNameOrIsActivePlanting(batchName string
 	return plantingBatchResponse, nil
 }
 
-func (p *PlantingService) PutPlanting(id uint, requestPlanting requests.PlantingRequest) error {
+func (p *PlantingService) PutPlanting(batchID, farmID, userID, plantingID uint, requestPlanting requests.PlantingRequest) error {
 
 	entityPlanting := entities.PlantingEntity{
-		BatchID:              requestPlanting.BatchID,
 		AgricultureCultureID: requestPlanting.AgricultureCultureID,
 		IsPlanting:           *requestPlanting.IsPlanting,
 		SpaceBetweenPlants:   requestPlanting.SpaceBetweenPlants,
@@ -129,16 +132,16 @@ func (p *PlantingService) PutPlanting(id uint, requestPlanting requests.Planting
 		ExpectedProduction:   requestPlanting.ExpectedProduction,
 	}
 
-	if err := p.plantingRepository.UpdatePlanting(id, entityPlanting); err != nil {
+	if err := p.plantingRepository.UpdatePlanting(batchID, farmID, userID, plantingID, entityPlanting); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
 }
 
-func (p *PlantingService) DeletePlanting(id uint) error {
+func (p *PlantingService) DeletePlanting(batchID, farmID, userID, plantingID uint) error {
 
-	if err := p.plantingRepository.DeletePlanting(id); err != nil {
+	if err := p.plantingRepository.DeletePlanting(batchID, farmID, userID, plantingID); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 

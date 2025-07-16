@@ -11,10 +11,38 @@ func SetupSalePlantingRouter(r *gin.Engine) {
 
 	salePlantingController := di.NewSalePlantingBuilder().Builder()
 
-	salePlantingRouter := r.Group("/v1/vendas-plantacoes")
-	salePlantingRouter.POST("/", salePlantingController.PostSalePlanting)
-	salePlantingRouter.GET("/", salePlantingController.GetAllSalePlanting)
-	salePlantingRouter.GET("/:id", middlewares.ValidateIdParam("id"), salePlantingController.GetSalePlantingByID)
-	salePlantingRouter.PUT("/:id", middlewares.ValidateIdParam("id"), salePlantingController.PutSalePlanting)
-	salePlantingRouter.DELETE("/:id", middlewares.ValidateIdParam("id"), salePlantingController.DeleteSalePlanting)
+	salePlantingRouter := r.Group("/v1/fazenda")
+	salePlantingRouter.POST("/:farmID/lote/:batchID/plantacoes/:plantingID/vendas",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		salePlantingController.PostSalePlanting)
+
+	salePlantingRouter.GET("/:farmID/lote/:batchID/plantacoes/vendas",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		salePlantingController.GetAllSalePlanting)
+
+	salePlantingRouter.GET("/:farmID/lote/:batchID/plantacoes/vendas/:salePlantingID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("salePlantingID"),
+		salePlantingController.GetSalePlantingByID)
+
+	salePlantingRouter.PUT("/:farmID/lote/:batchID/plantacoes/vendas/:salePlantingID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("salePlantingID"),
+		salePlantingController.PutSalePlanting)
+
+	salePlantingRouter.DELETE("/:farmID/lote/:batchID/plantacoes/vendas/:salePlantingID",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("salePlantingID"),
+		salePlantingController.DeleteSalePlanting)
 }

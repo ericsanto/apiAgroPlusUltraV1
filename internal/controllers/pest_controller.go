@@ -46,7 +46,7 @@ func (p *PestController) GetAllPestController(c *gin.Context) {
 
 func (p *PestController) GetFindByIdPestController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}
@@ -108,7 +108,7 @@ func (p *PestController) PostPestController(c *gin.Context) {
 
 func (p *PestController) PutPestController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}
@@ -156,7 +156,7 @@ func (p *PestController) PutPestController(c *gin.Context) {
 
 func (p *PestController) DeletePestController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}

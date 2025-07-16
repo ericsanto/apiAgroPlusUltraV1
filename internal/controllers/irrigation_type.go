@@ -79,7 +79,7 @@ func (it *IrrigationTypeController) PostIrrigationType(c *gin.Context) {
 
 func (it *IrrigationTypeController) GetIrrigationTypeByID(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	irrigationType, err := it.irrigationTypeService.GetIrrigationTypeByID(id)
 	if err != nil {
@@ -99,7 +99,7 @@ func (it *IrrigationTypeController) PutIrrigationType(c *gin.Context) {
 
 	var requesIrrigationType requests.IrrigationTypeRequest
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := c.ShouldBindJSON(&requesIrrigationType); err != nil {
 		myerror.HttpErrors(http.StatusBadRequest, "body da requisição é inválido", c)
@@ -129,7 +129,7 @@ func (it *IrrigationTypeController) PutIrrigationType(c *gin.Context) {
 
 func (it *IrrigationTypeController) DeleteIrrigationType(c *gin.Context) {
 
-	id := validators.GetAndValidateIdMidlware(c, "validatedID")
+	id := validators.GetAndValidateIdMidlware(c, "id")
 
 	if err := it.irrigationTypeService.DeleteIrrigationType(id); err != nil {
 		if strings.Contains(err.Error(), "não existe tipo de irrigacao com o id") {

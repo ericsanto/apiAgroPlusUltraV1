@@ -5,11 +5,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services"
 	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 	"github.com/ericsanto/apiAgroPlusUltraV1/validators"
-	"github.com/gin-gonic/gin"
 )
 
 type IrrigationRecomendedController struct {
@@ -83,7 +84,7 @@ func (i *IrrigationRecomendedController) PostIrrigationRecomended(c *gin.Context
 
 func (i *IrrigationRecomendedController) GetByIdrrigationRecomended(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}
@@ -114,7 +115,7 @@ func (i *IrrigationRecomendedController) GetByIdrrigationRecomended(c *gin.Conte
 
 func (i *IrrigationRecomendedController) PutIrrigationRecomendedController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}
@@ -174,7 +175,7 @@ func (i *IrrigationRecomendedController) PutIrrigationRecomendedController(c *gi
 
 func (i *IrrigationRecomendedController) DeleteIrrigationRecomendedController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}

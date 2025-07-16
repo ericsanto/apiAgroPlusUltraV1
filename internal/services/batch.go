@@ -10,11 +10,11 @@ import (
 )
 
 type BatchServiceInterface interface {
-	PostBatchService(requestBatchService requests.BatchRequest) error
-	GetAllBatch() ([]responses.BatchResponse, error)
-	GetBatchFindById(id uint) (*responses.BatchResponse, error)
-	PutBatch(id uint, requestBatch requests.BatchRequest) error
-	DeleteBatch(id uint) error
+	PostBatchService(userID, farmID uint, requestBatchService requests.BatchRequest) error
+	GetAllBatch(userID, farmID uint) ([]responses.BatchResponse, error)
+	GetBatchFindById(userID, farmID, batchID uint) (*responses.BatchResponse, error)
+	PutBatch(userID, farmID, batchID uint, requestBatch requests.BatchRequest) error
+	DeleteBatch(userID, farmID, batchID uint) error
 }
 
 type BatchService struct {
@@ -25,27 +25,27 @@ func NewBatchService(batchRepository repositories.BatchRepositoryInterface) Batc
 	return &BatchService{batchRepository: batchRepository}
 }
 
-func (b *BatchService) PostBatchService(requestBatchService requests.BatchRequest) error {
+func (b *BatchService) PostBatchService(userID, farmID uint, requestBatchService requests.BatchRequest) error {
 
 	batchEntity := entities.BatchEntity{
 		Name:   requestBatchService.Name,
 		Area:   requestBatchService.Area,
 		Unit:   requestBatchService.Unit,
-		FarmID: requestBatchService.FarmID,
+		FarmID: farmID,
 	}
 
-	if err := b.batchRepository.Create(batchEntity); err != nil {
-		return fmt.Errorf("erro: %v", err)
+	if err := b.batchRepository.Create(userID, farmID, batchEntity); err != nil {
+		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
 }
 
-func (b *BatchService) GetAllBatch() ([]responses.BatchResponse, error) {
+func (b *BatchService) GetAllBatch(userID, farmID uint) ([]responses.BatchResponse, error) {
 
 	var listResponseBatchs []responses.BatchResponse
 
-	batchs, err := b.batchRepository.FindAllBatch()
+	batchs, err := b.batchRepository.FindAllBatch(userID, farmID)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %v", err)
 	}
@@ -66,14 +66,15 @@ func (b *BatchService) GetAllBatch() ([]responses.BatchResponse, error) {
 
 }
 
-func (b *BatchService) GetBatchFindById(id uint) (*responses.BatchResponse, error) {
+func (b *BatchService) GetBatchFindById(userID, farmID, batchID uint) (*responses.BatchResponse, error) {
 
-	batch, err := b.batchRepository.BatchFindById(id)
+	batch, err := b.batchRepository.BatchFindById(userID, farmID, batchID)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
 
 	responseBatch := responses.BatchResponse{
+		ID:   batch.ID,
 		Name: batch.Name,
 		Area: batch.Area,
 		Unit: batch.Unit,
@@ -82,7 +83,7 @@ func (b *BatchService) GetBatchFindById(id uint) (*responses.BatchResponse, erro
 	return &responseBatch, nil
 }
 
-func (b *BatchService) PutBatch(id uint, requestBatch requests.BatchRequest) error {
+func (b *BatchService) PutBatch(userID, farmID, batchID uint, requestBatch requests.BatchRequest) error {
 
 	entitieBatch := entities.BatchEntity{
 		Name: requestBatch.Name,
@@ -90,16 +91,16 @@ func (b *BatchService) PutBatch(id uint, requestBatch requests.BatchRequest) err
 		Unit: requestBatch.Unit,
 	}
 
-	if err := b.batchRepository.Update(id, entitieBatch); err != nil {
-		return fmt.Errorf("falha ao atualizar dados: %w", err)
+	if err := b.batchRepository.Update(userID, farmID, batchID, entitieBatch); err != nil {
+		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
 }
 
-func (b *BatchService) DeleteBatch(id uint) error {
+func (b *BatchService) DeleteBatch(userID, farmID, batchID uint) error {
 
-	if err := b.batchRepository.DeleteBatch(id); err != nil {
+	if err := b.batchRepository.DeleteBatch(userID, farmID, batchID); err != nil {
 		return fmt.Errorf("falha ao deletar: %w", err)
 	}
 

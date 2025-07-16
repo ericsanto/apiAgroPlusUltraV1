@@ -7,7 +7,6 @@ import (
 )
 
 type PerformancePlantingRequest struct {
-	PlantingID             uint       `json:"planting_id" validate:"required"`
 	ProductionObtained     float64    `json:"production_obtained" validate:"required"`
 	UnitProductionObtained enums.Unit `json:"unit_production_obtained" validate:"required"`
 	HarvestedArea          float64    `json:"harvested_area" validate:"required"`

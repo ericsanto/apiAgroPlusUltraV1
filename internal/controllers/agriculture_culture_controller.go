@@ -91,7 +91,7 @@ func (a *AgricultureCultureController) PostAgricultureCultureController(c *gin.C
 
 func (a *AgricultureCultureController) PutAgricultureCultureController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}
@@ -140,7 +140,7 @@ func (a *AgricultureCultureController) PutAgricultureCultureController(c *gin.Co
 
 func (a *AgricultureCultureController) DeleteAgricultureCultureController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}

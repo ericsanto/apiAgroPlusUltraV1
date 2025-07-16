@@ -48,8 +48,8 @@ func (a *AgricultureCultureService) FindAllAgricultureCultureService() ([]respon
 			MaxTemperature:             v.MaxTemperature,
 			MinTemperature:             v.MinTemperature,
 			ExcellentTemperature:       v.ExcellentTemperature,
-			WeeklyWaterRequirememntMax: v.WeeklyWaterRequirementMin,
-			WeeklyWaterRequirememntMin: v.WeeklyWaterRequirementMax,
+			WeeklyWaterRequirememntMax: v.WeeklyWaterRequirementMax,
+			WeeklyWaterRequirememntMin: v.WeeklyWaterRequirementMin,
 			SunlightRequirement:        v.SunlightRequirement,
 		}
 

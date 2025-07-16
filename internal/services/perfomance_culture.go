@@ -12,22 +12,25 @@ import (
 )
 
 type PerformancePlantingServiceInterface interface {
-	PostPerformancePlanting(requestPerformanceCulture requests.PerformancePlantingRequest) error
-	GetAllPerformancePlanting() ([]responses.PerformanceCultureResponse, error)
-	PutPerformancePlanting(id uint, requestPerformanceEntity requests.PerformancePlantingRequest) error
-	GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id uint) (*responses.PerformanceCultureResponse, error)
-	DeletePerformancePlanting(id uint) error
+	PostPerformancePlanting(batchID, farmID, userI, plantingID uint, requestPerformanceCulture requests.PerformancePlantingRequest) error
+	GetAllPerformancePlanting(batchID, farmID, userID uint) ([]responses.PerformanceCultureResponse, error)
+	PutPerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint, requestPerformanceEntity requests.PerformancePlantingRequest) error
+	GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(batchID, farmID, userID, plantingID, performanceID uint) (*responses.PerformanceCultureResponse, error)
+	DeletePerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint) error
 }
 
 type PerformancePlantingService struct {
 	performanceCultureRepository repositories.PerformancePlantingRepositoryInterface
+	plantingRepository           repositories.PlantingRepositoryInterface
 }
 
-func NewPerformancePlantingService(performanceCultureRepository repositories.PerformancePlantingRepositoryInterface) PerformancePlantingServiceInterface {
-	return &PerformancePlantingService{performanceCultureRepository: performanceCultureRepository}
+func NewPerformancePlantingService(performanceCultureRepository repositories.PerformancePlantingRepositoryInterface,
+	plantingRepository repositories.PlantingRepositoryInterface) PerformancePlantingServiceInterface {
+	return &PerformancePlantingService{performanceCultureRepository: performanceCultureRepository,
+		plantingRepository: plantingRepository}
 }
 
-func (p *PerformancePlantingService) PostPerformancePlanting(requestPerformanceCulture requests.PerformancePlantingRequest) error {
+func (p *PerformancePlantingService) PostPerformancePlanting(batchID, farmID, userID, plantingID uint, requestPerformanceCulture requests.PerformancePlantingRequest) error {
 
 	if validateUnit := enums.IsValidateFieldUnitEnum(requestPerformanceCulture.UnitProductionObtained); !validateUnit {
 		return fmt.Errorf("o campo unit_production_obtained %w", myerror.ErrEnumInvalid)
@@ -37,8 +40,14 @@ func (p *PerformancePlantingService) PostPerformancePlanting(requestPerformanceC
 		return fmt.Errorf("o campo unit_harvested_area  %w", myerror.ErrEnumInvalid)
 	}
 
+	_, err := p.plantingRepository.FindPlantingByID(batchID, farmID, userID, plantingID)
+
+	if err != nil {
+		return fmt.Errorf("erro: %w", err)
+	}
+
 	entityPerformanceCulture := entities.PerformancePlantingEntity{
-		PlantingID:             requestPerformanceCulture.PlantingID,
+		PlantingID:             plantingID,
 		ProductionObtained:     requestPerformanceCulture.ProductionObtained,
 		UnitProductionObtained: requestPerformanceCulture.UnitProductionObtained,
 		HarvestedArea:          requestPerformanceCulture.HarvestedArea,
@@ -46,18 +55,18 @@ func (p *PerformancePlantingService) PostPerformancePlanting(requestPerformanceC
 		HarvestedDate:          requestPerformanceCulture.HarvestedDate,
 	}
 
-	if err := p.performanceCultureRepository.CreatePerformancePlanting(entityPerformanceCulture); err != nil {
+	if err := p.performanceCultureRepository.CreatePerformancePlanting(batchID, farmID, userID, plantingID, entityPerformanceCulture); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
 }
 
-func (p *PerformancePlantingService) GetAllPerformancePlanting() ([]responses.PerformanceCultureResponse, error) {
+func (p *PerformancePlantingService) GetAllPerformancePlanting(batchID, farmID, userID uint) ([]responses.PerformanceCultureResponse, error) {
 
 	var reponsePerformancesCultures []responses.PerformanceCultureResponse
 
-	dbResult, err := p.performanceCultureRepository.FindAll()
+	dbResult, err := p.performanceCultureRepository.FindAll(batchID, farmID, userID)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
@@ -84,10 +93,11 @@ func (p *PerformancePlantingService) GetAllPerformancePlanting() ([]responses.Pe
 	return reponsePerformancesCultures, nil
 }
 
-func (p *PerformancePlantingService) PutPerformancePlanting(id uint, requestPerformanceEntity requests.PerformancePlantingRequest) error {
+func (p *PerformancePlantingService) PutPerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint, requestPerformanceEntity requests.PerformancePlantingRequest) error {
 
 	entityPerformancePlanting := entities.PerformancePlantingEntity{
-		PlantingID:             requestPerformanceEntity.PlantingID,
+		ID:                     performanceID,
+		PlantingID:             plantingID,
 		ProductionObtained:     requestPerformanceEntity.ProductionObtained,
 		UnitProductionObtained: requestPerformanceEntity.UnitProductionObtained,
 		HarvestedArea:          requestPerformanceEntity.HarvestedArea,
@@ -95,16 +105,16 @@ func (p *PerformancePlantingService) PutPerformancePlanting(id uint, requestPerf
 		HarvestedDate:          requestPerformanceEntity.HarvestedDate,
 	}
 
-	if err := p.performanceCultureRepository.UpdatePerformancePlanting(id, entityPerformancePlanting); err != nil {
+	if err := p.performanceCultureRepository.UpdatePerformancePlanting(batchID, farmID, userID, plantingID, performanceID, entityPerformancePlanting); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 
 	return nil
 }
 
-func (p *PerformancePlantingService) GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(id uint) (*responses.PerformanceCultureResponse, error) {
+func (p *PerformancePlantingService) GetPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByI(batchID, farmID, userID, plantingID, performanceID uint) (*responses.PerformanceCultureResponse, error) {
 
-	dBResultPerformancePlanting, err := p.performanceCultureRepository.FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(id)
+	dBResultPerformancePlanting, err := p.performanceCultureRepository.FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(batchID, farmID, userID, plantingID, performanceID)
 	if err != nil {
 		return nil, fmt.Errorf("erro: %w", err)
 	}
@@ -128,9 +138,9 @@ func (p *PerformancePlantingService) GetPerformancePlantingWithAgricultureCultur
 	return &responsePerformancePlanting, nil
 }
 
-func (p *PerformancePlantingService) DeletePerformancePlanting(id uint) error {
+func (p *PerformancePlantingService) DeletePerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint) error {
 
-	if err := p.performanceCultureRepository.DeletePerformancePlanting(id); err != nil {
+	if err := p.performanceCultureRepository.DeletePerformancePlanting(batchID, farmID, userID, plantingID, performanceID); err != nil {
 		return fmt.Errorf("erro: %w", err)
 	}
 

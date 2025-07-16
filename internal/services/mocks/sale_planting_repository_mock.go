@@ -10,37 +10,37 @@ type SalePlantingRepositoryMock struct {
 	mock.Mock
 }
 
-func (sprm *SalePlantingRepositoryMock) CreateSalePlantingRepository(entitySalePlanting entities.SalePlantingEntity) error {
+func (sprm *SalePlantingRepositoryMock) CreateSalePlantingRepository(batchID, farmID, userID, plantingID uint, entitySalePlanting entities.SalePlantingEntity) error {
 
-	args := sprm.Called(entitySalePlanting)
+	args := sprm.Called(batchID, farmID, userID, plantingID, entitySalePlanting)
 
 	return args.Error(0)
 }
 
-func (sprm *SalePlantingRepositoryMock) FindAllSalePlanting() ([]entities.SalePlantingEntity, error) {
+func (sprm *SalePlantingRepositoryMock) FindAllSalePlanting(batchID, farmID, userID uint) ([]entities.SalePlantingEntity, error) {
 
-	args := sprm.Called()
+	args := sprm.Called(batchID, farmID, userID)
 
 	return args.Get(0).([]entities.SalePlantingEntity), args.Error(1)
 }
 
-func (sprm *SalePlantingRepositoryMock) FindSalePlantingByID(id uint) (*entities.SalePlantingEntity, error) {
+func (sprm *SalePlantingRepositoryMock) FindSalePlantingByID(batchID, farmID, userID, salePlantingID uint) (*entities.SalePlantingEntity, error) {
 
-	args := sprm.Called(id)
+	args := sprm.Called(batchID, farmID, userID, salePlantingID)
 
 	return args.Get(0).(*entities.SalePlantingEntity), args.Error(1)
 }
 
-func (sprm *SalePlantingRepositoryMock) UpdateSalePlanting(id uint, entitySalePlanting entities.SalePlantingEntity) error {
+func (sprm *SalePlantingRepositoryMock) UpdateSalePlanting(batchID, farmID, userID, salePlantingID uint, entitySalePlanting entities.SalePlantingEntity) error {
 
-	args := sprm.Called(id, entitySalePlanting)
+	args := sprm.Called(batchID, farmID, userID, salePlantingID, entitySalePlanting)
 
 	return args.Error(0)
 }
 
-func (sprm *SalePlantingRepositoryMock) DeleteSalePlanting(id uint) error {
+func (sprm *SalePlantingRepositoryMock) DeleteSalePlanting(batchID, farmID, userID, salePlantingID uint) error {
 
-	args := sprm.Called(id)
+	args := sprm.Called(batchID, farmID, userID, salePlantingID)
 
 	return args.Error(0)
 }

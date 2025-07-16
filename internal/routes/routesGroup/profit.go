@@ -11,6 +11,11 @@ func SetupProfitRouter(r *gin.Engine) {
 
 	profitController := di.NewProfitBuilder().Builder()
 
-	routerProfit := r.Group("/v1/lucro")
-	routerProfit.GET("/:id", middlewares.ValidateIdParam("id"), middlewares.ValidateJWT(), profitController.GetProfit)
+	routerProfit := r.Group("/v1/fazenda")
+	routerProfit.GET("/:farmID/lote/:batchID/plantacoes/:plantingID/lucros",
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		middlewares.ValidateIdParam("batchID"),
+		middlewares.ValidateIdParam("plantingID"),
+		profitController.GetProfit)
 }

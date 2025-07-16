@@ -10,8 +10,12 @@ import (
 func SetupRouterIrrigationDeepSeek(r *gin.Engine) {
 
 	routerIrrigationDeepseekController, _ := di.NewIrrigationDeepSeekBuilder().Builder()
-	routerIrrigationDeepseek := r.Group("/v1/irrigation-deepseek")
+	routerIrrigationDeepseek := r.Group("/v1/fazenda")
 
-	routerIrrigationDeepseek.GET("/", middlewares.GetCoordinates(), routerIrrigationDeepseekController.IrrigationDeepseek)
+	routerIrrigationDeepseek.GET("/:farmID/irrigacao",
+		middlewares.GetCoordinates(),
+		middlewares.ValidateJWT(),
+		middlewares.ValidateIdParam("farmID"),
+		routerIrrigationDeepseekController.IrrigationDeepseek)
 
 }

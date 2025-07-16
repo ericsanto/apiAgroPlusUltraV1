@@ -13,12 +13,12 @@ import (
 )
 
 type PerformancePlantingRepositoryInterface interface {
-	CreatePerformancePlanting(entityPerformanceCulutre entities.PerformancePlantingEntity) error
-	FindAll() ([]responses.DbResultPerformancePlanting, error)
-	FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(id uint) (*responses.DbResultPerformancePlanting, error)
-	FindPerformancePlantingByID(id uint) (*entities.PerformancePlantingEntity, error)
-	UpdatePerformancePlanting(id uint, entityPerformancePlanting entities.PerformancePlantingEntity) error
-	DeletePerformancePlanting(id uint) error
+	CreatePerformancePlanting(batchID, farmID, userID, plantingID uint, entityPerformanceCulutre entities.PerformancePlantingEntity) error
+	FindAll(batchID, farmID, userID uint) ([]responses.DbResultPerformancePlanting, error)
+	FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(batchID, farmID, userID, plantingID, performanceID uint) (*responses.DbResultPerformancePlanting, error)
+	FindPerformancePlantingByID(batchID, farmID, userID, plantingID, performanceID uint) (*entities.PerformancePlantingEntity, error)
+	UpdatePerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint, entityPerformancePlanting entities.PerformancePlantingEntity) error
+	DeletePerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint) error
 }
 
 type PerformancePlantingRepository struct {
@@ -29,7 +29,7 @@ func NewPerformanceCultureRepository(db interfaces.GORMRepositoryInterface) Perf
 	return &PerformancePlantingRepository{db: db}
 }
 
-func (p *PerformancePlantingRepository) CreatePerformancePlanting(entityPerformanceCulutre entities.PerformancePlantingEntity) error {
+func (p *PerformancePlantingRepository) CreatePerformancePlanting(batchID, farmID, userID, plantingID uint, entityPerformanceCulutre entities.PerformancePlantingEntity) error {
 
 	if err := p.db.Create(&entityPerformanceCulutre).Error; err != nil {
 		switch {
@@ -47,12 +47,12 @@ func (p *PerformancePlantingRepository) CreatePerformancePlanting(entityPerforma
 	return nil
 }
 
-func (p *PerformancePlantingRepository) FindAll() ([]responses.DbResultPerformancePlanting, error) {
+func (p *PerformancePlantingRepository) FindAll(batchID, farmID, userID uint) ([]responses.DbResultPerformancePlanting, error) {
 
 	var dbResult []responses.DbResultPerformancePlanting
 
 	query := `SELECT
-	performance_planting_entities.id,
+	performance_planting_entities.id AS id,
 	batch_entities.name AS batch_name, 
 	agriculture_culture_entities.name AS agriculture_culture_name,
 	planting_entities.start_date_planting AS start_date_planting,
@@ -66,9 +66,13 @@ func (p *PerformancePlantingRepository) FindAll() ([]responses.DbResultPerforman
 
 	INNER JOIN planting_entities ON planting_entities.id = performance_planting_entities.planting_id
 	INNER JOIN batch_entities ON batch_entities.id = planting_entities.batch_id
-	INNER JOIN agriculture_culture_entities ON agriculture_culture_entities.id =  planting_entities.agriculture_culture_id`
+	INNER JOIN farm_entities ON farm_entities.id = batch_entities.farm_id
+	INNER JOIN user_models ON user_models.id = farm_entities.user_id
+	INNER JOIN agriculture_culture_entities ON agriculture_culture_entities.id =  planting_entities.agriculture_culture_id
+	
+	WHERE  farm_entities.id = ? AND batch_entities.id = ? AND user_models.id = ?`
 
-	err := p.db.Raw(query).Scan(&dbResult)
+	err := p.db.Raw(query, farmID, batchID, userID).Scan(&dbResult)
 	if err.Error != nil {
 		return nil, fmt.Errorf("erro ao buscar performance de plantação")
 	}
@@ -77,7 +81,7 @@ func (p *PerformancePlantingRepository) FindAll() ([]responses.DbResultPerforman
 
 }
 
-func (p *PerformancePlantingRepository) FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(id uint) (*responses.DbResultPerformancePlanting, error) {
+func (p *PerformancePlantingRepository) FindPerformancePlantingWithAgricultureCultureAndPlantingEntitiesByID(batchID, farmID, userID, plantingID, performanceID uint) (*responses.DbResultPerformancePlanting, error) {
 
 	var dBResultPerformancePlanting responses.DbResultPerformancePlanting
 
@@ -96,14 +100,18 @@ func (p *PerformancePlantingRepository) FindPerformancePlantingWithAgricultureCu
 
 		INNER JOIN planting_entities ON planting_entities.id = performance_planting_entities.planting_id
 		INNER JOIN batch_entities ON batch_entities.id = planting_entities.batch_id
+		INNER JOIN farm_entities ON farm_entities.id = batch_entities.farm_id
+		INNER JOIN user_models ON user_models.id = farm_entities.user_id
 		INNER JOIN agriculture_culture_entities ON agriculture_culture_entities.id =  planting_entities.agriculture_culture_id
-		WHERE performance_planting_entities.id = ?`
+	
+		WHERE  farm_entities.id = ? AND batch_entities.id = ? AND user_models.id = ? AND planting_entities.id = ? AND
+		performance_planting_entities.id = ?`
 
-	if _, err := p.FindPerformancePlantingByID(id); err != nil {
+	if _, err := p.FindPerformancePlantingByID(batchID, farmID, userID, plantingID, performanceID); err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	err := p.db.Raw(query, id).Scan(&dBResultPerformancePlanting)
+	err := p.db.Raw(query, farmID, batchID, userID, plantingID, performanceID).Scan(&dBResultPerformancePlanting)
 	if err.Error != nil {
 		return nil, nil
 	}
@@ -111,14 +119,19 @@ func (p *PerformancePlantingRepository) FindPerformancePlantingWithAgricultureCu
 	return &dBResultPerformancePlanting, nil
 }
 
-func (p *PerformancePlantingRepository) FindPerformancePlantingByID(id uint) (*entities.PerformancePlantingEntity, error) {
+func (p *PerformancePlantingRepository) FindPerformancePlantingByID(batchID, farmID, userID, plantingID, performanceID uint) (*entities.PerformancePlantingEntity, error) {
 
 	var entityPerformancePlanting entities.PerformancePlantingEntity
 
-	if err := p.db.First(&entityPerformancePlanting, id).Error; err != nil {
+	if err := p.db.Model(entities.PerformancePlantingEntity{}).Joins("JOIN planting_entities ON planting_entities.id = performance_planting_entities.planting_id").
+		Joins("JOIN batch_entities ON batch_entities.id = planting_entities.batch_id").
+		Joins("JOIN farm_entities ON farm_entities.id = batch_entities.farm_id").
+		Joins("JOIN user_models ON user_models.id = farm_entities.user_id").
+		Where("planting_entities.id = ? AND batch_entities.id = ? AND farm_entities.id = ? AND user_models.id = ? AND performance_planting_entities.id = ?", plantingID, batchID, farmID, userID, performanceID).
+		First(&entityPerformancePlanting).Error; err != nil {
 		switch {
 		case errors.Is(err, gorm.ErrRecordNotFound):
-			return nil, fmt.Errorf("performance de plantação com id %d %w", id, myerror.ErrNotFound)
+			return nil, fmt.Errorf("performance de plantação com id %d %w", performanceID, myerror.ErrNotFound)
 
 		default:
 			return nil, fmt.Errorf("erro buscar performance de plantação")
@@ -128,19 +141,19 @@ func (p *PerformancePlantingRepository) FindPerformancePlantingByID(id uint) (*e
 	return &entityPerformancePlanting, nil
 }
 
-func (p *PerformancePlantingRepository) UpdatePerformancePlanting(id uint, entityPerformancePlanting entities.PerformancePlantingEntity) error {
+func (p *PerformancePlantingRepository) UpdatePerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint, entityPerformancePlanting entities.PerformancePlantingEntity) error {
 
-	if _, err := p.FindPerformancePlantingByID(id); err != nil {
+	if _, err := p.FindPerformancePlantingByID(batchID, farmID, userID, plantingID, performanceID); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
-	if err := p.db.Model(&entities.PerformancePlantingEntity{}).Where("id = ?", id).Updates(&entityPerformancePlanting).Error; err != nil {
+	if err := p.db.Model(&entities.PerformancePlantingEntity{}).Where("id = ?", performanceID).Updates(&entityPerformancePlanting).Error; err != nil {
 		switch {
 		case myerror.IsUniqueConstraintViolated(err):
-			return fmt.Errorf("performance culture com planting_id  %d %w", id, myerror.ErrDuplicateKey)
+			return fmt.Errorf("performance culture com planting_id  %d %w", performanceID, myerror.ErrDuplicateKey)
 
 		case myerror.IsViolatedForeingKeyConstraint(err):
-			return fmt.Errorf("plantação com id %d %w", id, myerror.ErrViolatedForeingKey)
+			return fmt.Errorf("plantação com id %d %w", performanceID, myerror.ErrViolatedForeingKey)
 
 		default:
 			return fmt.Errorf("erro ao atualizar performance culture")
@@ -151,14 +164,14 @@ func (p *PerformancePlantingRepository) UpdatePerformancePlanting(id uint, entit
 	return nil
 }
 
-func (p *PerformancePlantingRepository) DeletePerformancePlanting(id uint) error {
+func (p *PerformancePlantingRepository) DeletePerformancePlanting(batchID, farmID, userID, plantingID, performanceID uint) error {
 
-	entityPerformancePlanting, err := p.FindPerformancePlantingByID(id)
+	entityPerformancePlanting, err := p.FindPerformancePlantingByID(batchID, farmID, userID, plantingID, performanceID)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
-	if err := p.db.Where("id = ?", id).Delete(&entityPerformancePlanting).Error; err != nil {
+	if err := p.db.Where("id = ?", performanceID).Delete(&entityPerformancePlanting).Error; err != nil {
 		return fmt.Errorf("erro ao deletar performance da cultura")
 	}
 

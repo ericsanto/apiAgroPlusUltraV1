@@ -45,7 +45,7 @@ func (t *TypePestController) GetAllTypePestController(c *gin.Context) {
 
 func (t *TypePestController) GetAllTypePestFindByIdController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}
@@ -103,7 +103,7 @@ func (t *TypePestController) PostTypePestController(c *gin.Context) {
 
 func (t *TypePestController) PutTypePestController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 	if !exists {
 		return
 	}
@@ -151,7 +151,7 @@ func (t *TypePestController) PutTypePestController(c *gin.Context) {
 
 func (t *TypePestController) DeleteTypePestController(c *gin.Context) {
 
-	val, exists := c.Get("validatedID")
+	val, exists := c.Get("id")
 
 	if !exists {
 		return

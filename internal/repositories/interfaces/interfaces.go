@@ -12,4 +12,6 @@ type GORMRepositoryInterface interface {
 	Where(query interface{}, args ...interface{}) (tx *gorm.DB)
 	Updates(values interface{}) (tx *gorm.DB)
 	Delete(value interface{}, conds ...interface{}) (tx *gorm.DB)
+	Exec(sql string, values ...interface{}) (tx *gorm.DB)
+	Joins(query string, args ...interface{}) (tx *gorm.DB)
 }
