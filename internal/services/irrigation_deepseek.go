@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"log"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories"
@@ -10,7 +11,7 @@ import (
 )
 
 type IrrigationRecommendedDeepSeekServiceInterface interface {
-	IrrigationRecommendedDeepSeek(latitude, longitude float64, userID, farmID uint) error
+	IrrigationRecommendedDeepSeek(ctx context.Context, latitude, longitude float64, userID, farmID uint) error
 }
 
 type IrrigationRecommendedDeepSeekService struct {
@@ -28,7 +29,7 @@ func NewIrrigationRecomendedDeepseekService(plantingRepository repositories.Plan
 		deepseekClient:  deepseekClient}
 }
 
-func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(latitude, longitude float64, userID, farmID uint) error {
+func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(ctx context.Context, latitude, longitude float64, userID, farmID uint) error {
 
 	responseOpenWeather, err := p.openWeather.CurrentOpenWeather(latitude, longitude)
 
@@ -78,7 +79,7 @@ func (p *IrrigationRecommendedDeepSeekService) IrrigationRecommendedDeepSeek(lat
 			SolarRadiation:             solarRadiation,
 		}
 
-		content, err := p.deepseekClient.RequestRecommendationIrrigation(valuesPromptModel)
+		content, err := p.deepseekClient.RequestRecommendationIrrigation(ctx, valuesPromptModel)
 
 		if err != nil {
 			log.Println(err.Error())

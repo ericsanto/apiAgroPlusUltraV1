@@ -25,6 +25,8 @@ func NewIrrigationRecommendedDeepseekController(irrigationDeepseekService servic
 
 func (i *IrrigationRecommendedDeepseekController) IrrigationDeepseek(c *gin.Context) {
 
+	ctx := c.Request.Context()
+
 	val, _ := c.Get("lat")
 
 	lat := val.(float64)
@@ -36,9 +38,11 @@ func (i *IrrigationRecommendedDeepseekController) IrrigationDeepseek(c *gin.Cont
 	userID := validators.GetAndValidateIdMidlware(c, "userID")
 	farmID := validators.GetAndValidateIdMidlware(c, "farmID")
 
-	if err := i.irrigationDeepseekService.IrrigationRecommendedDeepSeek(lat, long, userID, farmID); err != nil {
+	if err := i.irrigationDeepseekService.IrrigationRecommendedDeepSeek(ctx, lat, long, userID, farmID); err != nil {
 		myerror.HttpErrors(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
+
+	c.Status(http.StatusOK)
 
 }
