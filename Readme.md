@@ -402,6 +402,26 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 
 ---
 
+## 🚜 Fazenda
+
+| Método | Rota                     | Descrição                             |
+| ------ | ------------------------ | --------------------------------------|
+| GET    | `/v1/fazenda/`           | Lista todas as fazendas de um usuario |
+| GET    | `/v1/fazenda/{id}`       | Detalha uma fazenda de do usuario     |
+| POST   | `/v1/fazenda`            | Cria uma nova fazenda                 |
+| PUT    | `/v1/fazenda/{id}`       | Atualiza uma fazenda                  |
+| DELETE | `/v1/fazenda/{id}`       | Deleta uma fazenda                    |
+
+### ✅ Exemplo de Request: `POST /v1/fazenda`
+
+```json
+{
+  "name": "Fazenda Santiago",
+}
+```
+
+---
+
 ## 🌾 Culturas Agrícolas
 
 | Método | Rota                          | Descrição                               |
@@ -607,17 +627,17 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 
 ## 📦🌱 Batchs (Lotes Agrícolas)
 
-| Método | Rota                | Descrição                                           | Status esperado |
-|--------|---------------------|-----------------------------------------------------|-----------------|
-| POST   | `/v1/batchs/`       | Cria um novo lote agrícola                          | `201 Created`   |
-| GET    | `/v1/batchs/`       | Lista todos os lotes agrícolas                      | `200 OK`        |
-| GET    | `/v1/batchs/:id`    | Busca um lote agrícola pelo ID                      | `200 OK`        |
-| PUT    | `/v1/batchs/:id`    | Atualiza os dados de um lote agrícola pelo ID       | `200 OK`        |
-| DELETE | `/v1/batchs/:id`    | Deleta um lote agrícola pelo ID                     | `204 No Content`|
+| Método | Rota                | Descrição                                                              | Status esperado |
+|--------|---------------------|------------------------------------------------------------------------|-----------------|
+| POST   | `/v1/fazenda/:farmID/lote`             | Cria um novo lote agrícola                          | `201 Created`   |
+| GET    | `/v1/fazenda/:farmID/lote`             | Lista todos os lotes agrícolas                      | `200 OK`        |
+| GET    | `/v1/fazenda/:farmID/lote/:batchID`    | Busca um lote agrícola pelo ID                      | `200 OK`        |
+| PUT    | `/v1/fazenda/:farmID/lote/:batchID`    | Atualiza os dados de um lote agrícola pelo ID       | `200 OK`        |
+| DELETE | `/v1/fazenda/:farmID/lote/:batchID`    | Deleta um lote agrícola pelo ID                     | `204 No Content`|
 
 ---
 
-### 📤 Exemplo de Request (POST / PUT)
+### 📤 Exemplo de Request (POST / PUT  /v1/fazenda/1/lote)
 
 ```json
 {
@@ -628,7 +648,7 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 ```
 ---
 
-### 📥 Exemplo de Response (GET /v1/batchs/:id)
+### 📥 Exemplo de Response (GET /v1/fazenda/1/lote/1)
 
 ```json
 {
@@ -640,7 +660,7 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 ```
 ---
 
-### 📥 Exemplo de Response (GET /v1/batchs)
+### 📥 Exemplo de Response (GET /v1/fazenda/1/lote)
 
 ```json
 [
@@ -665,19 +685,18 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 
 | Método | Rota                                     | Descrição                                 |
 |--------|------------------------------------------|-------------------------------------------|
-| GET    | `/v1/custos-plantacoes`                  | Lista todos os custos de produção         |
-| GET    | `/v1/custos-plantacoes/:id`              | Detalha um custo de produção específico   |
-| POST   | `/v1/custos-plantacoes`                  | Cria um novo custo de produção            |
-| PUT    | `/v1/custos-plantacoes/:id`              | Atualiza um custo de produção             |
-| DELETE | `/v1/custos-plantacoes/:id`              | Deleta um custo de produção               |
+| GET    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/custos`                             | Lista todos os custos de produção         |
+| GET    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/custos/:costID`              | Detalha um custo de produção específico   |
+| POST   | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/custos`                      | Cria um novo custo de produção            |
+| PUT    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/custos/:costID`              | Atualiza um custo de produção             |
+| DELETE | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/custos/costID`               | Deleta um custo de produção               |
 
 ---
 
-### ✅ Exemplo de Request: `POST /v1/custos-plantacoes`
+### ✅ Exemplo de Request: `POST /v1/fazenda/1/lote/2/plantacoes/1/custos`
 
 ```json
 {
-  "planting_id": 1,
   "item_name": "Adubo NPK",
   "unit": "kg",
   "quantity": 50.0,
@@ -692,19 +711,18 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 
 | Método | Rota                                     | Descrição                                 |
 |--------|------------------------------------------|-------------------------------------------|
-| GET    | `/v1/vendas-plantacoes`                  | Lista todos as vendas de plantações       |
-| GET    | `/v1/vendas-plantacoes/id`               | Detalha uma venda de uma plantação        |
-| POST   | `/v1/vendas-plantacoes`                  | Cria uma nova venda de plantação          |
-| PUT    | `/v1/vendas-plantacoes/id`               | Atualiza uma venda de plantação           |
-| DELETE | `/v1/vendas-plantacoes/id`               | Deleta uma venda de uma plantação         |
+| GET    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/vendas`                  | Lista todos as vendas de plantações       |
+| GET    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/vendas/:salePlantingID`               | Detalha uma venda de uma plantação        |
+| POST   | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/vendas`                  | Cria uma nova venda de plantação          |
+| PUT    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/vendas/:salePlantingID`               | Atualiza uma venda de plantação           |
+| DELETE | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/vendas/:salePlantingID`               | Deleta uma venda de uma plantação         |
 
 ---
 
-### ✅ Exemplo de Request: `POST /v1/vendas-plantacoes`
+### ✅ Exemplo de Request: `POST /v1/fazenda/1/lote/1/plantacoes/3/vendas`
 
 ```json
 {
-  "planting_id": 1,
   "value_sale": 150.75
 }
 
@@ -716,9 +734,9 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 
 | Método | Rota                                     | Descrição                                     |
 |--------|------------------------------------------|-----------------------------------------------|
-| GET    | `/v1/lucro/:id`                          | Calcula o lucro de uma plantação em específico|
+| GET    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/lucros`                          | Calcula o lucro de uma plantação em específico|
 
-### ✅ Exemplo de Response: `GET /v1/lucro/1`
+### ✅ Exemplo de Response: `GET /v1/fazenda/1/lote/1/plantacoes/1/lucros`
 
 ```json
 {
@@ -736,15 +754,15 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 
 | Método | Rota                                         | Descrição                                          |
 |--------|----------------------------------------------|----------------------------------------------------|
-| GET    | `/v1/performances-das-plantacoes`             | Lista todas as performances de plantações          |
-| GET    | `/v1/performances-das-plantacoes/:id`         | Detalha a performance de uma plantação específica  |
-| POST   | `/v1/performances-das-plantacoes`             | Cria um registro de performance de plantação       |
-| PUT    | `/v1/performances-das-plantacoes/:id`         | Atualiza uma performance de plantação              |
-| DELETE | `/v1/performances-das-plantacoes/:id`         | Remove uma performance de plantação                |
+| GET    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/performances`             | Lista todas as performances de plantações          |
+| GET    | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/performances/:performanceID`         | Detalha a performance de uma plantação específica  |
+| POST   | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/performances`             | Cria um registro de performance de plantação       |
+| PUT    | `/v1/fazendad/:farmID/lote/:batchID/plantacoes/:plantingID/performances/:performanceID`         | Atualiza uma performance de plantação              |
+| DELETE | `/v1/fazenda/:farmID/lote/:batchID/plantacoes/:plantingID/performances/:performanceID`         | Remove uma performance de plantação                |
 
 ---
 
-### ✅ Exemplo de Response: `GET /v1/performances-das-plantacoes/:id`
+### ✅ Exemplo de Response: `GET /v1/fazenda/1/lote/1/plantacoes/2/performances/2`
 
 ```json
 {
@@ -754,7 +772,6 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
     "agriculture_culture_name": "Manga",
     "start_date_planting": "2025-04-23T12:21:53.399681Z"
   },
-  "id": 1,
   "production_obtained": 1500.5,
   "production_obtained_formated": "1500.5kg",
   "harvested_area": 2.5,
@@ -763,11 +780,10 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 }
 ```
 
-### ✅ Exemplo de Request: `POST /v1/performances-das-plantacoes/`
+### ✅ Exemplo de Request: `POST /v1/fazenda/1/lote/1/plantacoes/1/performances`
 
 ```json
 {
-  "planting_id": 1,
   "production_obtained": 1500.5,
   "unit_production_obtained": "kg",
   "harvested_area": 2.5,
@@ -784,18 +800,19 @@ O AppImage precisa do FUSE para rodar. Instale conforme sua distro:
 
 | Método | Rota                                         | Descrição                                          |
 |--------|----------------------------------------------|----------------------------------------------------|
-| POST   | `/v1/reconhecimento-de-praga`                | Envia imagem para identificar qual a praga         |
+| POST   | `/v1/pragas/reconhecimentos`                | Envia imagem para identificar qual a praga         |
 
-### ✅ Exemplo de Request: `POST /v1/reconhecimento-de-praga`
+### ✅ Exemplo de Request: `POST /v1/pragas/reconhecimentos`
 
 
 ```bash
 curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
   -H "Content-Type: multipart/form-data" \
+  -H "Authorization: Bearer SEU_TOKEN_AQUI" \
   -F "file=@/caminho/para/sua/imagem.jpg"
 ```
 
-### ✅ Exemplo de Response: `POST /v1/reconhecimento-de-praga`
+### ✅ Exemplo de Response: `/v1/pragas/reconhecimentos`
 
 ```json
 {
@@ -807,6 +824,31 @@ curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
             "hit_percentage_formated": "90%"
         }
     ]
+}
+```
+
+# 📊🌾 Identificacao de Doencas
+
+
+| Método | Rota                                         | Descrição                                          |
+|--------|----------------------------------------------|----------------------------------------------------|
+| POST   | `/v1/doencas/reconhecimentos`                | Envia imagem para identificar qual a doenca         |
+
+### ✅ Exemplo de Request: `POST /v1/doencas/reconhecimentos`
+
+
+```bash
+curl -X POST /v1/doencas/reconhecimentos \
+  -H "Content-Type: multipart/form-data" \
+  -H "Authorization: Bearer SEU_TOKEN_AQUI" \
+  -F "file=@/caminho/para/sua/imagem.jpg"
+```
+
+### ✅ Exemplo de Response: `/v1/doencas/reconhecimentos`
+
+```json
+{
+    "disease": "Strawberry Leaf scorch"
 }
 ```
 
@@ -849,9 +891,9 @@ curl -X POST /v1/performances-das-plantacoes/upload-imagem/ \
 # 💧 Recomendacao de Irrigacao por IA Baseado nos Dados Climaticos 
 | Método | Rota                             |                               Descrição                               |
 |--------|----------------------------------|-----------------------------------------------------------------------|
-| `GET`  | `/v1/irrigation-deepseek?lat=?&long=?`| calcula a quantidade correta de irrigacao que a planta necessita |
+| `GET`  | `/v1/fazenda/:farmID/irrigacao?lat=?&long=?`| calcula a quantidade correta de irrigacao que a planta necessita |
 
-### ✅ Exemplo de Response: `GET /v1/irrigation-deepseek?lat=-10.685&long=-38.2885`
+### ✅ Exemplo de Response: `GET /v1/fazenda/1/irrigacao?lat=-10.685&long=-38.2885`
 
 ```json
 {
