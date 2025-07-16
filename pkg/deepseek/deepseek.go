@@ -30,13 +30,13 @@ type PromptModel struct {
 }
 
 type LLMMethods interface {
-	RequestRecommendationIrrigation(promptModel PromptModel) (string, error)
+	RequestRecommendationIrrigation(ctx context.Context, promptModel PromptModel) (string, error)
 }
 
 type DeepSeekInterface interface {
 	CreatePrompt(promptModel PromptModel) string
 	CreateRequest(content string) *deepseek.ChatCompletionRequest
-	SendTheRequestAndHandleTheResponse(request *deepseek.ChatCompletionRequest) (*deepseek.ChatCompletionResponse, error)
+	SendTheRequestAndHandleTheResponse(ctx context.Context, request *deepseek.ChatCompletionRequest) (*deepseek.ChatCompletionResponse, error)
 }
 
 type DeepSeek struct {
@@ -108,9 +108,8 @@ func (ds *DeepSeek) CreateRequest(content string) *deepseek.ChatCompletionReques
 
 }
 
-func (ds *DeepSeek) SendTheRequestAndHandleTheResponse(request *deepseek.ChatCompletionRequest) (*deepseek.ChatCompletionResponse, error) {
+func (ds *DeepSeek) SendTheRequestAndHandleTheResponse(ctx context.Context, request *deepseek.ChatCompletionRequest) (*deepseek.ChatCompletionResponse, error) {
 
-	ctx := context.Background()
 	response, err := ds.deepseekClient.CreateChatCompletion(ctx, request)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", myerror.ErrConectDeepSeek, err)
@@ -120,13 +119,13 @@ func (ds *DeepSeek) SendTheRequestAndHandleTheResponse(request *deepseek.ChatCom
 
 }
 
-func (ds *DeepSeek) RequestRecommendationIrrigation(promptModel PromptModel) (string, error) {
+func (ds *DeepSeek) RequestRecommendationIrrigation(ctx context.Context, promptModel PromptModel) (string, error) {
 
 	content := ds.CreatePrompt(promptModel)
 
 	request := ds.CreateRequest(content)
 
-	response, err := ds.SendTheRequestAndHandleTheResponse(request)
+	response, err := ds.SendTheRequestAndHandleTheResponse(ctx, request)
 	if err != nil {
 		log.Println(err.Error())
 		return "", err
