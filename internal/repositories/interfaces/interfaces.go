@@ -1,6 +1,10 @@
 package interfaces
 
-import "gorm.io/gorm"
+import (
+	"context"
+
+	"gorm.io/gorm"
+)
 
 type GORMRepositoryInterface interface {
 	Raw(sql string, values ...interface{}) (tx *gorm.DB)
@@ -14,4 +18,5 @@ type GORMRepositoryInterface interface {
 	Delete(value interface{}, conds ...interface{}) (tx *gorm.DB)
 	Exec(sql string, values ...interface{}) (tx *gorm.DB)
 	Joins(query string, args ...interface{}) (tx *gorm.DB)
+	WithContext(ctx context.Context) *gorm.DB
 }
