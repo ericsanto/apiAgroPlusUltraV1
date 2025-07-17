@@ -1,7 +1,9 @@
 package services
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/requests"
@@ -10,7 +12,7 @@ import (
 )
 
 type FarmServiceInterface interface {
-	Create(farmRequest requests.FarmRequest) error
+	Create(ctx context.Context, farmRequest requests.FarmRequest) error
 	GetFarmByID(userID, id uint) (*responses.FarmResponse, error)
 	GetAllFarm(userID uint) ([]responses.FarmResponse, error)
 }
@@ -23,15 +25,19 @@ func NewFarmService(farmRepository repositories.FarmRepositoryInterface) FarmSer
 	return &FarmService{farmRepository: farmRepository}
 }
 
-func (fs *FarmService) Create(farmRequest requests.FarmRequest) error {
+func (fs *FarmService) Create(ctx context.Context, farmRequest requests.FarmRequest) error {
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+
+	defer cancel()
 
 	farmEntity := entities.FarmEntity{
 		Name:   farmRequest.Name,
 		UserID: farmRequest.UserID,
 	}
 
-	if err := fs.farmRepository.Create(farmEntity); err != nil {
-		return fmt.Errorf("erro: %w", err)
+	if err := fs.farmRepository.Create(ctx, farmEntity); err != nil {
+		return fmt.Errorf("erro: %v", err)
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,8 @@ func NewFarmController(serviceFarm services.FarmServiceInterface) FarmController
 }
 
 func (fc *FarmController) PostFarm(c *gin.Context) {
+
+	ctx := c.Request.Context()
 
 	var farmRequest requests.FarmRequest
 
@@ -58,13 +61,14 @@ func (fc *FarmController) PostFarm(c *gin.Context) {
 		return
 	}
 
-	if err := fc.serviceFarm.Create(farmRequest); err != nil {
+	if err := fc.serviceFarm.Create(ctx, farmRequest); err != nil {
 		switch {
 		case errors.Is(err, myerror.ErrNotFound):
 			myerror.HttpErrors(http.StatusNotFound, err.Error(), c)
 			return
+
 		default:
-			myerror.HttpErrors(http.StatusUnprocessableEntity, validate, c)
+			myerror.HttpErrors(http.StatusConflict, fmt.Sprintf("%s ja existe fazenda com nome fornecido", err.Error()), c)
 			return
 		}
 	}

@@ -1,19 +1,18 @@
 package repositories
 
 import (
+	"context"
 	"fmt"
-	"log"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/responses"
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/repositories/interfaces"
-	myerror "github.com/ericsanto/apiAgroPlusUltraV1/myError"
 )
 
 type FarmRepositoryInterface interface {
 	FindByID(userID, id uint) (*responses.FarmResponse, error)
 	FindAll(userID uint) ([]responses.FarmResponse, error)
-	Create(farmEntity entities.FarmEntity) error
+	Create(ctx context.Context, farmEntity entities.FarmEntity) error
 }
 
 type FarmRepository struct {
@@ -35,10 +34,6 @@ func (fr *FarmRepository) FindByID(userID, id uint) (*responses.FarmResponse, er
 	WHERE farm_entities.id = ? AND farm_entities.user_id = ?`
 
 	err := fr.db.Raw(query, id, userID).Scan(&entityFarm)
-
-	if err.RowsAffected == 0 {
-		return nil, fmt.Errorf("%w %d", myerror.ErrFarmNotFound, id)
-	}
 
 	if err.Error != nil {
 		return nil, fmt.Errorf("erro ao buscar fazenda")
@@ -64,26 +59,11 @@ func (fr *FarmRepository) FindAll(userID uint) ([]responses.FarmResponse, error)
 	return listFarmResponse, nil
 }
 
-func (fr *FarmRepository) Create(farmEntity entities.FarmEntity) error {
+func (fr *FarmRepository) Create(ctx context.Context, farmEntity entities.FarmEntity) error {
 
-	query := `SELECT  EXISTS(SELECT 1 FROM user_models WHERE id = ?)`
+	if err := fr.db.WithContext(ctx).Create(&farmEntity).Error; err != nil {
 
-	var exists bool
-
-	if err := fr.db.Raw(query, farmEntity.UserID).Scan(&exists).Error; err != nil {
-		log.Println("%w", err)
-		return fmt.Errorf("não foi possível verificar a existência do usuário")
-	}
-
-	fmt.Println(exists)
-
-	if !exists {
-		return fmt.Errorf("usuário com id %d %w", farmEntity.UserID, myerror.ErrNotFound)
-	}
-
-	if err := fr.db.Create(&farmEntity).Error; err != nil {
-		log.Println(err.Error())
-		return fmt.Errorf("erro ao criar fazenda")
+		return fmt.Errorf("nao foi possivel criar fazenda: ")
 
 	}
 
