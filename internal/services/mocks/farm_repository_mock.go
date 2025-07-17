@@ -1,6 +1,8 @@
 package mocks
 
 import (
+	"context"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/models/entities"
@@ -25,9 +27,9 @@ func (frm *FarmRepositoryMock) FindAll(userID uint) ([]responses.FarmResponse, e
 	return args.Get(0).([]responses.FarmResponse), args.Error(1)
 }
 
-func (frm *FarmRepositoryMock) Create(farmEntity entities.FarmEntity) error {
+func (frm *FarmRepositoryMock) Create(ctx context.Context, farmEntity entities.FarmEntity) error {
 
-	args := frm.Called(farmEntity)
+	args := frm.Called(ctx, farmEntity)
 
 	return args.Error(0)
 }

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -12,7 +13,8 @@ import (
 	"github.com/ericsanto/apiAgroPlusUltraV1/internal/services/mocks"
 )
 
-func SetupTestFarm() (*mocks.FarmRepositoryMock, FarmService, entities.FarmEntity, responses.FarmResponse, requests.FarmRequest) {
+func SetupTestFarm() (*mocks.FarmRepositoryMock, FarmService, entities.FarmEntity, responses.FarmResponse,
+	requests.FarmRequest, context.Context) {
 
 	mockRepoFarm := new(mocks.FarmRepositoryMock)
 
@@ -33,43 +35,43 @@ func SetupTestFarm() (*mocks.FarmRepositoryMock, FarmService, entities.FarmEntit
 		Name: "teste",
 	}
 
-	return mockRepoFarm, service, entityFarm, responseFarm, requestFarm
+	return mockRepoFarm, service, entityFarm, responseFarm, requestFarm, context.Background()
 
 }
 
 func TestPostFarm_Success(t *testing.T) {
 
-	mockRepo, service, entityFarm, _, requestFarm := SetupTestFarm()
+	mockRepo, service, entityFarm, _, requestFarm, ctx := SetupTestFarm()
 
-	mockRepo.On("Create", entityFarm).Return(nil)
+	mockRepo.On("Create", ctx, entityFarm).Return(nil)
 
-	err := service.Create(requestFarm)
+	err := service.Create(ctx, requestFarm)
 
 	assert.Nil(t, err)
 
-	mockRepo.AssertCalled(t, "Create", entityFarm)
+	mockRepo.AssertCalled(t, "Create", ctx, entityFarm)
 	mockRepo.AssertExpectations(t)
 
 }
 
 func TestPostFarm_Error(t *testing.T) {
 
-	mockRepo, service, entityFarm, _, requestFarm := SetupTestFarm()
+	mockRepo, service, entityFarm, _, requestFarm, ctx := SetupTestFarm()
 
-	mockRepo.On("Create", entityFarm).Return(errors.New("erro"))
+	mockRepo.On("Create", ctx, entityFarm).Return(errors.New("erro"))
 
-	err := service.Create(requestFarm)
+	err := service.Create(ctx, requestFarm)
 
 	assert.NotNil(t, err)
 
-	mockRepo.AssertCalled(t, "Create", entityFarm)
+	mockRepo.AssertCalled(t, "Create", ctx, entityFarm)
 	mockRepo.AssertExpectations(t)
 
 }
 
 func TestGetAllFarm_Success(t *testing.T) {
 
-	mockRepo, service, _, responseFarm, _ := SetupTestFarm()
+	mockRepo, service, _, responseFarm, _, _ := SetupTestFarm()
 
 	var listResponseFarm []responses.FarmResponse
 	listResponseFarm = append(listResponseFarm, responseFarm)
@@ -92,7 +94,7 @@ func TestGetAllFarm_Success(t *testing.T) {
 
 func TestGetAllFarm_Error(t *testing.T) {
 
-	mockRepo, service, _, _, _ := SetupTestFarm()
+	mockRepo, service, _, _, _, _ := SetupTestFarm()
 
 	mockRepo.On("FindAll", userMOCKID).Return([]responses.FarmResponse{}, errors.New("erro"))
 
